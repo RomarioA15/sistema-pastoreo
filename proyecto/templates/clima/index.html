@@ -1,0 +1,649 @@
+{% extends 'base.html' %}
+
+{% block title %}Clima - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/clima.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="clima-page">
+  <div class="clima-container">
+    
+    <!-- HEADER CON NAVEGACIÓN -->
+    <div class="clima-header clima-fade-in">
+      <div class="clima-header-content">
+        <div>
+          <h1 class="clima-title">
+            <i class="fas fa-cloud-sun"></i>
+            Centro Meteorológico Agrícola
+          </h1>
+          <p class="clima-subtitle">
+            Monitoreo climático inteligente para optimización del pastoreo y gestión agrícola basada en datos meteorológicos en tiempo real
+          </p>
+        </div>
+        <div class="clima-actions">
+          <button id="btnRefresh" class="btn btn-light btn-lg">
+            <i class="fas fa-sync-alt me-2"></i>
+            Actualizar Datos
+          </button>
+          <a href="{{ url_for('clima.historico') }}" class="btn btn-outline-light">
+            <i class="fas fa-history me-2"></i>
+            Histórico
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVEGACIÓN DE PESTAÑAS -->
+    <div class="clima-fade-in">
+      <nav class="nav nav-pills nav-fill clima-mb-lg">
+        <a class="nav-link active" href="#actual" data-bs-toggle="pill">
+          <i class="fas fa-thermometer-half me-2"></i>Clima Actual
+        </a>
+        <a class="nav-link" href="#pronostico" data-bs-toggle="pill">
+          <i class="fas fa-calendar-week me-2"></i>Pronóstico
+        </a>
+        <a class="nav-link" href="#parametros" data-bs-toggle="pill">
+          <i class="fas fa-chart-line me-2"></i>Parámetros
+        </a>
+        <a class="nav-link" href="#alertas" data-bs-toggle="pill">
+          <i class="fas fa-exclamation-triangle me-2"></i>Alertas
+        </a>
+      </nav>
+    </div>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="clima-grid-main">
+      
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="clima-main-content">
+        
+        <!-- ESTADO DE CARGA DE API -->
+        <div id="clima-loading" class="clima-loading" style="display: none;">
+          <div class="clima-loading-spinner"></div>
+          <h5 class="clima-mb-md">Consultando datos meteorológicos...</h5>
+          <p class="text-muted">Obteniendo información climática actualizada desde la API</p>
+        </div>
+
+        <!-- ERROR DE API -->
+        <div id="clima-error" class="clima-error" style="display: none;">
+          <div class="clima-error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="clima-error-title">Error al obtener datos climáticos</h3>
+          <p class="clima-error-description">
+            No se pudieron cargar los datos meteorológicos desde la API externa. 
+            Esto puede deberse a problemas de conectividad o límites de la API.
+          </p>
+          <div class="clima-error-actions">
+            <button id="btnRetry" class="btn btn-primary">
+              <i class="fas fa-redo me-2"></i>Reintentar
+            </button>
+            <button id="btnOfflineMode" class="btn btn-outline-secondary">
+              <i class="fas fa-database me-2"></i>Usar Datos Locales
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENIDO DE PESTAÑAS -->
+        <div class="tab-content">
+          
+          <!-- PESTAÑA: CLIMA ACTUAL -->
+          <div class="tab-pane fade show active" id="actual">
+            
+            <!-- CLIMA ACTUAL PRINCIPAL -->
+            <div class="clima-current-weather clima-fade-in">
+              <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                  <div class="clima-current-icon">
+                    <i class="fas fa-sun"></i>
+                  </div>
+                  <div class="clima-current-temp" id="currentTemp">--°C</div>
+                  <div class="clima-current-description" id="currentDescription">Cargando...</div>
+                </div>
+                <div class="col-md-6">
+                  <div class="clima-current-details" id="currentDetails">
+                    <div class="clima-current-detail">
+                      <div class="clima-current-detail-value">--%</div>
+                      <div class="clima-current-detail-label">Humedad</div>
+                    </div>
+                    <div class="clima-current-detail">
+                      <div class="clima-current-detail-value">-- km/h</div>
+                      <div class="clima-current-detail-label">Viento</div>
+                    </div>
+                    <div class="clima-current-detail">
+                      <div class="clima-current-detail-value">-- hPa</div>
+                      <div class="clima-current-detail-label">Presión</div>
+                    </div>
+                    <div class="clima-current-detail">
+                      <div class="clima-current-detail-value">-- mm</div>
+                      <div class="clima-current-detail-label">Precipitación</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COMPARACIÓN EDUCATIVA -->
+            <div class="clima-cards-grid">
+              <div class="clima-card clima-fade-in">
+                <div class="clima-card-header">
+                  <h5 class="mb-0">
+                    <i class="fas fa-balance-scale me-2"></i>
+                    Comparación Temporal
+                  </h5>
+                </div>
+                <div class="clima-card-body">
+                  <div class="row text-center">
+                    <div class="col-6">
+                      <h6 class="text-success">Hoy</h6>
+                      <div class="h3 mb-1" id="todayTemp">--°C</div>
+                      <small class="text-muted" id="todayCondition">--</small>
+                    </div>
+                    <div class="col-6">
+                      <h6 class="text-info">Ayer</h6>
+                      <div class="h3 mb-1" id="yesterdayTemp">--°C</div>
+                      <small class="text-muted" id="yesterdayCondition">--</small>
+                    </div>
+                  </div>
+                  <div class="text-center mt-3">
+                    <span class="badge bg-primary" id="tempTrend">Analizando tendencia...</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="clima-card clima-fade-in">
+                <div class="clima-card-header">
+                  <h5 class="mb-0">
+                    <i class="fas fa-sun me-2"></i>
+                    Horas de Sol
+                  </h5>
+                </div>
+                <div class="clima-card-body text-center">
+                  <div class="h2 text-warning mb-2" id="sunshineHours">-- h</div>
+                  <p class="text-muted mb-0">Heliofanía estimada para hoy</p>
+                  <small class="text-success">Mínimo 6h para fotosíntesis eficiente</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA: PRONÓSTICO -->
+          <div class="tab-pane fade" id="pronostico">
+            
+            <div class="clima-forecast-section">
+              <h2 class="clima-section-title">
+                <i class="fas fa-calendar-week"></i>
+                Pronóstico Semanal
+              </h2>
+              
+              <div class="clima-forecast-grid" id="weeklyForecast">
+                <!-- Se llenará dinámicamente -->
+                <div class="clima-forecast-card">
+                  <div class="clima-forecast-date">Cargando...</div>
+                  <div class="clima-forecast-icon">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </div>
+                  <div class="clima-forecast-temp">--°</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="clima-forecast-section">
+              <h2 class="clima-section-title">
+                <i class="fas fa-clock"></i>
+                Pronóstico por Horas
+              </h2>
+              
+              <div class="clima-forecast-grid" id="hourlyForecast">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA: PARÁMETROS -->
+          <div class="tab-pane fade" id="parametros">
+            
+            <div class="clima-weather-grid">
+              <div class="clima-parameter temperatura">
+                <div class="clima-parameter-icon">🌡️</div>
+                <div class="clima-parameter-value" id="paramTemp">--°C</div>
+                <div class="clima-parameter-label">Temperatura</div>
+                <div class="clima-parameter-description">Sensación térmica y rangos</div>
+              </div>
+
+              <div class="clima-parameter humedad">
+                <div class="clima-parameter-icon">💧</div>
+                <div class="clima-parameter-value" id="paramHumidity">--%</div>
+                <div class="clima-parameter-label">Humedad Relativa</div>
+                <div class="clima-parameter-description">Humedad en el ambiente</div>
+              </div>
+
+              <div class="clima-parameter viento">
+                <div class="clima-parameter-icon">💨</div>
+                <div class="clima-parameter-value" id="paramWind">-- km/h</div>
+                <div class="clima-parameter-label">Velocidad del Viento</div>
+                <div class="clima-parameter-description">Factor de enfriamiento</div>
+              </div>
+
+              <div class="clima-parameter presion">
+                <div class="clima-parameter-icon">🔴</div>
+                <div class="clima-parameter-value" id="paramPressure">-- hPa</div>
+                <div class="clima-parameter-label">Presión Atmosférica</div>
+                <div class="clima-parameter-description">Estabilidad del clima</div>
+              </div>
+            </div>
+
+            <!-- ESTADÍSTICAS CLIMÁTICAS -->
+            <div class="clima-stats-section">
+              <h2 class="clima-section-title">
+                <i class="fas fa-chart-bar"></i>
+                Estadísticas Agropecuarias
+              </h2>
+              
+              <div class="clima-stats">
+                <div class="clima-stat-item">
+                  <div class="clima-stat-content">
+                    <div class="clima-stat-value" id="growthIndex">--</div>
+                    <div class="clima-stat-label">Índice de Crecimiento</div>
+                    <div class="clima-stat-description">Condiciones para pastos</div>
+                  </div>
+                  <div class="clima-stat-icon">🌱</div>
+                </div>
+
+                <div class="clima-stat-item">
+                  <div class="clima-stat-content">
+                    <div class="clima-stat-value" id="comfortIndex">--</div>
+                    <div class="clima-stat-label">Confort Animal</div>
+                    <div class="clima-stat-description">Bienestar del ganado</div>
+                  </div>
+                  <div class="clima-stat-icon">🐄</div>
+                </div>
+
+                <div class="clima-stat-item">
+                  <div class="clima-stat-content">
+                    <div class="clima-stat-value" id="irrigationNeed">--</div>
+                    <div class="clima-stat-label">Necesidad de Riego</div>
+                    <div class="clima-stat-description">Requerimiento hídrico</div>
+                  </div>
+                  <div class="clima-stat-icon">💧</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA: ALERTAS -->
+          <div class="tab-pane fade" id="alertas">
+            
+            <div class="clima-alerts-section">
+              <h2 class="clima-section-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Alertas Meteorológicas Agrícolas
+              </h2>
+              
+              <div id="weatherAlerts">
+                <!-- ALERTA DE EJEMPLO - TEMPERATURA ALTA -->
+                <div class="clima-alert high-temp">
+                  <div class="clima-alert-icon">🔥</div>
+                  <div class="clima-alert-content">
+                    <div class="clima-alert-title">Temperatura Elevada</div>
+                    <div class="clima-alert-description">
+                      Proporcionar sombra adicional al ganado y verificar disponibilidad de agua
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ALERTA DE LLUVIA -->
+                <div class="clima-alert rain">
+                  <div class="clima-alert-icon">🌧️</div>
+                  <div class="clima-alert-content">
+                    <div class="clima-alert-title">Precipitación Pronosticada</div>
+                    <div class="clima-alert-description">
+                      Condiciones favorables para el crecimiento de pastos - monitorear encharcamientos
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ALERTA ÓPTIMA -->
+                <div class="clima-alert optimal">
+                  <div class="clima-alert-icon">✅</div>
+                  <div class="clima-alert-content">
+                    <div class="clima-alert-title">Condiciones Óptimas</div>
+                    <div class="clima-alert-description">
+                      Clima ideal para pastoreo y crecimiento de forrajes
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR EDUCATIVO -->
+      <div class="clima-sidebar">
+        <div class="clima-card">
+          <div class="clima-card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-graduation-cap me-2"></i>
+              Guía Climática Agropecuaria
+            </h5>
+          </div>
+          <div class="clima-card-body">
+            
+            <!-- PARÁMETROS CLAVE -->
+            <div class="clima-mb-lg">
+              <h6 class="text-success clima-mb-md">🌡️ Parámetros Clave</h6>
+              
+              <div class="clima-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-temperature-high text-danger me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Temperatura</strong>
+                    <small class="text-muted">
+                      Óptima para pastos: 20-30°C. Afecta crecimiento y consumo del ganado
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="clima-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-cloud-rain text-info me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Precipitación</strong>
+                    <small class="text-muted">
+                      Necesaria: 800-1200mm/año para pastos. Distribuida uniformemente
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="clima-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-sun text-warning me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Heliofanía</strong>
+                    <small class="text-muted">
+                      Horas de sol directo. Mínimo 6h/día para fotosíntesis eficiente
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RANGOS ÓPTIMOS -->
+            <div class="clima-mb-lg">
+              <h6 class="text-warning clima-mb-md">📊 Rangos Óptimos</h6>
+              
+              <div class="clima-mb-sm">
+                <span class="badge bg-danger me-2">Temperatura</span>
+                <small>20-30°C ideal</small>
+              </div>
+              <div class="clima-mb-sm">
+                <span class="badge bg-info me-2">Humedad</span>
+                <small>50-70% óptima</small>
+              </div>
+              <div class="clima-mb-sm">
+                <span class="badge bg-primary me-2">Precipitación</span>
+                <small>2-4mm/día promedio</small>
+              </div>
+              <div class="clima-mb-sm">
+                <span class="badge bg-warning me-2">Heliofanía</span>
+                <small>6-10 horas/día</small>
+              </div>
+            </div>
+
+            <!-- IMPACTO EN EL GANADO -->
+            <div class="clima-mb-lg">
+              <h6 class="text-info clima-mb-md">🐄 Impacto en el Ganado</h6>
+              <ul class="small text-muted ps-3">
+                <li><strong>Calor extremo (>32°C):</strong> Estrés térmico, menor consumo</li>
+                <li><strong>Frío intenso (<10°C):</strong> Mayor gasto energético</li>
+                <li><strong>Alta humedad (>80%):</strong> Sensación térmica elevada</li>
+                <li><strong>Lluvia intensa:</strong> Problemas de movilidad</li>
+                <li><strong>Viento fuerte (>15 m/s):</strong> Factor de enfriamiento</li>
+              </ul>
+            </div>
+
+            <!-- DECISIONES CLIMÁTICAS -->
+            <div>
+              <h6 class="text-success clima-mb-md">✅ Decisiones Climáticas</h6>
+              <ul class="small text-muted ps-3">
+                <li>Monitorear temperatura para rotaciones</li>
+                <li>Planificar riego según precipitación</li>
+                <li>Proporcionar sombra en días calurosos</li>
+                <li>Evaluar disponibilidad de agua</li>
+                <li>Ajustar suplementación según clima</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/clima.js') }}"></script>
+<script>
+// JavaScript específico para manejo de API y estados
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWeatherModule();
+});
+
+function initializeWeatherModule() {
+    // Simular carga de datos de API
+    showLoading();
+    
+    setTimeout(() => {
+        if (Math.random() > 0.3) { // 70% éxito, 30% error
+            hideLoading();
+            loadWeatherData();
+        } else {
+            hideLoading();
+            showError();
+        }
+    }, 2000);
+}
+
+function showLoading() {
+    document.getElementById('clima-loading').style.display = 'flex';
+    document.querySelector('.clima-main-content .tab-content').style.display = 'none';
+}
+
+function hideLoading() {
+    document.getElementById('clima-loading').style.display = 'none';
+    document.querySelector('.clima-main-content .tab-content').style.display = 'block';
+}
+
+function showError() {
+    document.getElementById('clima-error').style.display = 'block';
+    document.querySelector('.clima-main-content .tab-content').style.display = 'none';
+}
+
+function loadWeatherData() {
+    // Datos simulados - en producción vendrían de la API
+    const weatherData = {
+        current: {
+            temp: 26,
+            description: 'Parcialmente nublado',
+            humidity: 65,
+            wind: 12,
+            pressure: 1015,
+            precipitation: 0.2
+        },
+        yesterday: {
+            temp: 24,
+            description: 'Despejado'
+        }
+    };
+    
+    // Actualizar interfaz con datos
+    updateCurrentWeather(weatherData.current);
+    updateComparison(weatherData.current, weatherData.yesterday);
+    updateParameters(weatherData.current);
+    updateStatistics(weatherData.current);
+    generateAlerts(weatherData.current);
+}
+
+function updateCurrentWeather(data) {
+    document.getElementById('currentTemp').textContent = data.temp + '°C';
+    document.getElementById('currentDescription').textContent = data.description;
+    
+    const details = document.getElementById('currentDetails');
+    details.innerHTML = `
+        <div class="clima-current-detail">
+            <div class="clima-current-detail-value">${data.humidity}%</div>
+            <div class="clima-current-detail-label">Humedad</div>
+        </div>
+        <div class="clima-current-detail">
+            <div class="clima-current-detail-value">${data.wind} km/h</div>
+            <div class="clima-current-detail-label">Viento</div>
+        </div>
+        <div class="clima-current-detail">
+            <div class="clima-current-detail-value">${data.pressure} hPa</div>
+            <div class="clima-current-detail-label">Presión</div>
+        </div>
+        <div class="clima-current-detail">
+            <div class="clima-current-detail-value">${data.precipitation} mm</div>
+            <div class="clima-current-detail-label">Precipitación</div>
+        </div>
+    `;
+}
+
+function updateComparison(today, yesterday) {
+    document.getElementById('todayTemp').textContent = today.temp + '°C';
+    document.getElementById('todayCondition').textContent = today.description;
+    document.getElementById('yesterdayTemp').textContent = yesterday.temp + '°C';
+    document.getElementById('yesterdayCondition').textContent = yesterday.description;
+    
+    const diff = today.temp - yesterday.temp;
+    const trendElement = document.getElementById('tempTrend');
+    
+    if (diff > 0) {
+        trendElement.textContent = `📈 +${diff}°C más caluroso que ayer`;
+        trendElement.className = 'badge bg-danger';
+    } else if (diff < 0) {
+        trendElement.textContent = `📉 ${diff}°C más fresco que ayer`;
+        trendElement.className = 'badge bg-primary';
+    } else {
+        trendElement.textContent = '➡️ Temperatura similar a ayer';
+        trendElement.className = 'badge bg-secondary';
+    }
+}
+
+function updateParameters(data) {
+    document.getElementById('paramTemp').textContent = data.temp + '°C';
+    document.getElementById('paramHumidity').textContent = data.humidity + '%';
+    document.getElementById('paramWind').textContent = data.wind + ' km/h';
+    document.getElementById('paramPressure').textContent = data.pressure + ' hPa';
+}
+
+function updateStatistics(data) {
+    // Calcular índices agropecuarios
+    const growthIndex = calculateGrowthIndex(data);
+    const comfortIndex = calculateComfortIndex(data);
+    const irrigationNeed = calculateIrrigationNeed(data);
+    
+    document.getElementById('growthIndex').textContent = growthIndex;
+    document.getElementById('comfortIndex').textContent = comfortIndex;
+    document.getElementById('irrigationNeed').textContent = irrigationNeed;
+}
+
+function calculateGrowthIndex(data) {
+    if (data.temp >= 20 && data.temp <= 30 && data.humidity >= 50 && data.humidity <= 70) {
+        return 'Excelente';
+    } else if (data.temp >= 15 && data.temp <= 35) {
+        return 'Bueno';
+    } else {
+        return 'Regular';
+    }
+}
+
+function calculateComfortIndex(data) {
+    if (data.temp <= 32 && data.humidity <= 80) {
+        return 'Óptimo';
+    } else if (data.temp > 32 || data.humidity > 80) {
+        return 'Estrés';
+    } else {
+        return 'Moderado';
+    }
+}
+
+function calculateIrrigationNeed(data) {
+    if (data.precipitation > 2) {
+        return 'Baja';
+    } else if (data.precipitation > 0.5) {
+        return 'Media';
+    } else {
+        return 'Alta';
+    }
+}
+
+function generateAlerts(data) {
+    const alertsContainer = document.getElementById('weatherAlerts');
+    alertsContainer.innerHTML = '';
+    
+    // Alerta de temperatura
+    if (data.temp > 32) {
+        alertsContainer.innerHTML += `
+            <div class="clima-alert high-temp">
+                <div class="clima-alert-icon">🔥</div>
+                <div class="clima-alert-content">
+                    <div class="clima-alert-title">Temperatura Elevada (${data.temp}°C)</div>
+                    <div class="clima-alert-description">
+                        Proporcionar sombra adicional al ganado y verificar disponibilidad de agua
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Alerta de humedad
+    if (data.humidity > 80) {
+        alertsContainer.innerHTML += `
+            <div class="clima-alert storm">
+                <div class="clima-alert-icon">💧</div>
+                <div class="clima-alert-content">
+                    <div class="clima-alert-title">Alta Humedad (${data.humidity}%)</div>
+                    <div class="clima-alert-description">
+                        Monitorear enfermedades fúngicas en pastos y ganado
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Condiciones óptimas
+    if (data.temp >= 20 && data.temp <= 30 && data.humidity >= 50 && data.humidity <= 70) {
+        alertsContainer.innerHTML += `
+            <div class="clima-alert optimal">
+                <div class="clima-alert-icon">✅</div>
+                <div class="clima-alert-content">
+                    <div class="clima-alert-title">Condiciones Óptimas</div>
+                    <div class="clima-alert-description">
+                        Clima ideal para pastoreo y crecimiento de forrajes
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Event handlers
+document.getElementById('btnRetry')?.addEventListener('click', function() {
+    document.getElementById('clima-error').style.display = 'none';
+    initializeWeatherModule();
+});
+
+document.getElementById('btnOfflineMode')?.addEventListener('click', function() {
+    document.getElementById('clima-error').style.display = 'none';
+    document.querySelector('.clima-main-content .tab-content').style.display = 'block';
+    // Cargar datos locales o mostrar mensaje
+    alert('Cargando datos históricos locales...');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Integral de Productividad{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+/* Estilos para barras de progreso dinámicas */
+.kpi-progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+.progress-productividad { background-color: #28a745; }
+.progress-eficiencia { background-color: #17a2b8; }
+.progress-calidad { background-color: #ffc107; }
+.progress-utilizacion { background-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header educativo avanzado -->
+    <div class="template-header dashboard-header">
+        <div class="particles">
+            <div class="particle" style="left: 10%; animation-delay: 0s; width: min(4px, 100%); height: 4px;"></div>
+            <div class="particle" style="left: 20%; animation-delay: 1s; width: min(6px, 100%); height: 6px;"></div>
+            <div class="particle" style="left: 30%; animation-delay: 2s; width: min(3px, 100%); height: 3px;"></div>
+            <div class="particle" style="left: 40%; animation-delay: 3s; width: min(5px, 100%); height: 5px;"></div>
+            <div class="particle" style="left: 50%; animation-delay: 4s; width: min(4px, 100%); height: 4px;"></div>
+            <div class="particle" style="left: 60%; animation-delay: 1.5s; width: min(7px, 100%); height: 7px;"></div>
+            <div class="particle" style="left: 70%; animation-delay: 2.5s; width: min(3px, 100%); height: 3px;"></div>
+            <div class="particle" style="left: 80%; animation-delay: 3.5s; width: min(5px, 100%); height: 5px;"></div>
+            <div class="particle" style="left: 90%; animation-delay: 0.5s; width: min(4px, 100%); height: 4px;"></div>
+        </div>
+        
+        <div class="template-container">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <h1 class="dashboard-title">📊 Dashboard Integral de Productividad</h1>
+                    <p class="dashboard-subtitle text-responsive-wrap">
+                        Centro de análisis inteligente para monitorear el rendimiento integral de la finca
+                    </p>
+                    <div class="dashboard-badges">
+                        <span class="dashboard-badge">🌱 Análisis en Tiempo Real</span>
+                        <span class="dashboard-badge">📈 Métricas Consolidadas</span>
+                        <span class="dashboard-badge">🎯 Insights Inteligentes</span>
+                        <span class="dashboard-badge">⚡ Optimización Continua</span>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-none d-md-block">
+                        <i class="fas fa-chart-line" style="font-size: 4rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb navigation -->
+    <div class="breadcrumb-nav">
+        <nav class="template-breadcrumb" aria-label="breadcrumb">
+            <ol class="template-breadcrumb">
+                <li class="breadcrumb-item"><a href="/" style="color: #667eea;">🏠 Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard Integral</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Panel de filtros inteligentes -->
+    <div class="filtros-panel">
+        <h5 class="filtros-title">
+            <i class="fas fa-filter"></i>
+            Filtros Inteligentes de Análisis
+        </h5>
+        <div class="template-grid">
+            <div class="col-6">
+                <label for="filtro-potrero" class="template-form-label">
+                    🌾 Potrero Específico
+                </label>
+                <select class="template-form-input" id="filtro-potrero">
+                    <option value="">📊 Todos los Potreros (Vista Consolidada)</option>
+                    {% for potrero in potreros %}
+                    <option value="{{ potrero.id }}">{{ potrero.nombre }} ({{ potrero.hectareas }} ha)</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6">
+                <label for="filtro-periodo" class="template-form-label">
+                    📅 Período de Análisis
+                </label>
+                <select class="template-form-input" id="filtro-periodo">
+                    <option value="30">📈 Últimos 30 días (Tendencia Actual)</option>
+                    <option value="60">📊 Últimos 60 días (Análisis Bimestral)</option>
+                    <option value="90" selected>🔍 Últimos 90 días (Vista Trimestral)</option>
+                    <option value="180">📋 Últimos 6 meses (Análisis Estacional)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="template-grid">
+        <div class="col-9">
+            <!-- KPIs consolidados -->
+            <div class="kpis-grid">
+                <div class="kpi-card productividad">
+                    <div class="kpi-icon">🌱</div>
+                    <div class="kpi-value" id="productividad-value">{{ stats.promedio_ms or 0 }}</div>
+                    <div class="kpi-label">Productividad General (kg MS/ha)</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar progress-productividad" data-width="{{ ((stats.promedio_ms or 0) / 3000 * 100) | round }}"></div>
+                    </div>
+                    <div class="kpi-range">Rango óptimo: 2,500 - 3,500 kg MS/ha</div>
+                </div>
+
+                <div class="kpi-card eficiencia">
+                    <div class="kpi-icon">🔄</div>
+                    <div class="kpi-value" id="eficiencia-value">{{ stats.promedio_rotacion or 0 }}</div>
+                    <div class="kpi-label">Eficiencia de Rotación (días)</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar progress-eficiencia" data-width="{{ (((35 - (stats.promedio_rotacion or 0)) / 35) * 100) | round }}"></div>
+                    </div>
+                    <div class="kpi-range">Rango óptimo: 21 - 35 días</div>
+                </div>
+
+                <div class="kpi-card calidad">
+                    <div class="kpi-icon">⭐</div>
+                    <div class="kpi-value" id="calidad-value">{{ stats.altura_promedio_30d or 0 }}</div>
+                    <div class="kpi-label">Calidad del Forraje (cm altura)</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar progress-calidad" data-width="{{ (((stats.altura_promedio_30d or 0) / 25) * 100) | round }}"></div>
+                    </div>
+                    <div class="kpi-range">Rango óptimo: 15 - 25 cm</div>
+                </div>
+
+                <div class="kpi-card utilizacion">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="utilizacion-value">{{ stats.cobertura_30d or 0 }}</div>
+                    <div class="kpi-label">Utilización de Pasturas (%)</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar progress-utilizacion" data-width="{{ stats.cobertura_30d or 0 }}"></div>
+                    </div>
+                    <div class="kpi-range">Rango óptimo: 65 - 85%</div>
+                </div>
+            </div>
+
+            <!-- Métricas educativas -->
+            <div class="metricas-grid">
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.promedio_rotacion or 0 }}</div>
+                    <div class="metrica-label">Días de Rotación Promedio</div>
+                    <div class="metrica-explanation">
+                        {% if (stats.promedio_rotacion or 0) <= 35 %}
+                        ✅ Rotación dentro del rango óptimo
+                        {% else %}
+                        ⚠️ Considerar acelerar rotaciones
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.promedio_mv or 0 }}</div>
+                    <div class="metrica-label">Materia Verde (kg/ha)</div>
+                    <div class="metrica-explanation">
+                        {% if (stats.promedio_mv or 0) >= 8000 %}
+                        ✅ Excelente disponibilidad forrajera
+                        {% else %}
+                        📈 Potencial de mejora disponible
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.promedio_ms or 0 }}</div>
+                    <div class="metrica-label">Materia Seca (kg/ha)</div>
+                    <div class="metrica-explanation">
+                        {% if (stats.promedio_ms or 0) >= 2500 %}
+                        ✅ Biomasa suficiente para pastoreo
+                        {% else %}
+                        ⚠️ Requiere período de descanso
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.temp_promedio_30d or 0 }}°C</div>
+                    <div class="metrica-label">Temperatura Promedio (30d)</div>
+                    <div class="metrica-explanation">
+                        {% if 20 <= (stats.temp_promedio_30d or 0) <= 30 %}
+                        ✅ Condiciones óptimas para crecimiento
+                        {% else %}
+                        🌡️ Monitorear estrés térmico
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.lluvia_30d or 0 }}mm</div>
+                    <div class="metrica-label">Precipitación (30d)</div>
+                    <div class="metrica-explanation">
+                        {% if (stats.lluvia_30d or 0) >= 100 %}
+                        ✅ Humedad adecuada del suelo
+                        {% else %}
+                        💧 Considerar riego suplementario
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="metrica-card">
+                    <div class="metrica-value">{{ stats.ph_promedio_6m or 0 }}</div>
+                    <div class="metrica-label">pH Promedio del Suelo</div>
+                    <div class="metrica-explanation">
+                        {% if 5.5 <= (stats.ph_promedio_6m or 0) <= 7.0 %}
+                        ✅ pH en rango óptimo
+                        {% else %}
+                        🧪 Considerar enmiendas
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de gráficos -->
+            <div class="graficos-section">
+                <h4 class="mb-4">📈 Análisis Gráfico Integral</h4>
+                
+                <div class="graficos-grid">
+                    <!-- Gráfico de evolución temporal -->
+                    <div class="grafico-card">
+                        <h5 class="grafico-title">
+                            <i class="fas fa-chart-line"></i>
+                            Evolución Temporal de Biomasa
+                        </h5>
+                        <div class="chart-responsive">
+                            <canvas id="evolucionChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>Materia Verde</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ffc107;"></div>
+                                <span>Materia Seca</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de precipitación vs crecimiento -->
+                    <div class="grafico-card">
+                        <h5 class="grafico-title">
+                            <i class="fas fa-cloud-rain"></i>
+                            Precipitación vs Crecimiento
+                        </h5>
+                        <div class="chart-responsive">
+                            <canvas id="precipitacionChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #17a2b8;"></div>
+                                <span>Precipitación (mm)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>Tasa Crecimiento</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ranking de potreros -->
+                    <div class="grafico-card">
+                        <h5 class="grafico-title">
+                            <i class="fas fa-trophy"></i>
+                            Ranking de Productividad
+                        </h5>
+                        <div class="chart-responsive">
+                            <canvas id="rankingChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #667eea;"></div>
+                                <span>Score de Productividad</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de actividades -->
+                    <div class="grafico-card">
+                        <h5 class="grafico-title">
+                            <i class="fas fa-tasks"></i>
+                            Estado de Actividades
+                        </h5>
+                        <div class="chart-responsive">
+                            <canvas id="actividadesChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #28a745;"></div>
+                                <span>Completadas</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ffc107;"></div>
+                                <span>En Progreso</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #dc3545;"></div>
+                                <span>Pendientes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-3">
+            <!-- Panel de guía educativa -->
+            <div class="guia-panel">
+                <h5 class="guia-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Guía Educativa
+                </h5>
+
+                <!-- Insights inteligentes rotatorios -->
+                <div class="insights-rotator">
+                    <p class="insight-text text-responsive-wrap" id="insight-text">
+                        💡 El dashboard muestra métricas reales calculadas desde tu base de datos para tomar decisiones informadas.
+                    </p>
+                </div>
+
+                <!-- Indicadores de Rendimiento -->
+                <div class="guia-section">
+                    <h6>📊 Indicadores de Rendimiento</h6>
+                    <ul class="guia-list">
+                        <li>🌱 Productividad: Biomasa disponible por hectárea</li>
+                        <li>🔄 Rotación: Días entre movimientos de ganado</li>
+                        <li>⭐ Calidad: Altura y cobertura del forraje</li>
+                        <li>📈 Utilización: Eficiencia del aprovechamiento</li>
+                        <li>🌡️ Clima: Condiciones ambientales favorables</li>
+                    </ul>
+                </div>
+
+                <!-- Estados de Potreros -->
+                <div class="guia-section">
+                    <h6>🌾 Estados de Potreros</h6>
+                    <ul class="guia-list">
+                        <li>✅ Óptimo: >2,500 kg MS/ha, rotación 21-35 días</li>
+                        <li>🟡 Bueno: >2,000 kg MS/ha, requiere seguimiento</li>
+                        <li>🟠 Regular: 1,500-2,000 kg MS/ha, atención necesaria</li>
+                        <li>🔴 Crítico: <1,500 kg MS/ha, descanso requerido</li>
+                    </ul>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="guia-section">
+                    <h6>⚡ Acciones Rápidas</h6>
+                    <div class="acciones-rapidas">
+                        <a href="/aforos/nuevo" class="accion-btn">📊 Nuevo Aforo</a>
+                        <a href="/recorridos/nuevo" class="accion-btn">🚶 Nuevo Recorrido</a>
+                        <a href="/actividades/nueva" class="accion-btn">📋 Nueva Actividad</a>
+                        <a href="/clima" class="accion-btn">🌤️ Ver Clima</a>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="guia-section">
+                    <h6>📈 Vista Rápida</h6>
+                    <ul class="guia-list">
+                        <li>🏞️ Total Potreros: {{ stats.total_potreros or 0 }}</li>
+                        <li>📏 Total Hectáreas: {{ stats.total_hectareas or 0 }} ha</li>
+                        <li>📊 Con Aforos: {{ stats.potreros_con_aforo or 0 }}</li>
+                        <li>🐄 Lotes Activos: {{ stats.total_lotes or 0 }}</li>
+                        <li>🌡️ Registros Clima: {{ stats.registros_clima_30d or 0 }}</li>
+                        <li>📋 Actividades: {{ stats.total_actividades or 0 }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas y notificaciones -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="alertToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="template-header toast-header">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong class="me-auto">Dashboard</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Dashboard actualizado con datos en tiempo real
+        </div>
+    </div>
+</div>
+
+<script>
+// Inicializar barras de progreso dinámicas
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.kpi-progress-bar[data-width]');
+    progressBars.forEach(bar => {
+        const width = Math.min(Math.max(parseInt(bar.dataset.width) || 0, 0), 100);
+        setTimeout(() => {
+            bar.style.width = width + '%';
+        }, 300);
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/modules/dashboard.js') }}"></script>
+{% endblock %}

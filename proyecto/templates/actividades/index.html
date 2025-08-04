@@ -1,0 +1,1001 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro de Actividades - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="actividades-page">
+    <div class="actividades-container actividades-fade-in">
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="actividades-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-tasks me-1"></i>Centro de Actividades
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="actividades-header">
+            <div class="actividades-header-content">
+                <div>
+                    <h1 class="actividades-title">
+                        <i class="fas fa-tasks text-primary"></i>
+                        Centro de Actividades
+                    </h1>
+                    <p class="actividades-subtitle actividades-mb-0">
+                        Organiza, planifica y da seguimiento a todas las labores de manejo en tus potreros
+                    </p>
+                    <!-- Status indicators -->
+                    <div class="status-indicator-group mt-2">
+                        <span class="badge bg-success" id="system-status" title="Sistema operativo">
+                            <i class="fas fa-circle actividades-pulse me-1"></i>En línea
+                        </span>
+                        <span class="badge bg-info ms-2" id="last-update" title="Última actualización">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            <span id="time-stamp">Cargando...</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="actividades-actions">
+                    {% if usuario_puede('actividades', 'crear') %}
+                    <a href="{{ url_for('actividades.nueva') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>
+                        Nueva Actividad
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary" id="toggleView" title="Cambiar vista">
+                        <i class="fas fa-th" id="viewIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if actividades %}
+        <!-- DASHBOARD DE ESTADÍSTICAS -->
+        <div class="actividades-control-panel">
+            <h3 class="actividades-mb-md">📊 Panel de Control de Trabajo</h3>
+            <div class="actividades-stats">
+                <div class="actividades-stat-item">
+                    <span class="actividades-stat-value">{{ actividades|length }}</span>
+                    <span class="actividades-stat-label">Labores Totales</span>
+                </div>
+                <div class="actividades-stat-item">
+                    <span class="actividades-stat-value" id="pendientes-count">0</span>
+                    <span class="actividades-stat-label">Por Hacer</span>
+                </div>
+                <div class="actividades-stat-item">
+                    <span class="actividades-stat-value" id="progreso-count">0</span>
+                    <span class="actividades-stat-label">En Marcha</span>
+                </div>
+                <div class="actividades-stat-item">
+                    <span class="actividades-stat-value" id="completadas-count">0</span>
+                    <span class="actividades-stat-label">Terminadas</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- SECCIÓN DE FILTROS Y CONTROLES -->
+        <div class="actividades-filters-section">
+            <div class="actividades-filters-header">
+                <h4 class="actividades-filters-title">🔍 Filtros y Controles de Vista</h4>
+                <div class="actividades-view-controls">
+                    <button class="actividades-view-btn active" data-view="cards" title="Vista de tarjetas">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="actividades-view-btn" data-view="lista" title="Vista de lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="actividades-view-btn" data-view="tabla" title="Vista de tabla">
+                        <i class="fas fa-table"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filtros Principales -->
+            <div class="actividades-filters-grid">
+                <div>
+                    <label for="filtro-estado" class="form-label fw-semibold">
+                        <i class="fas fa-flag text-primary me-1"></i>
+                        Estado de Labor
+                    </label>
+                    <select class="form-select" id="filtro-estado">
+                        <option value="">Todas las labores</option>
+                        <option value="Pendiente">Por hacer</option>
+                        <option value="En Progreso">En marcha</option>
+                        <option value="Completada">Terminadas</option>
+                        <option value="Cancelada">Canceladas</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-potrero" class="form-label fw-semibold">
+                        <i class="fas fa-map-marker-alt text-success me-1"></i>
+                        Área de Trabajo
+                    </label>
+                    <select class="form-select" id="filtro-potrero">
+                        <option value="">Todas las áreas</option>
+                        {% for potrero in potreros %}
+                            <option value="{{ potrero.nombre|lower }}">{{ potrero.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="filtro-tipo" class="form-label fw-semibold">
+                        <i class="fas fa-tools text-warning me-1"></i>
+                        Tipo de Labor
+                    </label>
+                    <select class="form-select" id="filtro-tipo">
+                        <option value="">Todas las labores</option>
+                        <option value="Riego">Riego</option>
+                        <option value="Fumigación">Fumigación</option>
+                        <option value="Fertilización">Fertilización</option>
+                        <option value="Reparación de Cercas">Reparaciones</option>
+                        <option value="Limpieza">Limpieza</option>
+                        <option value="Otro">Otras labores</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-calendar-week text-info me-1"></i>
+                        Período de Trabajo
+                    </label>
+                    <div class="d-flex gap-2">
+                        <input type="date" class="form-control" id="filtro-fecha-desde" title="Fecha desde">
+                        <input type="date" class="form-control" id="filtro-fecha-hasta" title="Fecha hasta">
+                    </div>
+                </div>
+                <div>
+                    <label for="filtro-responsable" class="form-label fw-semibold">
+                        <i class="fas fa-user text-secondary me-1"></i>
+                        Responsable
+                    </label>
+                    <select class="form-select" id="filtro-responsable">
+                        <option value="">Cualquier persona</option>
+                        <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+                <div class="d-flex align-items-end">
+                    <button class="btn btn-outline-danger w-100" id="clearFilters">
+                        <i class="fas fa-times me-1"></i>
+                        Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: CONTENIDO + SIDEBAR -->
+        <div class="actividades-grid-main">
+            
+            <!-- CONTENIDO PRINCIPAL -->
+            <div class="actividades-main-content">
+        
+                <!-- Contador de Resultados -->
+                <div class="d-flex justify-content-between align-items-center actividades-mb-lg">
+                    <h5 class="actividades-mb-0">
+                        <span id="filteredCount">{{ actividades|length }}</span> actividades encontradas
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="exportData" title="Exportar datos">
+                            <i class="fas fa-download me-1"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+
+
+                <!-- GRID DE ACTIVIDADES -->
+                <div class="actividades-cards-grid" id="actividadesGrid">
+                    {% if actividades %}
+                    {% for actividad in actividades %}
+                    <div class="actividad-item-card actividades-fade-in" 
+                         data-estado="{{ actividad.estado|lower }}" 
+                         data-fecha="{{ actividad.fecha }}" 
+                         data-tipo="{{ actividad.tipo_actividad|lower }}"
+                         data-potrero="{{ actividad.potrero_nombre|lower }}"
+                         data-responsable="{{ actividad.responsable|lower if actividad.responsable else '' }}"
+                         data-costo="{{ actividad.costo or 0 }}">
+                        
+                        <!-- Status indicator -->
+                        {% if actividad.estado == 'Completada' %}
+                            <div class="status-indicator status-completada" title="Completada">✅</div>
+                        {% elif actividad.estado == 'En Progreso' %}
+                            <div class="status-indicator status-progreso" title="En Progreso">🔄</div>
+                        {% elif actividad.estado == 'Pendiente' %}
+                            <div class="status-indicator status-pendiente" title="Pendiente">⏳</div>
+                        {% else %}
+                            <div class="status-indicator status-cancelada" title="Cancelada">❌</div>
+                        {% endif %}
+                        
+                        <!-- Header de la Card -->
+                        <div class="actividad-item-header">
+                            <div>
+                                <h3 class="actividad-item-title">
+                                    {% if actividad.tipo_actividad == 'Riego' %}
+                                        <i class="fas fa-tint text-primary"></i>
+                                    {% elif actividad.tipo_actividad == 'Fumigación' %}
+                                        <i class="fas fa-spray-can text-warning"></i>
+                                    {% elif actividad.tipo_actividad == 'Reparación de Cercas' %}
+                                        <i class="fas fa-hammer text-danger"></i>
+                                    {% elif actividad.tipo_actividad == 'Limpieza' %}
+                                        <i class="fas fa-broom text-success"></i>
+                                    {% elif actividad.tipo_actividad == 'Fertilización' %}
+                                        <i class="fas fa-seedling text-success"></i>
+                                    {% else %}
+                                        <i class="fas fa-cog text-secondary"></i>
+                                    {% endif %}
+                                    {{ actividad.tipo_actividad }}
+                                </h3>
+                                <div class="actividad-item-meta">
+                                    <span class="badge bg-secondary">{{ actividad.fecha.strftime('%d/%m/%Y') }}</span>
+                                    <span class="badge bg-info">{{ actividad.potrero_nombre }}</span>
+                                    {% if actividad.estado == 'Completada' %}
+                                        <span class="actividad-badge actividad-badge-completada">{{ actividad.estado }}</span>
+                                    {% elif actividad.estado == 'En Progreso' %}
+                                        <span class="actividad-badge actividad-badge-progreso">{{ actividad.estado }}</span>
+                                    {% elif actividad.estado == 'Pendiente' %}
+                                        <span class="actividad-badge actividad-badge-pendiente">{{ actividad.estado }}</span>
+                                    {% else %}
+                                        <span class="actividad-badge actividad-badge-cancelada">{{ actividad.estado }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cuerpo de la Card -->
+                        <div class="actividad-item-body">
+                            <p class="actividad-description">{{ actividad.descripcion[:120] }}{% if actividad.descripcion|length > 120 %}...{% endif %}</p>
+                            
+                            <!-- Detalles -->
+                            <div class="actividad-details">
+                                <div class="actividad-details-grid">
+                                    <div class="actividad-detail-item">
+                                        <div class="actividad-detail-label">Responsable</div>
+                                        <div class="actividad-detail-value">
+                                            {% if actividad.responsable %}
+                                                {{ actividad.responsable }}
+                                            {% else %}
+                                                <span class="text-muted">Sin asignar</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="actividad-detail-item">
+                                        <div class="actividad-detail-label">Área</div>
+                                        <div class="actividad-detail-value">{{ actividad.hectareas or 0 }} ha</div>
+                                    </div>
+                                    <div class="actividad-detail-item">
+                                        <div class="actividad-detail-label">Costo</div>
+                                        <div class="actividad-detail-value">
+                                            {% if actividad.costo %}
+                                                ${{ "{:,.0f}".format(actividad.costo) }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Acciones -->
+                        <div class="actividad-item-actions">
+                            {% if usuario_puede('actividades', 'actualizar') %}
+                            <a href="{{ url_for('actividades.editar', actividad_id=actividad.id) }}" 
+                               class="actividad-action-btn actividad-action-btn-primary"
+                               title="Editar actividad">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </a>
+                            {% endif %}
+                            
+                            {% if usuario_puede('actividades', 'eliminar') %}
+                            <button class="actividad-action-btn actividad-action-btn-danger" 
+                                    onclick="confirmarEliminar({{ actividad.id }})"
+                                    title="Eliminar actividad">
+                                <i class="fas fa-trash"></i>
+                                Eliminar
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                
+                {% if not actividades %}
+                <!-- ESTADO VACÍO -->
+                <div class="actividades-empty-state">
+                    <div class="actividades-empty-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="actividades-empty-title">¡Organiza tus Actividades!</h3>
+                    <p class="actividades-empty-description">
+                        Gestiona y da seguimiento a todas las labores de manejo en tus potreros para optimizar la productividad.
+                    </p>
+                    {% if usuario_puede('actividades', 'crear') %}
+                    <a href="{{ url_for('actividades.nueva') }}" class="actividades-empty-action">
+                        <i class="fas fa-plus"></i>
+                        Crear Primera Actividad
+                    </a>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Contacta al administrador para obtener permisos de creación de actividades.
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- SIDEBAR -->
+            <div class="actividades-sidebar">
+                
+                <!-- Estadísticas Rápidas -->
+                {% if actividades %}
+                <div class="actividades-quick-stats">
+                    <h5 class="actividades-quick-stats-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Resumen por Estado
+                    </h5>
+                    
+                    <div class="actividades-stats-list">
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-icon bg-success text-white">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-value" id="sidebar-completadas">0</p>
+                                <p class="actividades-stat-label">Completadas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-icon bg-warning text-white">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-value" id="sidebar-progreso">0</p>
+                                <p class="actividades-stat-label">En Progreso</p>
+                            </div>
+                        </div>
+                        
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-icon bg-primary text-white">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-value" id="sidebar-pendientes">0</p>
+                                <p class="actividades-stat-label">Pendientes</p>
+                            </div>
+                        </div>
+                        
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-icon bg-info text-white">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-value" id="sidebar-costo">$0</p>
+                                <p class="actividades-stat-label">Costo Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Tipos de Actividades -->
+                <div class="actividad-card">
+                    <div class="actividad-card-header">
+                        <h5 class="actividades-mb-0">
+                            <i class="fas fa-list text-info"></i>
+                            Tipos de Actividades
+                        </h5>
+                    </div>
+                    <div class="actividad-card-body">
+                        <div class="actividades-tipos-list">
+                            <div class="actividades-tipo-item" style="background-color: rgba(13, 110, 253, 0.1);">
+                                <i class="fas fa-tint text-primary actividades-tipo-icon"></i>
+                                <div class="actividades-tipo-content">
+                                    <div class="actividades-tipo-name">Riego</div>
+                                    <div class="actividades-tipo-description">Manejo del agua</div>
+                                </div>
+                            </div>
+                            <div class="actividades-tipo-item" style="background-color: rgba(255, 193, 7, 0.1);">
+                                <i class="fas fa-spray-can text-warning actividades-tipo-icon"></i>
+                                <div class="actividades-tipo-content">
+                                    <div class="actividades-tipo-name">Fumigación</div>
+                                    <div class="actividades-tipo-description">Control de plagas</div>
+                                </div>
+                            </div>
+                            <div class="actividades-tipo-item" style="background-color: rgba(25, 135, 84, 0.1);">
+                                <i class="fas fa-seedling text-success actividades-tipo-icon"></i>
+                                <div class="actividades-tipo-content">
+                                    <div class="actividades-tipo-name">Fertilización</div>
+                                    <div class="actividades-tipo-description">Nutrición del suelo</div>
+                                </div>
+                            </div>
+                            <div class="actividades-tipo-item" style="background-color: rgba(220, 53, 69, 0.1);">
+                                <i class="fas fa-hammer text-danger actividades-tipo-icon"></i>
+                                <div class="actividades-tipo-content">
+                                    <div class="actividades-tipo-name">Reparaciones</div>
+                                    <div class="actividades-tipo-description">Cercas y estructuras</div>
+                                </div>
+                            </div>
+                            <div class="actividades-tipo-item" style="background-color: rgba(32, 201, 151, 0.1);">
+                                <i class="fas fa-broom text-success actividades-tipo-icon"></i>
+                                <div class="actividades-tipo-content">
+                                    <div class="actividades-tipo-name">Limpieza</div>
+                                    <div class="actividades-tipo-description">Mantenimiento general</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Acciones Rápidas -->
+                <div class="actividad-card">
+                    <div class="actividad-card-header">
+                        <h5 class="actividades-mb-0">
+                            <i class="fas fa-bolt text-warning"></i>
+                            Acciones Rápidas
+                        </h5>
+                    </div>
+                    <div class="actividad-card-body">
+                        {% if usuario_puede('actividades', 'crear') %}
+                        <a href="{{ url_for('actividades.nueva') }}" class="btn btn-primary w-100 actividades-mb-sm">
+                            <i class="fas fa-plus me-2"></i>
+                            Nueva Actividad
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-outline-info w-100 actividades-mb-sm" id="generateReport">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Generar Reporte
+                        </button>
+                        <button class="btn btn-outline-secondary w-100" id="exportAll">
+                            <i class="fas fa-download me-2"></i>
+                            Exportar Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- JavaScript Funcional -->
+<script>
+// Función para confirmar eliminación
+function confirmarEliminar(actividadId) {
+    if (confirm('¿Está seguro de que desea eliminar esta actividad? Esta acción no se puede deshacer.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/actividades/${actividadId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const filtroEstado = document.getElementById('filtro-estado');
+    const filtroPotrero = document.getElementById('filtro-potrero');
+    const filtroTipo = document.getElementById('filtro-tipo');
+    const filtroFechaDesde = document.getElementById('filtro-fecha-desde');
+    const filtroFechaHasta = document.getElementById('filtro-fecha-hasta');
+    const filtroResponsable = document.getElementById('filtro-responsable');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const actividadesGrid = document.getElementById('actividadesGrid');
+    const filteredCount = document.getElementById('filteredCount');
+    const viewButtons = document.querySelectorAll('.actividades-view-btn');
+    
+    // Llenar filtro de responsables dinámicamente
+    if (filtroResponsable) {
+        const responsables = new Set();
+        document.querySelectorAll('[data-responsable]').forEach(card => {
+            const responsable = card.dataset.responsable.trim();
+            if (responsable) {
+                responsables.add(responsable);
+            }
+        });
+        
+        responsables.forEach(responsable => {
+            const option = document.createElement('option');
+            option.value = responsable;
+            option.textContent = responsable.charAt(0).toUpperCase() + responsable.slice(1);
+            filtroResponsable.appendChild(option);
+        });
+    }
+    
+    // Control de vistas
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            viewButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const view = this.dataset.view;
+            if (actividadesGrid) {
+                if (view === 'cards') {
+                    actividadesGrid.className = 'actividades-cards-grid';
+                } else if (view === 'lista') {
+                    actividadesGrid.className = 'list-group list-group-flush';
+                } else if (view === 'tabla') {
+                    actividadesGrid.className = 'table-responsive';
+                }
+            }
+        });
+    });
+    
+    // Función de filtrado
+    function applyFilters() {
+        const estado = filtroEstado ? filtroEstado.value.toLowerCase() : '';
+        const potrero = filtroPotrero ? filtroPotrero.value.toLowerCase() : '';
+        const tipo = filtroTipo ? filtroTipo.value.toLowerCase() : '';
+        const fechaDesde = filtroFechaDesde ? filtroFechaDesde.value : '';
+        const fechaHasta = filtroFechaHasta ? filtroFechaHasta.value : '';
+        const responsable = filtroResponsable ? filtroResponsable.value.toLowerCase() : '';
+        
+        const cards = actividadesGrid ? actividadesGrid.querySelectorAll('.actividad-item-card') : [];
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            const cardEstado = card.dataset.estado || '';
+            const cardPotrero = card.dataset.potrero || '';
+            const cardTipo = card.dataset.tipo || '';
+            const cardFecha = card.dataset.fecha || '';
+            const cardResponsable = card.dataset.responsable || '';
+            
+            let isVisible = true;
+            
+            // Aplicar filtros
+            if (estado && !cardEstado.includes(estado)) isVisible = false;
+            if (potrero && !cardPotrero.includes(potrero)) isVisible = false;
+            if (tipo && !cardTipo.includes(tipo)) isVisible = false;
+            if (responsable && !cardResponsable.includes(responsable)) isVisible = false;
+            
+            // Filtros de fecha
+            if (fechaDesde && cardFecha < fechaDesde) isVisible = false;
+            if (fechaHasta && cardFecha > fechaHasta) isVisible = false;
+            
+            // Mostrar/ocultar card
+            card.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) visibleCount++;
+        });
+        
+        // Actualizar contador
+        if (filteredCount) {
+            filteredCount.textContent = visibleCount;
+        }
+        
+        // Calcular estadísticas
+        calculateStats();
+    }
+    
+    // Event listeners para filtros
+    if (filtroEstado) filtroEstado.addEventListener('change', applyFilters);
+    if (filtroPotrero) filtroPotrero.addEventListener('change', applyFilters);
+    if (filtroTipo) filtroTipo.addEventListener('change', applyFilters);
+    if (filtroFechaDesde) filtroFechaDesde.addEventListener('change', applyFilters);
+    if (filtroFechaHasta) filtroFechaHasta.addEventListener('change', applyFilters);
+    if (filtroResponsable) filtroResponsable.addEventListener('change', applyFilters);
+    
+    // Limpiar filtros
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            if (filtroEstado) filtroEstado.value = '';
+            if (filtroPotrero) filtroPotrero.value = '';
+            if (filtroTipo) filtroTipo.value = '';
+            if (filtroFechaDesde) filtroFechaDesde.value = '';
+            if (filtroFechaHasta) filtroFechaHasta.value = '';
+            if (filtroResponsable) filtroResponsable.value = '';
+            
+            applyFilters();
+        });
+    }
+    
+    // Calcular estadísticas
+    function calculateStats() {
+        const visibleCards = actividadesGrid ? 
+            Array.from(actividadesGrid.querySelectorAll('.actividad-item-card')).filter(card => 
+                card.style.display !== 'none'
+            ) : [];
+        
+        let pendientes = 0, progreso = 0, completadas = 0, costoTotal = 0;
+        
+        visibleCards.forEach(card => {
+            const estado = card.dataset.estado;
+            const costo = parseFloat(card.dataset.costo) || 0;
+            
+            if (estado === 'pendiente') pendientes++;
+            else if (estado === 'en progreso') progreso++;
+            else if (estado === 'completada') completadas++;
+            
+            costoTotal += costo;
+        });
+        
+        // Actualizar contadores principales
+        const pendientesCount = document.getElementById('pendientes-count');
+        const progresoCount = document.getElementById('progreso-count');
+        const completadasCount = document.getElementById('completadas-count');
+        
+        if (pendientesCount) pendientesCount.textContent = pendientes;
+        if (progresoCount) progresoCount.textContent = progreso;
+        if (completadasCount) completadasCount.textContent = completadas;
+        
+        // Actualizar sidebar
+        const sidebarPendientes = document.getElementById('sidebar-pendientes');
+        const sidebarProgreso = document.getElementById('sidebar-progreso');
+        const sidebarCompletadas = document.getElementById('sidebar-completadas');
+        const sidebarCosto = document.getElementById('sidebar-costo');
+        
+        if (sidebarPendientes) sidebarPendientes.textContent = pendientes;
+        if (sidebarProgreso) sidebarProgreso.textContent = progreso;
+        if (sidebarCompletadas) sidebarCompletadas.textContent = completadas;
+        if (sidebarCosto) sidebarCosto.textContent = `$${costoTotal.toLocaleString()}`;
+    }
+    
+    // Actualizar timestamp
+    function updateTimestamp() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        const timeStamp = document.getElementById('time-stamp');
+        if (timeStamp) {
+            timeStamp.textContent = timeString;
+        }
+    }
+    
+    // Exportar datos
+    const exportBtn = document.getElementById('exportData');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportToCSV();
+        });
+    }
+    
+    function exportToCSV() {
+        const visibleCards = actividadesGrid ? 
+            Array.from(actividadesGrid.querySelectorAll('.actividad-item-card')).filter(card => 
+                card.style.display !== 'none'
+            ) : [];
+        
+        const headers = ['Tipo', 'Estado', 'Fecha', 'Potrero', 'Responsable', 'Costo'];
+        let csv = headers.join(',') + '\n';
+        
+        visibleCards.forEach(card => {
+            const tipo = card.querySelector('.actividad-item-title').textContent.trim();
+            const estado = card.dataset.estado;
+            const fecha = card.dataset.fecha;
+            const potrero = card.dataset.potrero;
+            const responsable = card.dataset.responsable || 'Sin asignar';
+            const costo = card.dataset.costo || '0';
+            
+            csv += `"${tipo}","${estado}","${fecha}","${potrero}","${responsable}","${costo}"\n`;
+        });
+        
+        // Descargar archivo
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `actividades_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+    
+    // Inicializar
+    calculateStats();
+    updateTimestamp();
+    setInterval(updateTimestamp, 30000); // Actualizar cada 30 segundos
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/actividades.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // HEURÍSTICA 1: Visibilidad del estado del sistema
+    updateSystemStatus();
+    setInterval(updateSystemStatus, 30000); // Actualizar cada 30 segundos
+    
+    // HEURÍSTICA 3: Control y libertad del usuario
+    initializeViewControls();
+    initializeAdvancedFilters();
+    initializePagination();
+    
+    // HEURÍSTICA 5: Prevención de errores
+    initializeFormValidation();
+    
+    // HEURÍSTICA 7: Flexibilidad y eficiencia de uso
+    initializeKeyboardShortcuts();
+    
+    // Calcular estadísticas en tiempo real
+    calculateStats();
+    
+    function updateSystemStatus() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        document.getElementById('time-stamp').textContent = timeString;
+        
+        // Simulación de estado del sistema
+        const statusElement = document.getElementById('system-status');
+        statusElement.innerHTML = '<i class="fas fa-circle pulse me-1"></i>En línea';
+        statusElement.className = 'badge bg-success';
+    }
+    
+    function initializeViewControls() {
+        // Control de vistas
+        const viewRadios = document.querySelectorAll('input[name="vista"]');
+        viewRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const container = document.getElementById('actividades-container');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                
+                // Mostrar indicador de carga
+                container.classList.add('d-none');
+                loadingIndicator.classList.remove('d-none');
+                
+                setTimeout(() => {
+                    if (this.id === 'vista-cards') {
+                        container.className = 'template-grid template-grid-2';
+                    } else if (this.id === 'vista-lista') {
+                        container.className = 'list-group list-group-flush';
+                    } else if (this.id === 'vista-tabla') {
+                        container.className = 'table-responsive';
+                    }
+                    
+                    // Ocultar indicador de carga
+                    loadingIndicator.classList.add('d-none');
+                    container.classList.remove('d-none');
+                    
+                    // Guardar preferencia del usuario
+                    localStorage.setItem('vista-preferida', this.id);
+                }, 500);
+            });
+        });
+        
+        // Recuperar preferencia guardada
+        const savedView = localStorage.getItem('vista-preferida');
+        if (savedView) {
+            document.getElementById(savedView).checked = true;
+        }
+    }
+    
+    function initializeAdvancedFilters() {
+        const btnAdvanced = document.getElementById('btn-filtros-avanzados');
+        const advancedSection = document.getElementById('filtros-avanzados');
+        
+        btnAdvanced.addEventListener('click', function() {
+            const isVisible = advancedSection.classList.contains('show');
+            if (isVisible) {
+                advancedSection.classList.remove('show');
+                this.innerHTML = '<i class="fas fa-cog"></i>';
+                this.title = 'Mostrar filtros avanzados';
+            } else {
+                advancedSection.classList.add('show');
+                this.innerHTML = '<i class="fas fa-times"></i>';
+                this.title = 'Ocultar filtros avanzados';
+            }
+        });
+        
+        // Contador de filtros activos
+        const filterInputs = document.querySelectorAll('select[id^="filtro-"], input[id^="filtro-"]');
+        filterInputs.forEach(input => {
+            input.addEventListener('change', updateFilterCounter);
+        });
+    }
+    
+    function updateFilterCounter() {
+        const filterInputs = document.querySelectorAll('select[id^="filtro-"], input[id^="filtro-"]');
+        let activeFilters = 0;
+        const activeFilterNames = [];
+        
+        filterInputs.forEach(input => {
+            if (input.value && input.value.trim() !== '') {
+                activeFilters++;
+                const label = document.querySelector(`label[for="${input.id}"]`);
+                if (label) {
+                    activeFilterNames.push(label.textContent.trim());
+                }
+            }
+        });
+        
+        const badge = document.getElementById('badge-filtros');
+        const count = document.getElementById('count-filtros');
+        const activeText = document.getElementById('filtros-activos');
+        
+        if (activeFilters > 0) {
+            badge.classList.remove('d-none');
+            count.textContent = activeFilters;
+            activeText.textContent = `(Filtrado por: ${activeFilterNames.join(', ')})`;
+        } else {
+            badge.classList.add('d-none');
+            activeText.textContent = '';
+        }
+    }
+    
+    function initializePagination() {
+        const itemsPerPage = document.getElementById('items-per-page');
+        itemsPerPage.addEventListener('change', function() {
+            const totalVisible = document.getElementById('total-visible');
+            // Aquí iría la lógica de paginación
+            console.log(`Mostrar ${this.value} elementos por página`);
+        });
+    }
+    
+    function initializeFormValidation() {
+        // HEURÍSTICA 5: Prevención de errores
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        dateInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const desde = document.getElementById('filtro-fecha-desde').value;
+                const hasta = document.getElementById('filtro-fecha-hasta').value;
+                
+                if (desde && hasta && desde > hasta) {
+                    this.setCustomValidity('La fecha de inicio no puede ser mayor que la fecha de fin');
+                    this.reportValidity();
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        });
+    }
+    
+    function initializeKeyboardShortcuts() {
+        // HEURÍSTICA 7: Flexibilidad y eficiencia de uso
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + N = Nueva actividad
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                const newBtn = document.querySelector('a[href*="nueva"]');
+                if (newBtn) {
+                    newBtn.click();
+                }
+            }
+            
+            // Ctrl/Cmd + F = Enfocar primer filtro
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('filtro-estado').focus();
+            }
+            
+            // Escape = Limpiar filtros
+            if (e.key === 'Escape') {
+                limpiarFiltros();
+            }
+        });
+    }
+    
+    function calculateStats() {
+        const actividades = document.querySelectorAll('.actividad-card');
+        let pendientes = 0, enProgreso = 0, completadas = 0, canceladas = 0;
+        let costoTotal = 0;
+        
+        actividades.forEach(card => {
+            const badges = card.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                const text = badge.textContent.trim();
+                if (text === 'Pendiente' || text === 'Por hacer') pendientes++;
+                else if (text === 'En Progreso' || text === 'En marcha') enProgreso++;
+                else if (text === 'Completada' || text === 'Terminadas') completadas++;
+                else if (text === 'Cancelada' || text === 'Canceladas') canceladas++;
+            });
+            
+            // Calcular costo (aquí necesitarías acceso a los datos reales)
+        });
+        
+        // Actualizar contadores
+        document.getElementById('pendientes').textContent = pendientes;
+        document.getElementById('en-progreso').textContent = enProgreso;
+        document.getElementById('completadas').textContent = completadas;
+        
+        // Actualizar costo total si existe
+        const costoElement = document.getElementById('costo-total');
+        if (costoElement) {
+            costoElement.textContent = `$${costoTotal.toLocaleString()}`;
+        }
+    }
+    
+    // Función global para limpiar filtros
+    window.limpiarFiltros = function() {
+        const filterInputs = document.querySelectorAll('select[id^="filtro-"], input[id^="filtro-"]');
+        filterInputs.forEach(input => {
+            input.value = '';
+            input.dispatchEvent(new Event('change'));
+        });
+        updateFilterCounter();
+        
+        // Mostrar mensaje de confirmación
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = '<i class="fas fa-check me-2"></i>Filtros limpiados';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 2000);
+    };
+});
+
+// Añadir estilos dinámicos para las mejoras
+const styles = `
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1060;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.template-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .template-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.actividad-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.actividad-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.status-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.2em;
+}
+`;
+
+const styleSheet = document.createElement('style');
+styleSheet.textContent = styles;
+document.head.appendChild(styleSheet);
+</script>
+{% endblock %} 

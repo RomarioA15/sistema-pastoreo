@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Página no encontrada{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+{% endblock %}
+
+{% block breadcrumb %}
+<ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item">
+        <a href="{{ url_for('dashboard_simple.index') }}">
+            <i class="fas fa-home me-1" aria-hidden="true"></i>Inicio
+        </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Error 404</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <div class="error-container">
+        <div class="error-content">
+            <!-- Código de error animado -->
+            <div class="error-code" aria-hidden="true">404</div>
+            
+            <!-- Título del error -->
+            <h1 class="error-title">¡Página no encontrada!</h1>
+            
+            <!-- Descripción amigable -->
+            <p class="error-description text-responsive-wrap">
+                Lo sentimos, pero la página que buscas no existe o ha sido movida. 
+                Es posible que el enlace esté roto o hayas escrito incorrectamente la dirección.
+            </p>
+            
+            <!-- Acciones principales -->
+            <div class="error-actions">
+                <a href="{{ url_for('dashboard_simple.index') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2" aria-hidden="true"></i>
+                    Ir al inicio
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>
+                    Volver atrás
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sugerencias de navegación -->
+    <div class="template-grid">
+        <div class="col-8">
+            <div class="suggestions-card">
+                <h2 class="suggestions-title">
+                    <i class="fas fa-lightbulb me-2 text-warning" aria-hidden="true"></i>
+                    Páginas que podrían interesarte
+                </h2>
+                
+                <div class="suggestions-list">
+                    {% if usuario_puede('dashboard', 'leer') %}
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="suggestion-item">
+                        <i class="fas fa-tachometer-alt suggestion-icon text-primary" aria-hidden="true"></i>
+                        <div>
+                            <strong>Dashboard Principal</strong>
+                            <br><small class="text-muted">Resumen general de la finca</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    {% if usuario_puede('potreros', 'leer') %}
+                    <a href="{{ url_for('potreros.index') }}" class="suggestion-item">
+                        <i class="fas fa-map-marked-alt suggestion-icon text-success" aria-hidden="true"></i>
+                        <div>
+                            <strong>Gestión de Potreros</strong>
+                            <br><small class="text-muted">Administrar y visualizar potreros</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    {% if usuario_puede('aforos', 'leer') %}
+                    <a href="{{ url_for('aforos.index') }}" class="suggestion-item">
+                        <i class="fas fa-chart-bar suggestion-icon text-info" aria-hidden="true"></i>
+                        <div>
+                            <strong>Aforos de Pastos</strong>
+                            <br><small class="text-muted">Medición de disponibilidad forrajera</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    {% if usuario_puede('recorridos', 'leer') %}
+                    <a href="{{ url_for('recorridos.index') }}" class="suggestion-item">
+                        <i class="fas fa-route suggestion-icon text-warning" aria-hidden="true"></i>
+                        <div>
+                            <strong>Recorridos de Campo</strong>
+                            <br><small class="text-muted">Registro de observaciones diarias</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    {% if usuario_puede('actividades', 'leer') %}
+                    <a href="{{ url_for('actividades.index') }}" class="suggestion-item">
+                        <i class="fas fa-tasks suggestion-icon text-purple" aria-hidden="true"></i>
+                        <div>
+                            <strong>Actividades</strong>
+                            <br><small class="text-muted">Registro de tareas y actividades</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                    
+                    {% if usuario_puede('ganado', 'leer') %}
+                    <a href="{{ url_for('ganado.lotes') }}" class="suggestion-item">
+                        <i class="fas fa-cow suggestion-icon text-brown" aria-hidden="true"></i>
+                        <div>
+                            <strong>Gestión de Ganado</strong>
+                            <br><small class="text-muted">Administrar lotes y movimientos</small>
+                        </div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <!-- Información de contacto -->
+            <div class="suggestions-card">
+                <h3 class="h5 mb-3">
+                    <i class="fas fa-question-circle me-2 text-info" aria-hidden="true"></i>
+                    ¿Necesitas ayuda?
+                </h3>
+                <p class="text-muted mb-3 text-responsive-wrap">
+                    Si continúas teniendo problemas, puedes contactar al administrador del sistema.
+                </p>
+                <div class="d-grid gap-2">
+                    {% if es_admin() %}
+                    <a href="{{ url_for('admin.index') }}" class="btn btn-outline-info">
+                        <i class="fas fa-cog me-2" aria-hidden="true"></i>
+                        Panel de administración
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary" onclick="reportError()">
+                        <i class="fas fa-bug me-2" aria-hidden="true"></i>
+                        Reportar problema
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/general.js') }}"></script>
+{% endblock %} 

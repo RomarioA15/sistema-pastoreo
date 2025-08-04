@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Seleccionar Finca - Sistema de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+<!-- Ocultar el sidebar para esta pantalla -->
+
+<div class="selector-container">
+    <div class="selector-card">
+        <!-- Header -->
+        <div class="template-header selector-header">
+            <div class="mb-4">
+                <i class="fas fa-crown" style="font-size: 3rem; opacity: 0.8;"></i>
+            </div>
+            <h1 class="display-4 mb-3">¡Bienvenido, Administrador!</h1>
+            <p class="welcome-text">{{ current_user.nombre }}</p>
+            <p class="mb-0">Selecciona una finca para comenzar a trabajar</p>
+            <div class="user-role">
+                <i class="fas fa-user-shield me-2"></i>
+                Super Administrador
+            </div>
+        </div>
+        
+        <!-- Contenido Principal -->
+        <div class="p-4">
+            <!-- Estadísticas Rápidas -->
+            <div class="row mb-4">
+                <div class="col-md-4 text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-map-marked-alt text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-1">{{ fincas|length }}</h3>
+                    <p class="text-muted mb-0">Fincas Disponibles</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-users text-success" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-1">{{ total_usuarios }}</h3>
+                    <p class="text-muted mb-0">Usuarios Totales</p>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="mb-2">
+                        <i class="fas fa-user-tag text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-1">{{ roles_usuario|length }}</h3>
+                    <p class="text-muted mb-0">Roles Asignados</p>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <!-- Lista de Fincas -->
+            <div class="template-grid">
+                <div class="col-12">
+                    <h4 class="mb-4 text-center">
+                        <i class="fas fa-map-marked-alt me-2 text-primary"></i>
+                        Selecciona una Finca
+                    </h4>
+                </div>
+                
+                {% if fincas %}
+                    {% for finca in fincas %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="finca-card p-4 text-center" onclick="seleccionarFinca({{ finca['id'] }})">
+                            <div class="finca-icon">
+                                {{ finca['nombre'][0].upper() }}
+                            </div>
+                            
+                            <h5 class="mb-2">{{ finca['nombre'] }}</h5>
+                            <p class="text-muted mb-3">{{ finca['descripcion'] or 'Sin descripción' }}</p>
+                            
+                            <div class="mb-3">
+                                <span class="stats-badge me-2">
+                                    <i class="fas fa-chart-area me-1"></i>
+                                    {{ "%.1f"|format(finca['area_total'] or 0) }} ha
+                                </span>
+                                {% if finca['propietario'] %}
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        {{ finca['propietario'] }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <button type="button" class="btn btn-seleccionar" onclick="event.stopPropagation(); window.location.href='{{ url_for('admin.seleccionar_finca', finca_id=finca['id']) }}'">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Trabajar en esta Finca
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-map-marked-alt text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">No hay fincas disponibles</h5>
+                        <p class="text-muted">Crea la primera finca para comenzar</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Acciones de Administración -->
+        <div class="admin-actions">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <h6 class="mb-2">
+                        <i class="fas fa-tools me-2 text-primary"></i>
+                        Herramientas de Administración
+                    </h6>
+                    <p class="text-muted mb-0">Gestiona usuarios, roles y fincas del sistema</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{{ url_for('admin.fincas') }}" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-map-marked-alt me-2"></i>
+                        Gestionar Fincas
+                    </a>
+                    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-info me-2">
+                        <i class="fas fa-users me-2"></i>
+                        Gestionar Usuarios
+                    </a>
+                    <a href="{{ url_for('admin.roles') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-user-tag me-2"></i>
+                        Gestionar Roles
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Como Super Administrador tienes acceso completo al sistema
+                    </small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+{% endblock %} 

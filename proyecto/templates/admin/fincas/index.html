@@ -1,0 +1,257 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gestión de Fincas - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-map-marked-alt me-3"></i>
+                Gestión de Fincas
+            </h1>
+            <p class="lead mb-0">Administra las fincas del sistema</p>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card">
+                <div class="icon-finca">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>{{ fincas|length if fincas else 0 }}</h3>
+                <p class="mb-0">Total Fincas</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #007bff 0%, #6f42c1 100%);">
+                <div class="icon-finca">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>{{ fincas|selectattr('activa')|list|length if fincas else 0 }}</h3>
+                <p class="mb-0">Fincas Activas</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);">
+                <div class="icon-finca">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+                <h3>
+                    {% if fincas %}
+                        {{ "%.1f"|format(fincas|sum(attribute='area_total')) }}
+                    {% else %}
+                        0.0
+                    {% endif %}
+                </h3>
+                <p class="mb-0">Hectáreas Total</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
+                <div class="icon-finca">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>{{ usuarios|length if usuarios else 0 }}</h3>
+                <p class="mb-0">Usuarios Totales</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones principales -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="template-header" class="card-title mb-1">
+                                <i class="fas fa-plus-circle text-success me-2"></i>
+                                Gestión de Fincas
+                            </h5>
+                            <p class="text-muted mb-0">Crea y administra las fincas del sistema</p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('admin.nueva_finca') }}" class="btn btn-admin me-2">
+                                <i class="fas fa-plus me-2"></i>
+                                Nueva Finca
+                            </a>
+                            <a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver al Panel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Fincas -->
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="template-header card-header bg-transparent border-0 p-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Fincas del Sistema
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if fincas %}
+                        <div class="template-table-wrapper">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3">
+                                            <i class="fas fa-map-marked-alt me-2"></i>
+                                            Finca
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-user me-2"></i>
+                                            Propietario
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-chart-area me-2"></i>
+                                            Área
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            Ubicación
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-toggle-on me-2"></i>
+                                            Estado
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-cogs me-2"></i>
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for finca in fincas %}
+                                    <tr class="finca-card">
+                                        <td class="px-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar me-3">
+                                                    {{ finca.nombre[0].upper() }}
+                                                </div>
+                                                <div class="template-header" class="mb-1">{{ finca.nombre }}</h6>
+                                                    <small class="text-muted">{{ finca.descripcion or 'Sin descripción' }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <div>
+                                                <strong>{{ finca.propietario or 'No especificado' }}</strong>
+                                                {% if finca.email %}
+                                                    <br><small class="text-muted">{{ finca.email }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="area-badge">
+                                                {{ "%.1f"|format(finca.area_total or 0) }} ha
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            <div>
+                                                {{ finca.direccion or 'No especificada' }}
+                                                {% if finca.telefono %}
+                                                    <br><small class="text-muted">
+                                                        <i class="fas fa-phone me-1"></i>{{ finca.telefono }}
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            {% if finca.activa %}
+                                                <span class="badge-activa">
+                                                    <i class="fas fa-check me-1"></i>Activa
+                                                </span>
+                                            {% else %}
+                                                <span class="badge-inactiva">
+                                                    <i class="fas fa-times me-1"></i>Inactiva
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="py-3">
+                                            <div class="btn-group-responsive role="group">
+                                                <a href="{{ url_for('admin.editar_finca', finca_id=finca.id) }}" 
+                                                   class="btn btn-sm btn-outline-primary" 
+                                                   title="Editar finca">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                {% if finca.activa %}
+                                                    <form method="POST" action="{{ url_for('admin.eliminar_finca', finca_id=finca.id) }}" 
+                                                          style="display: inline;" 
+                                                          onsubmit="return confirm('¿Estás seguro de desactivar la finca {{ finca.nombre }}?')">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Desactivar finca">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-map-marked-alt text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                            </div>
+                            <h4 class="text-muted mb-3">No hay fincas registradas</h4>
+                            <p class="text-muted mb-4">Comienza agregando la primera finca al sistema</p>
+                            <a href="{{ url_for('admin.nueva_finca') }}" class="btn btn-admin">
+                                <i class="fas fa-plus me-2"></i>
+                                Crear Primera Finca
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if fincas %}
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="card-body p-4">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Información del Sistema
+                    </h6>
+                    <div class="template-grid">
+                        <div class="col-6">
+                            <p class="mb-2">
+                                <strong>Finca más grande:</strong> 
+                                {% set finca_mayor = fincas|sort(attribute='area_total', reverse=true)|first %}
+                                {{ finca_mayor.nombre }} ({{ "%.1f"|format(finca_mayor.area_total) }} ha)
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-2">
+                                <strong>Área promedio:</strong> 
+                                {{ "%.1f"|format((fincas|sum(attribute='area_total')) / (fincas|length)) }} ha
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %} 

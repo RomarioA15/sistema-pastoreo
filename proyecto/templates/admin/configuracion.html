@@ -1,0 +1,504 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Configuración del Sistema - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-cogs me-3"></i>
+                Configuración del Sistema
+            </h1>
+            <p class="lead mb-0">Configuración general y estadísticas del sistema</p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="template-breadcrumb">
+        <ol>
+            <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-home"></i> Administración</a></li>
+            <li class="active">Configuración</li>
+        </ol>
+    </nav>
+
+    <div class="template-grid">
+        <!-- Panel principal -->
+        <div class="template-grid-main">
+            
+            <!-- Estadísticas de Base de Datos -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h3><i class="fas fa-database"></i> Estadísticas de Base de Datos</h3>
+                </div>
+                <div class="template-card-body">
+                    <div class="row">
+                        {% for tabla, total in estadisticas_bd.items() %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    {% if tabla == 'users' %}
+                                        <i class="fas fa-users"></i>
+                                    {% elif tabla == 'fincas' %}
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    {% elif tabla == 'roles' %}
+                                        <i class="fas fa-user-tag"></i>
+                                    {% elif tabla == 'potreros' %}
+                                        <i class="fas fa-leaf"></i>
+                                    {% elif tabla == 'aforos' %}
+                                        <i class="fas fa-chart-line"></i>
+                                    {% elif tabla == 'actividades' %}
+                                        <i class="fas fa-tasks"></i>
+                                    {% else %}
+                                        <i class="fas fa-table"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="stat-content">
+                                    <h4>{{ total }}</h4>
+                                    <p>{{ tabla|title }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Sistema -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h3><i class="fas fa-info-circle"></i> Información del Sistema</h3>
+                </div>
+                <div class="template-card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h5><i class="fas fa-code-branch"></i> Versión del Sistema</h5>
+                                <p><strong>Sistema de Pastoreo Web v2.0</strong></p>
+                                <p class="text-muted">Versión completa con sistema de roles y multi-finca</p>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-server"></i> Base de Datos</h5>
+                                <p><strong>MySQL</strong></p>
+                                <p class="text-muted">Sistema de gestión de base de datos</p>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-python"></i> Tecnología</h5>
+                                <p><strong>Flask (Python)</strong></p>
+                                <p class="text-muted">Framework web con arquitectura MVC</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h5><i class="fas fa-shield-alt"></i> Seguridad</h5>
+                                <p><strong>Sistema de Roles Activo</strong></p>
+                                <p class="text-muted">Autenticación y autorización granular</p>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-building"></i> Multi-Finca</h5>
+                                <p><strong>Soporte Completo</strong></p>
+                                <p class="text-muted">Gestión de múltiples fincas independientes</p>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-mobile-alt"></i> Responsive</h5>
+                                <p><strong>Diseño Adaptable</strong></p>
+                                <p class="text-muted">Compatible con dispositivos móviles</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulos del Sistema -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h3><i class="fas fa-puzzle-piece"></i> Módulos del Sistema</h3>
+                </div>
+                <div class="template-card-body">
+                    <div class="modules-grid">
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Dashboard</h5>
+                                <p>Panel principal con métricas y resúmenes</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Potreros</h5>
+                                <p>Gestión de potreros y mapas interactivos</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Aforos</h5>
+                                <p>Medición de producción forrajera</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-cow"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Ganado</h5>
+                                <p>Gestión de lotes y movimientos</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-cloud-sun"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Clima</h5>
+                                <p>Datos meteorológicos y pronósticos</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Actividades</h5>
+                                <p>Planificación y seguimiento de tareas</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-route"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>Recorridos</h5>
+                                <p>Mediciones de campo y seguimiento</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-vial"></i>
+                            </div>
+                            <div class="module-info">
+                                <h5>pH</h5>
+                                <p>Mediciones de acidez del suelo</p>
+                                <span class="status-badge active">Activo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel lateral -->
+        <div class="template-grid-sidebar">
+            <!-- Acciones del Sistema -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h4><i class="fas fa-tools"></i> Herramientas</h4>
+                </div>
+                <div class="template-card-body">
+                    <div class="system-actions">
+                        <button class="btn btn-info btn-block mb-2" onclick="verificarSistema()">
+                            <i class="fas fa-check-circle"></i>
+                            Verificar Sistema
+                        </button>
+                        
+                        <button class="btn btn-warning btn-block mb-2" onclick="limpiarCache()">
+                            <i class="fas fa-broom"></i>
+                            Limpiar Caché
+                        </button>
+                        
+                        <button class="btn btn-primary btn-block mb-2" onclick="exportarDatos()">
+                            <i class="fas fa-download"></i>
+                            Exportar Datos
+                        </button>
+                        
+                        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-chart-bar"></i>
+                            Dashboard Avanzado
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado del Sistema -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h4><i class="fas fa-heartbeat"></i> Estado</h4>
+                </div>
+                <div class="template-card-body">
+                    <div class="system-status">
+                        <div class="status-item">
+                            <span class="status-label">Base de Datos:</span>
+                            <span class="status-value success">
+                                <i class="fas fa-check-circle"></i> Conectada
+                            </span>
+                        </div>
+                        
+                        <div class="status-item">
+                            <span class="status-label">Autenticación:</span>
+                            <span class="status-value success">
+                                <i class="fas fa-check-circle"></i> Activa
+                            </span>
+                        </div>
+                        
+                        <div class="status-item">
+                            <span class="status-label">Sistema de Roles:</span>
+                            <span class="status-value success">
+                                <i class="fas fa-check-circle"></i> Funcional
+                            </span>
+                        </div>
+                        
+                        <div class="status-item">
+                            <span class="status-label">Sesiones:</span>
+                            <span class="status-value success">
+                                <i class="fas fa-check-circle"></i> Activas
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="template-card">
+                <div class="template-card-header">
+                    <h4><i class="fas fa-question-circle"></i> Ayuda</h4>
+                </div>
+                <div class="template-card-body">
+                    <div class="help-info">
+                        <p><strong>Sistema de Pastoreo Web</strong></p>
+                        <p class="text-muted">Versión 2.0 - Sistema completo de gestión</p>
+                        
+                        <hr>
+                        
+                        <h6>Funcionalidades Principales:</h6>
+                        <ul class="help-list">
+                            <li>Gestión multi-finca</li>
+                            <li>Sistema de roles granular</li>
+                            <li>Dashboard interactivo</li>
+                            <li>Mapas de potreros</li>
+                            <li>Seguimiento de ganado</li>
+                            <li>Datos meteorológicos</li>
+                            <li>Reportes y análisis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-card {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    height: 100%;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    opacity: 0.8;
+}
+
+.stat-content h4 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.stat-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.info-section {
+    margin-bottom: 2rem;
+}
+
+.info-section h5 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.info-section p {
+    margin-bottom: 0.25rem;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.module-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.module-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: #6c757d;
+}
+
+.module-info h5 {
+    margin: 0 0 0.25rem 0;
+    color: #495057;
+}
+
+.module-info p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.system-actions .btn {
+    margin-bottom: 0.5rem;
+}
+
+.system-status .status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.system-status .status-item:last-child {
+    border-bottom: none;
+}
+
+.status-value.success {
+    color: #28a745;
+}
+
+.help-list {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.help-list li {
+    margin-bottom: 0.25rem;
+}
+</style>
+
+<script>
+function verificarSistema() {
+    // Simulación de verificación del sistema
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = '<i class="fas fa-check"></i> Sistema OK';
+        btn.className = 'btn btn-success btn-block mb-2';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.className = 'btn btn-info btn-block mb-2';
+            btn.disabled = false;
+        }, 2000);
+    }, 1500);
+}
+
+function limpiarCache() {
+    if (confirm('¿Estás seguro de limpiar el caché del sistema?')) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Limpiando...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Cache Limpiado';
+            btn.className = 'btn btn-success btn-block mb-2';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.className = 'btn btn-warning btn-block mb-2';
+                btn.disabled = false;
+            }, 2000);
+        }, 1000);
+    }
+}
+
+function exportarDatos() {
+    if (confirm('¿Deseas exportar los datos del sistema?')) {
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            // Simular descarga
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;charset=utf-8,Datos del Sistema de Pastoreo\nExportado: ' + new Date().toLocaleString();
+            link.download = 'sistema_pastoreo_export.txt';
+            link.click();
+            
+            btn.innerHTML = '<i class="fas fa-check"></i> Exportado';
+            btn.className = 'btn btn-success btn-block mb-2';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.className = 'btn btn-primary btn-block mb-2';
+                btn.disabled = false;
+            }, 2000);
+        }, 1500);
+    }
+}
+</script>
+{% endblock %} 

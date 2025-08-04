@@ -1,0 +1,280 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gestión de Usuarios - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <h1 class="display-4 mb-3">
+                        <i class="fas fa-users me-3"></i>
+                        Gestión de Usuarios
+                    </h1>
+                    <p class="lead mb-0">Administra los usuarios y sus roles en el sistema</p>
+                </div>
+                <div class="col-4 text-end">
+                    <a href="{{ url_for('admin.nuevo_usuario') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Crear Usuario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>{{ usuarios|length }}</h3>
+                <p class="mb-0">Total Usuarios</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>{{ usuarios|selectattr('es_admin')|list|length }}</h3>
+                <p class="mb-0">Administradores</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h3>{{ usuarios|reject('es_admin')|list|length }}</h3>
+                <p class="mb-0">Usuarios Regulares</p>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-stats-card template-stats-card" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <h3>{{ roles|length if roles else 0 }}</h3>
+                <p class="mb-0">Roles Disponibles</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones principales -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="template-header" class="card-title mb-1">
+                                <i class="fas fa-user-cog text-primary me-2"></i>
+                                Gestión de Usuarios
+                            </h5>
+                            <p class="text-muted mb-0">Asigna roles y permisos a los usuarios</p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('admin.roles') }}" class="btn btn-outline-info me-2">
+                                <i class="fas fa-user-tag me-2"></i>
+                                Gestionar Roles
+                            </a>
+                            <a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver al Panel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Usuarios -->
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="template-header card-header bg-transparent border-0 p-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Usuarios de la Finca
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if usuarios %}
+                        <div class="template-table-wrapper">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-4 py-3">
+                                            <i class="fas fa-user me-2"></i>
+                                            Usuario
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-envelope me-2"></i>
+                                            Email
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-user-tag me-2"></i>
+                                            Rol Actual
+                                        </th>
+                                        <th class="py-3">
+                                            <i class="fas fa-shield-alt me-2"></i>
+                                            Tipo
+                                        </th>
+                                        <th class="py-3 text-center">
+                                            <i class="fas fa-cogs me-2"></i>
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for usuario in usuarios %}
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar me-3">
+                                                    {{ usuario['nombre'][0].upper() }}
+                                                </div>
+                                                <div class="template-header" class="mb-1 fw-bold">{{ usuario['nombre'] }}</h6>
+                                                    <small class="text-muted">ID: {{ usuario['id'] }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="fw-bold">{{ usuario['email'] }}</span>
+                                        </td>
+                                        <td class="py-3">
+                                            <span class="badge bg-primary">
+                                                {{ usuario['rol_nombre'] }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            {% if usuario['es_admin'] %}
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-user-shield me-1"></i>
+                                                    Administrador
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    Usuario
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="py-3 text-center">
+                                            <a href="{{ url_for('admin.asignar_rol_usuario', usuario_id=usuario['id']) }}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Asignar rol">
+                                                <i class="fas fa-user-tag"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-users" style="font-size: 4rem; color: #dee2e6;"></i>
+                            </div>
+                            <h5 class="text-muted mb-3">No hay usuarios en esta finca</h5>
+                            <p class="text-muted mb-4 text-responsive-wrap">Los usuarios aparecerán aquí cuando se registren y se les asigne un rol</p>
+                            <a href="{{ url_for('admin.roles') }}" class="btn btn-admin">
+                                <i class="fas fa-user-tag me-2"></i>
+                                Gestionar Roles
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Información sobre Roles
+                    </h6>
+                    <div class="template-grid">
+                        {% for rol in roles %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="border rounded p-3">
+                                <h6 class="fw-bold mb-2">{{ rol['nombre'] }}</h6>
+                                <p class="text-muted small mb-0">{{ rol['descripcion'] }}</p>
+                                {% if rol['es_admin'] %}
+                                    <span class="badge bg-danger mt-2">Administrador</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+<script>
+// Función para ver roles de usuario
+function verRolesUsuario(usuarioId, nombreUsuario) {
+    document.getElementById('nombreUsuarioModal').textContent = nombreUsuario;
+    
+    // Cargar roles del usuario
+    fetch(`{{ url_for('admin.api_usuario_roles', usuario_id=0) }}`.replace('0', usuarioId))
+        .then(response => response.json())
+        .then(data => {
+            let content = '';
+            if (data && data.length > 0) {
+                content = '<div class="list-group">';
+                data.forEach(rol => {
+                    content += `
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">${rol.rol_nombre}</h6>
+                                ${rol.es_admin ? '<span class="badge bg-warning">Admin</span>' : '<span class="badge bg-primary">Usuario</span>'}
+                            </div>
+                            <p class="mb-1">Finca: ${rol.finca_nombre}</p>
+                            <small>Asignado: ${new Date(rol.fecha_asignacion).toLocaleDateString()}</small>
+                        </div>
+                    `;
+                });
+                content += '</div>';
+            } else {
+                content = '<div class="alert alert-info">Este usuario no tiene roles asignados.</div>';
+            }
+            
+            document.getElementById('rolesUsuarioContent').innerHTML = content;
+        })
+        .catch(error => {
+            document.getElementById('rolesUsuarioContent').innerHTML = 
+                '<div class="alert alert-danger">Error al cargar los roles del usuario.</div>';
+        });
+    
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('rolesUsuarioModal')).show();
+}
+
+// Función para confirmar eliminación
+function confirmarEliminar(usuarioId, nombreUsuario) {
+    if (confirm(`¿Estás seguro de eliminar al usuario "${nombreUsuario}"?\n\nEsta acción no se puede deshacer.`)) {
+        // Aquí iría la lógica de eliminación
+        // Por ahora solo mostramos un mensaje
+        alert('Funcionalidad de eliminación no implementada aún.');
+    }
+}
+</script>
+{% endblock %} 

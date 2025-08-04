@@ -1,0 +1,951 @@
+/**
+ * Módulo CSS para Recorridos - Sistema de Gestión de Pastoreo
+ * Siguiendo Heurísticas de Nielsen y principios de UX/UI
+ * Arquitectura modular y responsive design para monitoreo de crecimiento
+ */
+
+/* =============================================================================
+   VARIABLES CSS DEL SISTEMA RECORRIDOS
+   ============================================================================= */
+
+:root {
+  /* Colores específicos del módulo Recorridos */
+  --recorridos-primary: #28a745;
+  --recorridos-secondary: #6c757d;
+  --recorridos-success: #20c997;
+  --recorridos-info: #17a2b8;
+  --recorridos-warning: #ffc107;
+  --recorridos-danger: #dc3545;
+  --recorridos-light: #f8f9fa;
+  --recorridos-dark: #343a40;
+  
+  /* Colores temáticos de crecimiento */
+  --recorridos-growth-excellent: #155724;
+  --recorridos-growth-good: #28a745;
+  --recorridos-growth-regular: #ffc107;
+  --recorridos-growth-poor: #dc3545;
+  --recorridos-pasture: #7CB342;
+  --recorridos-measurement: #4FC3F7;
+  --recorridos-tracking: #AB47BC;
+  
+  /* Gradientes temáticos */
+  --recorridos-gradient-primary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  --recorridos-gradient-growth: linear-gradient(135deg, #7CB342 0%, #8BC34A 100%);
+  --recorridos-gradient-measurement: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+  --recorridos-gradient-tracking: linear-gradient(135deg, #AB47BC 0%, #BA68C8 100%);
+  
+  /* Espaciado sistemático */
+  --recorridos-space-xs: 0.25rem;    /* 4px */
+  --recorridos-space-sm: 0.5rem;     /* 8px */
+  --recorridos-space-md: 1rem;       /* 16px */
+  --recorridos-space-lg: 1.5rem;     /* 24px */
+  --recorridos-space-xl: 2rem;       /* 32px */
+  --recorridos-space-xxl: 3rem;      /* 48px */
+  
+  /* Tipografía */
+  --recorridos-font-size-xs: 0.75rem;
+  --recorridos-font-size-sm: 0.875rem;
+  --recorridos-font-size-md: 1rem;
+  --recorridos-font-size-lg: 1.125rem;
+  --recorridos-font-size-xl: 1.25rem;
+  --recorridos-font-size-xxl: 1.5rem;
+  --recorridos-font-size-display: 2.5rem;
+  
+  /* Bordes y radios */
+  --recorridos-border-radius-sm: 0.375rem;
+  --recorridos-border-radius-md: 0.5rem;
+  --recorridos-border-radius-lg: 0.75rem;
+  --recorridos-border-radius-xl: 1rem;
+  
+  /* Sombras */
+  --recorridos-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --recorridos-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --recorridos-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  --recorridos-shadow-growth: 0 8px 32px rgba(40, 167, 69, 0.3);
+  
+  /* Transiciones */
+  --recorridos-transition: all 0.3s ease;
+  --recorridos-transition-fast: all 0.15s ease;
+}
+
+/* =============================================================================
+   LAYOUT BASE DEL MÓDULO RECORRIDOS
+   ============================================================================= */
+
+.recorridos-page {
+  min-height: 100vh;
+  background: var(--recorridos-gradient-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+.recorridos-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="20" opacity="0.05">🌱</text></svg>') repeat;
+  background-size: 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.recorridos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--recorridos-space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.recorridos-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: recorridosFadeIn 0.8s ease forwards;
+}
+
+@keyframes recorridosFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE GRID RESPONSIVO
+   ============================================================================= */
+
+.recorridos-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--recorridos-space-xl);
+  margin-top: var(--recorridos-space-xl);
+}
+
+.recorridos-main-content {
+  min-height: 400px;
+}
+
+.recorridos-sidebar {
+  position: sticky;
+  top: var(--recorridos-space-lg);
+  height: fit-content;
+}
+
+.recorridos-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--recorridos-space-lg);
+  margin: var(--recorridos-space-lg) 0;
+}
+
+.recorridos-measurements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--recorridos-space-md);
+  margin: var(--recorridos-space-lg) 0;
+}
+
+.recorridos-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--recorridos-space-md);
+  margin: var(--recorridos-space-lg) 0;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  .recorridos-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--recorridos-space-lg);
+  }
+  
+  .recorridos-sidebar {
+    position: static;
+  }
+  
+  .recorridos-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recorridos-container {
+    padding: var(--recorridos-space-md);
+  }
+  
+  .recorridos-measurements-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .recorridos-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   COMPONENTES DE HEADER
+   ============================================================================= */
+
+.recorridos-header {
+  background: var(--recorridos-gradient-primary);
+  color: white;
+  padding: var(--recorridos-space-xl) var(--recorridos-space-lg);
+  border-radius: var(--recorridos-border-radius-lg);
+  margin-bottom: var(--recorridos-space-xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--recorridos-shadow-growth);
+}
+
+.recorridos-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="40" opacity="0.1">🚶‍♂️</text></svg>') repeat;
+  background-size: 150px 150px;
+  animation: recorridosFloat 25s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes recorridosFloat {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(-15px) translateY(-8px); }
+  50% { transform: translateX(-8px) translateY(-15px); }
+  75% { transform: translateX(-20px) translateY(-5px); }
+}
+
+.recorridos-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.recorridos-title {
+  font-size: var(--recorridos-font-size-xxl);
+  font-weight: 700;
+  margin: 0 0 var(--recorridos-space-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-md);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recorridos-subtitle {
+  font-size: var(--recorridos-font-size-md);
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.recorridos-actions {
+  display: flex;
+  gap: var(--recorridos-space-md);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .recorridos-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--recorridos-space-lg);
+  }
+  
+  .recorridos-title {
+    font-size: var(--recorridos-font-size-xl);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE CARDS
+   ============================================================================= */
+
+.recorridos-card {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  box-shadow: var(--recorridos-shadow-md);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: var(--recorridos-transition);
+  position: relative;
+}
+
+.recorridos-card:hover {
+  box-shadow: var(--recorridos-shadow-lg);
+  transform: translateY(-3px);
+}
+
+.recorridos-card-header {
+  background: var(--recorridos-gradient-primary);
+  color: white;
+  padding: var(--recorridos-space-lg);
+  border-bottom: none;
+  position: relative;
+}
+
+.recorridos-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--recorridos-pasture) 0%, var(--recorridos-tracking) 100%);
+}
+
+.recorridos-card-body {
+  padding: var(--recorridos-space-lg);
+}
+
+.recorridos-card-footer {
+  background: var(--recorridos-light);
+  padding: var(--recorridos-space-md) var(--recorridos-space-lg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================================================
+   COMPONENTES DE RECORRIDO
+   ============================================================================= */
+
+.recorridos-card-educational {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  box-shadow: var(--recorridos-shadow-md);
+  border: 2px solid transparent;
+  overflow: hidden;
+  transition: var(--recorridos-transition);
+  position: relative;
+  height: 100%;
+}
+
+.recorridos-card-educational:hover {
+  box-shadow: var(--recorridos-shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--recorridos-primary);
+}
+
+.recorridos-card-educational::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--recorridos-gradient-growth);
+}
+
+.growth-indicator {
+  position: absolute;
+  top: var(--recorridos-space-md);
+  right: var(--recorridos-space-md);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: var(--recorridos-shadow-sm);
+  z-index: 2;
+  animation: growthPulse 2s ease-in-out infinite;
+}
+
+@keyframes growthPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* =============================================================================
+   COMPONENTES DE MEDICIONES
+   ============================================================================= */
+
+.recorridos-measurement-card {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  padding: var(--recorridos-space-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  transition: var(--recorridos-transition);
+  border-left: 4px solid var(--recorridos-measurement);
+  position: relative;
+}
+
+.recorridos-measurement-card:hover {
+  box-shadow: var(--recorridos-shadow-md);
+  transform: translateY(-2px);
+}
+
+.recorridos-measurement-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--recorridos-gradient-measurement);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: var(--recorridos-space-md);
+}
+
+.recorridos-measurement-value {
+  font-size: var(--recorridos-font-size-xl);
+  font-weight: 700;
+  color: var(--recorridos-primary);
+  margin-bottom: var(--recorridos-space-xs);
+}
+
+.recorridos-measurement-label {
+  font-size: var(--recorridos-font-size-sm);
+  color: var(--recorridos-secondary);
+  font-weight: 600;
+  margin-bottom: var(--recorridos-space-xs);
+}
+
+.recorridos-measurement-description {
+  font-size: var(--recorridos-font-size-xs);
+  color: var(--recorridos-secondary);
+  opacity: 0.8;
+}
+
+/* =============================================================================
+   COMPONENTES DE PUNTOS DE MEDICIÓN
+   ============================================================================= */
+
+.recorridos-point-container {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  border: 2px solid var(--recorridos-success);
+  overflow: hidden;
+  transition: var(--recorridos-transition);
+  margin-bottom: var(--recorridos-space-md);
+}
+
+.recorridos-point-container:hover {
+  box-shadow: var(--recorridos-shadow-md);
+  border-color: var(--recorridos-primary);
+}
+
+.recorridos-point-header {
+  background: var(--recorridos-gradient-growth);
+  color: white;
+  padding: var(--recorridos-space-md);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+}
+
+.recorridos-point-body {
+  padding: var(--recorridos-space-md);
+}
+
+.recorridos-point-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--recorridos-space-sm);
+  margin-bottom: var(--recorridos-space-md);
+}
+
+.recorridos-point-metric {
+  text-align: center;
+  padding: var(--recorridos-space-sm);
+  background: var(--recorridos-light);
+  border-radius: var(--recorridos-border-radius-sm);
+}
+
+.recorridos-point-metric-value {
+  font-size: var(--recorridos-font-size-lg);
+  font-weight: 700;
+  color: var(--recorridos-primary);
+  margin-bottom: var(--recorridos-space-xs);
+}
+
+.recorridos-point-metric-label {
+  font-size: var(--recorridos-font-size-xs);
+  color: var(--recorridos-secondary);
+  font-weight: 600;
+}
+
+/* =============================================================================
+   COMPONENTES DE ESTADÍSTICAS DE CRECIMIENTO
+   ============================================================================= */
+
+.recorridos-growth-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--recorridos-space-lg);
+  margin: var(--recorridos-space-xl) 0;
+}
+
+.recorridos-growth-stat {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  padding: var(--recorridos-space-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--recorridos-transition);
+}
+
+.recorridos-growth-stat:hover {
+  box-shadow: var(--recorridos-shadow-md);
+  transform: translateY(-3px);
+}
+
+.recorridos-growth-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--recorridos-gradient-growth);
+}
+
+.recorridos-growth-stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--recorridos-space-md);
+  opacity: 0.1;
+  position: absolute;
+  bottom: var(--recorridos-space-md);
+  right: var(--recorridos-space-md);
+}
+
+.recorridos-growth-stat-value {
+  font-size: var(--recorridos-font-size-display);
+  font-weight: 700;
+  margin-bottom: var(--recorridos-space-sm);
+  background: var(--recorridos-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.recorridos-growth-stat-label {
+  font-size: var(--recorridos-font-size-md);
+  color: var(--recorridos-secondary);
+  font-weight: 600;
+  margin-bottom: var(--recorridos-space-xs);
+  position: relative;
+  z-index: 1;
+}
+
+.recorridos-growth-stat-description {
+  font-size: var(--recorridos-font-size-sm);
+  color: var(--recorridos-secondary);
+  opacity: 0.8;
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================================================
+   COMPONENTES DE NAVEGACIÓN DE RECORRIDOS
+   ============================================================================= */
+
+.recorridos-nav-tabs {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  padding: var(--recorridos-space-sm);
+  box-shadow: var(--recorridos-shadow-sm);
+  margin-bottom: var(--recorridos-space-lg);
+}
+
+.recorridos-nav-tab {
+  background: transparent;
+  border: none;
+  padding: var(--recorridos-space-md) var(--recorridos-space-lg);
+  border-radius: var(--recorridos-border-radius-md);
+  font-weight: 600;
+  color: var(--recorridos-secondary);
+  transition: var(--recorridos-transition);
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+}
+
+.recorridos-nav-tab:hover {
+  background: var(--recorridos-light);
+  color: var(--recorridos-primary);
+}
+
+.recorridos-nav-tab.active {
+  background: var(--recorridos-gradient-primary);
+  color: white;
+  box-shadow: var(--recorridos-shadow-sm);
+}
+
+/* =============================================================================
+   COMPONENTES DE TIMELINE DE RECORRIDOS
+   ============================================================================= */
+
+.recorridos-timeline {
+  position: relative;
+  padding-left: var(--recorridos-space-xl);
+}
+
+.recorridos-timeline::before {
+  content: '';
+  position: absolute;
+  left: var(--recorridos-space-lg);
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--recorridos-gradient-primary);
+  border-radius: var(--recorridos-border-radius-sm);
+}
+
+.recorridos-timeline-item {
+  position: relative;
+  margin-bottom: var(--recorridos-space-xl);
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  padding: var(--recorridos-space-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  border-left: 4px solid var(--recorridos-primary);
+}
+
+.recorridos-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--recorridos-space-xl) - 6px);
+  top: var(--recorridos-space-lg);
+  width: 15px;
+  height: 15px;
+  background: var(--recorridos-primary);
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: var(--recorridos-shadow-sm);
+}
+
+.recorridos-timeline-date {
+  font-size: var(--recorridos-font-size-sm);
+  color: var(--recorridos-secondary);
+  font-weight: 600;
+  margin-bottom: var(--recorridos-space-sm);
+}
+
+.recorridos-timeline-content {
+  margin-bottom: var(--recorridos-space-md);
+}
+
+.recorridos-timeline-metrics {
+  display: flex;
+  gap: var(--recorridos-space-lg);
+  flex-wrap: wrap;
+}
+
+.recorridos-timeline-metric {
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+  padding: var(--recorridos-space-sm) var(--recorridos-space-md);
+  background: var(--recorridos-light);
+  border-radius: var(--recorridos-border-radius-sm);
+}
+
+/* =============================================================================
+   COMPONENTES DE FORMULARIOS
+   ============================================================================= */
+
+.recorridos-form-section {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  margin-bottom: var(--recorridos-space-lg);
+  overflow: hidden;
+}
+
+.recorridos-form-section-header {
+  background: var(--recorridos-gradient-primary);
+  color: white;
+  padding: var(--recorridos-space-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+}
+
+.recorridos-form-section-body {
+  padding: var(--recorridos-space-lg);
+}
+
+.recorridos-form-group {
+  margin-bottom: var(--recorridos-space-lg);
+}
+
+.recorridos-form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--recorridos-dark);
+  margin-bottom: var(--recorridos-space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+}
+
+.recorridos-form-input {
+  width: 100%;
+  padding: var(--recorridos-space-md);
+  border: 2px solid #e9ecef;
+  border-radius: var(--recorridos-border-radius-md);
+  font-size: var(--recorridos-font-size-md);
+  transition: var(--recorridos-transition);
+}
+
+.recorridos-form-input:focus {
+  outline: none;
+  border-color: var(--recorridos-primary);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.recorridos-form-help {
+  font-size: var(--recorridos-font-size-sm);
+  color: var(--recorridos-secondary);
+  margin-top: var(--recorridos-space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-xs);
+}
+
+/* =============================================================================
+   COMPONENTES DE ALERTAS Y NOTIFICACIONES
+   ============================================================================= */
+
+.recorridos-alert {
+  padding: var(--recorridos-space-lg);
+  border-radius: var(--recorridos-border-radius-lg);
+  margin-bottom: var(--recorridos-space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-md);
+  box-shadow: var(--recorridos-shadow-sm);
+  border-left: 4px solid;
+}
+
+.recorridos-alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.recorridos-alert-content {
+  flex-grow: 1;
+}
+
+.recorridos-alert-title {
+  font-weight: 700;
+  margin-bottom: var(--recorridos-space-xs);
+}
+
+.recorridos-alert-description {
+  font-size: var(--recorridos-font-size-sm);
+  opacity: 0.9;
+}
+
+/* Tipos de alertas */
+.recorridos-alert.growth-excellent {
+  background: rgba(21, 87, 36, 0.1);
+  border-left-color: var(--recorridos-growth-excellent);
+  color: var(--recorridos-growth-excellent);
+}
+
+.recorridos-alert.growth-good {
+  background: rgba(40, 167, 69, 0.1);
+  border-left-color: var(--recorridos-growth-good);
+  color: var(--recorridos-growth-good);
+}
+
+.recorridos-alert.growth-regular {
+  background: rgba(255, 193, 7, 0.1);
+  border-left-color: var(--recorridos-growth-regular);
+  color: var(--recorridos-growth-regular);
+}
+
+.recorridos-alert.growth-poor {
+  background: rgba(220, 53, 69, 0.1);
+  border-left-color: var(--recorridos-growth-poor);
+  color: var(--recorridos-growth-poor);
+}
+
+/* =============================================================================
+   COMPONENTES DE PROGRESO DE CRECIMIENTO
+   ============================================================================= */
+
+.recorridos-progress-container {
+  background: white;
+  border-radius: var(--recorridos-border-radius-lg);
+  padding: var(--recorridos-space-lg);
+  box-shadow: var(--recorridos-shadow-sm);
+  margin-bottom: var(--recorridos-space-lg);
+}
+
+.recorridos-progress-title {
+  font-size: var(--recorridos-font-size-lg);
+  font-weight: 700;
+  color: var(--recorridos-primary);
+  margin-bottom: var(--recorridos-space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--recorridos-space-sm);
+}
+
+.recorridos-progress-bar-container {
+  background: var(--recorridos-light);
+  border-radius: var(--recorridos-border-radius-lg);
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: var(--recorridos-space-md);
+}
+
+.recorridos-progress-bar {
+  height: 100%;
+  background: var(--recorridos-gradient-growth);
+  border-radius: var(--recorridos-border-radius-lg);
+  transition: width 1s ease;
+  position: relative;
+}
+
+.recorridos-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.recorridos-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--recorridos-font-size-sm);
+  color: var(--recorridos-secondary);
+}
+
+/* =============================================================================
+   UTILIDADES DE ESPACIADO
+   ============================================================================= */
+
+.recorridos-mb-0 { margin-bottom: 0 !important; }
+.recorridos-mb-xs { margin-bottom: var(--recorridos-space-xs) !important; }
+.recorridos-mb-sm { margin-bottom: var(--recorridos-space-sm) !important; }
+.recorridos-mb-md { margin-bottom: var(--recorridos-space-md) !important; }
+.recorridos-mb-lg { margin-bottom: var(--recorridos-space-lg) !important; }
+.recorridos-mb-xl { margin-bottom: var(--recorridos-space-xl) !important; }
+
+.recorridos-mt-0 { margin-top: 0 !important; }
+.recorridos-mt-xs { margin-top: var(--recorridos-space-xs) !important; }
+.recorridos-mt-sm { margin-top: var(--recorridos-space-sm) !important; }
+.recorridos-mt-md { margin-top: var(--recorridos-space-md) !important; }
+.recorridos-mt-lg { margin-top: var(--recorridos-space-lg) !important; }
+.recorridos-mt-xl { margin-top: var(--recorridos-space-xl) !important; }
+
+.recorridos-p-0 { padding: 0 !important; }
+.recorridos-p-xs { padding: var(--recorridos-space-xs) !important; }
+.recorridos-p-sm { padding: var(--recorridos-space-sm) !important; }
+.recorridos-p-md { padding: var(--recorridos-space-md) !important; }
+.recorridos-p-lg { padding: var(--recorridos-space-lg) !important; }
+.recorridos-p-xl { padding: var(--recorridos-space-xl) !important; }
+
+/* =============================================================================
+   COMPONENTES RESPONSIVOS ADICIONALES
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .recorridos-measurements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recorridos-growth-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .recorridos-timeline {
+    padding-left: var(--recorridos-space-lg);
+  }
+  
+  .recorridos-timeline::before {
+    left: var(--recorridos-space-sm);
+  }
+  
+  .recorridos-timeline-item::before {
+    left: calc(-1 * var(--recorridos-space-lg) - 6px);
+  }
+  
+  .recorridos-timeline-metrics {
+    flex-direction: column;
+    gap: var(--recorridos-space-sm);
+  }
+}
+
+/* =============================================================================
+   MODO OSCURO (OPCIONAL)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .recorridos-page {
+    background: linear-gradient(135deg, #1a4727 0%, #155724 100%);
+  }
+  
+  .recorridos-card,
+  .recorridos-card-educational,
+  .recorridos-measurement-card,
+  .recorridos-point-container,
+  .recorridos-growth-stat,
+  .recorridos-form-section {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .recorridos-form-input {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .recorridos-form-input:focus {
+    border-color: var(--recorridos-primary);
+    background: #343a40;
+  }
+}
+
+/* =============================================================================
+   ANIMACIONES ESPECÍFICAS DE RECORRIDOS
+   ============================================================================= */
+
+@keyframes recorridosGrowthPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(5deg); }
+}
+
+.recorridos-growth-indicator {
+  animation: recorridosGrowthPulse 2s ease-in-out infinite;
+}
+
+@keyframes recorridosPathDraw {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+.recorridos-path-animated {
+  stroke-dasharray: 100;
+  animation: recorridosPathDraw 3s ease-in-out infinite;
+}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Potrero - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Configurar variables para el header -->
+    {% set title = 'Nuevo Potrero' %}
+    {% set subtitle = 'Crear un nuevo potrero para la gestión de pastoreo' %}
+    {% set icon = 'fas fa-plus-circle' %}
+    {% set show_breadcrumb = true %}
+    {% set breadcrumb_active = 'Nuevo Potrero' %}
+    {% set breadcrumb_icon = 'fas fa-plus-circle' %}
+    {% set back_url = url_for('potreros.index') %}
+    {% set back_text = 'Volver a Potreros' %}
+    
+    {% include 'potreros/_header.html' with context %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Crear Nuevo Potrero
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Planificación:</strong> Un potrero bien diseñado es fundamental para el éxito del pastoreo. 
+                        Define las características específicas para optimizar la producción y manejo del ganado.
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('potreros.crear') }}">
+                        {% include 'potreros/_form_fields.html' with context %}
+                        
+                        <div class="d-flex justify-content-between pt-3 border-top">
+                            <a href="{{ url_for('potreros.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>
+                                Crear Potrero
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            {% include 'potreros/_help_panel.html' %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Validación del formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const nombre = document.getElementById('nombre').value.trim();
+    const hectareas = document.getElementById('hectareas').value;
+    
+    if (!nombre) {
+        e.preventDefault();
+        alert('Por favor ingresa un nombre para el potrero');
+        document.getElementById('nombre').focus();
+        return;
+    }
+    
+    if (!hectareas || hectareas <= 0) {
+        e.preventDefault();
+        alert('Por favor ingresa un área válida para el potrero');
+        document.getElementById('hectareas').focus();
+        return;
+    }
+});
+
+// Auto-cálculo de capacidad sugerida basada en tipo de pastura
+document.getElementById('tipo_pastura').addEventListener('change', function() {
+    const hectareas = parseFloat(document.getElementById('hectareas').value) || 0;
+    const capacidadField = document.getElementById('capacidad_animal');
+    
+    if (hectareas > 0 && this.value) {
+        let capacidadPorHa = 2; // Default
+        
+        switch(this.value) {
+            case 'guinea': capacidadPorHa = 3.5; break;
+            case 'brachiaria': capacidadPorHa = 2.5; break;
+            case 'estrella': capacidadPorHa = 2.5; break;
+            case 'kikuyo': capacidadPorHa = 3; break;
+            case 'natural': capacidadPorHa = 1.5; break;
+            case 'mixta': capacidadPorHa = 2; break;
+        }
+        
+        const capacidadSugerida = Math.floor(hectareas * capacidadPorHa);
+        capacidadField.placeholder = `Sugerido: ${capacidadSugerida} cabezas`;
+        
+        if (!capacidadField.value) {
+            capacidadField.value = capacidadSugerida;
+        }
+    }
+});
+
+// Trigger cálculo si ya hay valores
+document.getElementById('hectareas').addEventListener('input', function() {
+    const event = new Event('change');
+    document.getElementById('tipo_pastura').dispatchEvent(event);
+});
+</script>
+{% endblock %}
+{% endblock %}

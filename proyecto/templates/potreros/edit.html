@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Potrero - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/potreros.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="potreros-page">
+<div class="potreros-container potreros-fade-in">
+<!-- Header del módulo -->
+<div class="potreros-header">
+    <div class="potreros-header-content">
+        <div>
+            <h1 class="potreros-title">
+                <i class="fas fa-edit"></i>
+                Editar Potrero
+            </h1>
+            <p class="potreros-subtitle">Modificar información del potrero {{ potrero.nombre }}</p>
+        </div>
+        <div class="potreros-actions">
+            <a href="{{ url_for('potreros.index') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver al listado
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="template-grid">
+    <div class="col-md-8 mx-auto">
+        <div class="template-card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('potreros.edit', potrero_id=potrero.id) }}">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label required">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Nombre del potrero" 
+                              value="{{ request.form.get('nombre', potrero.nombre) }}" required>
+                        <div class="form-text">Nombre descriptivo para identificar el potrero</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="hectareas" class="form-label required">Hectáreas</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="hectareas" name="hectareas" 
+                                          min="0.01" step="0.01" placeholder="0.00" 
+                                          value="{{ request.form.get('hectareas', potrero.hectareas) }}" required>
+                                    <span class="input-group-text">ha</span>
+                                </div>
+                                <div class="form-text">Área total del potrero en hectáreas</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="tipo_pasto" class="form-label required">Tipo de Pasto</label>
+                                <input type="text" class="form-control" id="tipo_pasto" name="tipo_pasto" 
+                                      placeholder="Ej: Festuca, Alfalfa, Ryegrass" 
+                                      value="{{ request.form.get('tipo_pasto', potrero.tipo_pasto) }}" required>
+                                <div class="form-text">Variedad de pasto predominante</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="etapa_ganado" class="form-label required">Etapa de Ganado</label>
+                        <select class="form-select" id="etapa_ganado" name="etapa_ganado" required>
+                            <option value="" disabled>Seleccionar etapa</option>
+                            <option value="Ordeño" {% if request.form.get('etapa_ganado', potrero.etapa_ganado) == 'Ordeño' %}selected{% endif %}>Ordeño</option>
+                            <option value="Seco" {% if request.form.get('etapa_ganado', potrero.etapa_ganado) == 'Seco' %}selected{% endif %}>Seco</option>
+                            <option value="Crianza" {% if request.form.get('etapa_ganado', potrero.etapa_ganado) == 'Crianza' %}selected{% endif %}>Crianza</option>
+                            <option value="Múltiple" {% if request.form.get('etapa_ganado', potrero.etapa_ganado) == 'Múltiple' %}selected{% endif %}>Múltiple</option>
+                        </select>
+                        <div class="form-text">Etapa productiva del ganado asignado al potrero</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" 
+                                 placeholder="Información adicional sobre el potrero">{{ request.form.get('descripcion', potrero.descripcion) }}</textarea>
+                    </div>
+                    
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('potreros.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>Actualizar Potrero
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %} 

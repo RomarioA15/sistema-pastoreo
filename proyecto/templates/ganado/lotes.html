@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Lotes de Ganado - Sistema de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+    <div class="ganado-container ganado-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="ganado-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-cow me-1"></i>Gestión de Lotes
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="ganado-header">
+            <div class="ganado-header-content">
+                <div>
+                    <h1 class="ganado-title">
+                        <i class="fas fa-layer-group text-warning"></i>
+                        Centro de Gestión de Lotes
+                    </h1>
+                    <p class="ganado-subtitle ganado-mb-0">
+                        🐄 Los lotes son grupos organizados de ganado que facilitan el manejo, control y seguimiento de la producción. 
+                        Una gestión eficiente de lotes optimiza el pastoreo rotacional y maximiza la productividad.
+                    </p>
+                </div>
+                <div class="ganado-actions">
+                    {% if usuario_puede('ganado', 'crear') %}
+                    <a href="{{ url_for('ganado.nuevo_lote') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Nuevo Lote
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('ganado.balance_forrajero') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Balance Forrajero
+                    </a>
+                    <a href="{{ url_for('ganado.movimientos') }}" class="btn btn-info btn-lg">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Movimientos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD DE ESTADÍSTICAS -->
+        <div class="ganado-stats-section">
+            <h3 class="ganado-section-title">
+                <i class="fas fa-chart-bar text-primary"></i>
+                Panel de Control Ganadero
+            </h3>
+            <div class="ganado-stats">
+                <div class="ganado-stat-item ganado-stat-primary">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ lotes|length }}</div>
+                        <div class="ganado-stat-label">Lotes Registrados</div>
+                        <div class="ganado-stat-description">Grupos organizados de ganado</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-success">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">
+                            {% set total_animales = 0 %}
+                            {% for lote in lotes %}
+                                {% set total_animales = total_animales + (lote.numero_animales or 0) %}
+                            {% endfor %}
+                            {{ total_animales }}
+                        </div>
+                        <div class="ganado-stat-label">Total de Animales</div>
+                        <div class="ganado-stat-description">Inventario completo registrado</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-cow"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-warning">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">
+                            {% set total_peso = 0 %}
+                            {% for lote in lotes %}
+                                {% set total_peso = total_peso + ((lote.numero_animales or 0) * (lote.peso_promedio or 0)) %}
+                            {% endfor %}
+                            {{ "%.0f"|format(total_peso) }}
+                        </div>
+                        <div class="ganado-stat-label">Peso Total (kg)</div>
+                        <div class="ganado-stat-description">Biomasa total del inventario</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-info">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ "%.1f"|format(total_peso / 450) }}</div>
+                        <div class="ganado-stat-label">UGM Total</div>
+                        <div class="ganado-stat-description">Unidades Ganaderas Mayores</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: CONTENIDO + SIDEBAR -->
+        {% if lotes %}
+        <div class="ganado-grid-main">
+            
+            <!-- CONTENIDO PRINCIPAL: LOTES -->
+            <div class="ganado-main-content">
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h3 class="ganado-mb-0">
+                            <i class="fas fa-cow text-warning"></i>
+                            Tus Lotes de Ganado
+                        </h3>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="ganado-cards-grid">
+                            {% for lote in lotes %}
+                            <div class="ganado-lote-card ganado-slide-in">
+                                <div class="ganado-lote-header">
+                                    <div class="ganado-lote-title">
+                                        <span>{{ lote.nombre }}</span>
+                                        <div class="ganado-lote-meta">
+                                            {% if lote.raza %}
+                                                <span class="ganado-badge ganado-badge-activo">{{ lote.raza }}</span>
+                                            {% endif %}
+                                            {% if lote.potrero_nombre %}
+                                                <span class="ganado-lote-badge">{{ lote.potrero_nombre }}</span>
+                                            {% else %}
+                                                <span class="ganado-badge ganado-badge-inactivo">Sin Potrero</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-lote-stats">
+                                    <div class="ganado-lote-stat">
+                                        <div class="ganado-lote-stat-value">{{ lote.numero_animales or 0 }}</div>
+                                        <div class="ganado-lote-stat-label">Animales</div>
+                                    </div>
+                                    <div class="ganado-lote-stat">
+                                        <div class="ganado-lote-stat-value">{{ "%.0f"|format(lote.peso_promedio or 0) }}</div>
+                                        <div class="ganado-lote-stat-label">Peso Prom.</div>
+                                    </div>
+                                    <div class="ganado-lote-stat">
+                                        <div class="ganado-lote-stat-value">{{ lote.edad_promedio or 0 }}</div>
+                                        <div class="ganado-lote-stat-label">Edad Prom.</div>
+                                    </div>
+                                    <div class="ganado-lote-stat">
+                                        <div class="ganado-lote-stat-value">{{ "%.1f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0)) / 450) }}</div>
+                                        <div class="ganado-lote-stat-label">UGM</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Calculadora UGM -->
+                                <div class="ganado-ugm-calculator ganado-mb-md">
+                                    <div class="ganado-ugm-value">{{ "%.2f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0)) / 450) }}</div>
+                                    <div class="ganado-ugm-label">Unidades Ganaderas Mayores</div>
+                                </div>
+                                
+                                {% if lote.observaciones %}
+                                <div class="ganado-mb-md">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sticky-note me-1"></i>
+                                        {{ lote.observaciones[:80] }}{% if lote.observaciones|length > 80 %}...{% endif %}
+                                    </small>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="ganado-lote-actions">
+                                    <a href="{{ url_for('ganado.detalle_lote', lote_id=lote.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Ver Detalles
+                                    </a>
+                                    <a href="{{ url_for('ganado.nuevo_movimiento') }}?lote_id={{ lote.id }}" 
+                                       class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-exchange-alt me-1"></i>Mover Lote
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SIDEBAR EDUCATIVO -->
+            <div class="ganado-sidebar">
+                
+                <!-- Guía de Gestión -->
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-graduation-cap text-warning"></i>
+                            Guía de Gestión de Lotes
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-primary ganado-mb-sm">🐄 ¿Qué es un Lote?</h6>
+                            <p class="ganado-mb-0 text-muted">
+                                Un lote es un grupo de animales con características similares (edad, peso, estado) 
+                                que se manejan juntos para optimizar el pastoreo y control.
+                            </p>
+                        </div>
+
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-success ganado-mb-sm">⚖️ UGM (Unidad Ganadera Mayor)</h6>
+                            <p class="ganado-mb-0 text-muted">
+                                Equivale a 450 kg de peso vivo. Es la unidad estándar para calcular 
+                                capacidad de carga de potreros.
+                            </p>
+                        </div>
+
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-warning ganado-mb-sm">📊 Categorías Comunes</h6>
+                            <div class="ganado-mb-sm">
+                                <span class="ganado-badge ganado-badge-activo ganado-mb-xs">Vacas</span>
+                                <small class="text-muted">Hembras adultas reproductoras</small>
+                            </div>
+                            <div class="ganado-mb-sm">
+                                <span class="ganado-badge ganado-badge-vendido ganado-mb-xs">Toros</span>
+                                <small class="text-muted">Machos reproductores</small>
+                            </div>
+                            <div class="ganado-mb-sm">
+                                <span class="ganado-badge ganado-badge-activo ganado-mb-xs">Novillas</span>
+                                <small class="text-muted">Hembras jóvenes</small>
+                            </div>
+                            <div class="ganado-mb-sm">
+                                <span class="ganado-badge ganado-badge-activo ganado-mb-xs">Terneros</span>
+                                <small class="text-muted">Crías hasta destete</small>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="text-info ganado-mb-sm">💡 Consejos de Manejo</h6>
+                            <ul class="text-muted small">
+                                <li>Agrupa por edad y estado reproductivo</li>
+                                <li>Considera el peso para carga animal</li>
+                                <li>Mantén registros actualizados</li>
+                                <li>Planifica rotaciones según UGM</li>
+                                <li>Monitorea estado corporal</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mejores Prácticas -->
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-star text-gold"></i>
+                            Mejores Prácticas
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <ul class="text-muted small ganado-mb-0">
+                            <li><strong>Tamaño óptimo:</strong> 20-50 animales por lote</li>
+                            <li><strong>Homogeneidad:</strong> Animales de características similares</li>
+                            <li><strong>Identificación:</strong> Nombres claros y descriptivos</li>
+                            <li><strong>Monitoreo:</strong> Evaluación periódica de desempeño</li>
+                            <li><strong>Registros:</strong> Movimientos y cambios documentados</li>
+                            <li><strong>Flexibilidad:</strong> Ajustes según necesidades</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="ganado-empty-state">
+            <div class="ganado-empty-card">
+                <div class="ganado-empty-icon">
+                    <i class="fas fa-cow"></i>
+                </div>
+                <h3 class="ganado-empty-title">
+                    ¡Crea tu Primer Lote de Ganado!
+                </h3>
+                <p class="ganado-empty-description">
+                    Organiza tu ganado en lotes para un manejo más eficiente y productivo. 
+                    Los lotes te permiten agrupar animales con características similares 
+                    y optimizar el pastoreo rotacional.
+                </p>
+                <div class="ganado-empty-actions">
+                    <a href="{{ url_for('ganado.nuevo_lote') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>Crear Mi Primer Lote
+                    </a>
+                    <a href="{{ url_for('ganado.balance_forrajero') }}" class="btn btn-outline-info btn-lg">
+                        <i class="fas fa-info-circle me-2"></i>Aprender Más
+                    </a>
+                </div>
+            </div>
+            
+            <div class="ganado-card ganado-mt-xl">
+                <div class="ganado-card-header">
+                    <h5 class="ganado-mb-0">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        ¿Por dónde empezar?
+                    </h5>
+                </div>
+                <div class="ganado-card-body">
+                    <div class="ganado-mb-lg">
+                        <h6 class="text-primary">📋 Paso 1: Inventario</h6>
+                        <p class="text-muted ganado-mb-0">
+                            Cuenta y clasifica tu ganado por edad, peso y estado reproductivo.
+                        </p>
+                    </div>
+                    <div class="ganado-mb-lg">
+                        <h6 class="text-success">🏷️ Paso 2: Agrupación</h6>
+                        <p class="text-muted ganado-mb-0">
+                            Forma lotes homogéneos de 20-50 animales con características similares.
+                        </p>
+                    </div>
+                    <div>
+                        <h6 class="text-info">📍 Paso 3: Asignación</h6>
+                        <p class="text-muted ganado-mb-0">
+                            Asigna cada lote a un potrero apropiado según capacidad de carga.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+{% endblock %}

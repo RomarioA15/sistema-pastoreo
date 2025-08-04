@@ -1,0 +1,980 @@
+/**
+ * MÓDULO ACTIVIDADES - Sistema de Diseño Completo y Responsivo
+ * Gestión de actividades ganaderas con interfaz lógica y organizada
+ */
+
+/* =============================================================================
+   1. VARIABLES Y FUNDAMENTOS
+   ============================================================================= */
+
+:root {
+  /* Colores específicos de actividades */
+  --actividad-primary: #007bff;
+  --actividad-secondary: #6c757d;
+  --actividad-success: #28a745;
+  --actividad-info: #17a2b8;
+  --actividad-warning: #ffc107;
+  --actividad-danger: #dc3545;
+  --actividad-light: #f8f9fa;
+  --actividad-dark: #343a40;
+  
+  /* Estados de actividades */
+  --estado-pendiente: #007bff;
+  --estado-progreso: #fd7e14;
+  --estado-completada: #28a745;
+  --estado-cancelada: #dc3545;
+  
+  /* Espaciado sistemático */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+  
+  /* Tipografía */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xxl: 1.5rem;
+  
+  /* Sombras y efectos */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.2);
+  
+  /* Transiciones */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+}
+
+/* =============================================================================
+   2. LAYOUT BASE Y CONTENEDORES
+   ============================================================================= */
+
+.actividades-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.actividades-container {
+  max-width: var(--breakpoint-xxl);
+  margin: 0 auto;
+  padding: var(--space-md);
+  position: relative;
+}
+
+.actividades-grid {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: 1fr;
+}
+
+/* =============================================================================
+   3. SISTEMA DE GRID RESPONSIVO
+   ============================================================================= */
+
+/* Grid principal - 2 columnas en desktop */
+.actividades-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* Grid de cards - auto-fit responsivo */
+.actividades-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+/* Grid de filtros - responsive */
+.actividades-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
+}
+
+/* Grid de estadísticas - 4 columnas */
+.actividades-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+/* =============================================================================
+   4. COMPONENTES BASE
+   ============================================================================= */
+
+/* Card base */
+.actividad-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: var(--transition-normal);
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.actividad-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.actividad-card-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.actividad-card-body {
+  padding: var(--space-lg);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.actividad-card-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  background: #f8f9fa;
+  margin-top: auto;
+}
+
+/* =============================================================================
+   5. HEADER Y NAVEGACIÓN
+   ============================================================================= */
+
+.actividades-header {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.actividades-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+
+.actividades-title {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  color: var(--actividad-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.actividades-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--actividad-secondary);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.actividades-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* Status indicators */
+.status-indicator-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.status-indicator {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  font-size: 1.2em;
+  z-index: 2;
+}
+
+.status-pendiente { color: var(--estado-pendiente); }
+.status-progreso { color: var(--estado-progreso); }
+.status-completada { color: var(--estado-completada); }
+.status-cancelada { color: var(--estado-cancelada); }
+
+/* =============================================================================
+   6. PANEL DE CONTROL
+   ============================================================================= */
+
+.actividades-control-panel {
+  background: linear-gradient(135deg, var(--actividad-primary) 0%, var(--actividad-info) 100%);
+  color: white;
+  border-radius: 16px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.actividades-control-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+}
+
+.actividades-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.actividades-stat-item {
+  text-align: center;
+  padding: var(--space-lg);
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-normal);
+}
+
+.actividades-stat-item:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+
+.actividades-stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: var(--space-xs);
+  display: block;
+}
+
+.actividades-stat-label {
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* =============================================================================
+   7. FILTROS Y CONTROLES
+   ============================================================================= */
+
+.actividades-filters-section {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.actividades-filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.actividades-filters-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--actividad-dark);
+  margin: 0;
+}
+
+.actividades-view-controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.actividades-view-btn {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--actividad-light);
+  background: white;
+  border-radius: 8px;
+  color: var(--actividad-secondary);
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.actividades-view-btn:hover,
+.actividades-view-btn.active {
+  background: var(--actividad-primary);
+  color: white;
+  border-color: var(--actividad-primary);
+}
+
+.actividades-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+/* =============================================================================
+   8. CARDS DE ACTIVIDADES
+   ============================================================================= */
+
+.actividad-item-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: var(--transition-normal);
+  border: 1px solid rgba(0,0,0,0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.actividad-item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.actividad-item-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.actividad-item-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--actividad-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.actividad-item-meta {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  margin-top: var(--space-sm);
+}
+
+.actividad-badge {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 20px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.actividad-badge-pendiente {
+  background: rgba(0, 123, 255, 0.1);
+  color: var(--estado-pendiente);
+}
+
+.actividad-badge-progreso {
+  background: rgba(253, 126, 20, 0.1);
+  color: var(--estado-progreso);
+}
+
+.actividad-badge-completada {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--estado-completada);
+}
+
+.actividad-badge-cancelada {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--estado-cancelada);
+}
+
+.actividad-item-body {
+  padding: var(--space-lg);
+  flex-grow: 1;
+}
+
+.actividad-description {
+  color: var(--actividad-secondary);
+  margin-bottom: var(--space-lg);
+  line-height: 1.5;
+}
+
+.actividad-details {
+  background: var(--actividad-light);
+  border-radius: 8px;
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.actividad-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  text-align: center;
+}
+
+.actividad-detail-item {
+  padding: var(--space-sm);
+}
+
+.actividad-detail-label {
+  font-size: var(--font-size-xs);
+  color: var(--actividad-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-xs);
+}
+
+.actividad-detail-value {
+  font-weight: 700;
+  color: var(--actividad-dark);
+}
+
+.actividad-item-actions {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  background: #f8f9fa;
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+.actividad-action-btn {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--actividad-light);
+  border-radius: 8px;
+  background: white;
+  color: var(--actividad-secondary);
+  text-decoration: none;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.actividad-action-btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.actividad-action-btn-primary {
+  background: var(--actividad-primary);
+  color: white;
+  border-color: var(--actividad-primary);
+}
+
+.actividad-action-btn-primary:hover {
+  background: #0056b3;
+  border-color: #004085;
+  color: white;
+}
+
+.actividad-action-btn-danger {
+  color: var(--actividad-danger);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.actividad-action-btn-danger:hover {
+  background: var(--actividad-danger);
+  color: white;
+  border-color: var(--actividad-danger);
+}
+
+/* =============================================================================
+   9. SIDEBAR Y COMPONENTES SECUNDARIOS
+   ============================================================================= */
+
+.actividades-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.actividades-quick-stats {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.actividades-quick-stats-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--actividad-dark);
+  margin: 0 0 var(--space-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.actividades-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.actividades-stat-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: 8px;
+  transition: var(--transition-fast);
+}
+
+.actividades-stat-item:hover {
+  background: var(--actividad-light);
+}
+
+.actividades-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-md);
+  font-size: var(--font-size-lg);
+}
+
+.actividades-stat-content {
+  flex-grow: 1;
+}
+
+.actividades-stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--actividad-dark);
+  margin: 0;
+}
+
+.actividades-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--actividad-secondary);
+  margin: 0;
+}
+
+/* Tipos de actividades */
+.actividades-tipos-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.actividades-tipo-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: 8px;
+  transition: var(--transition-fast);
+}
+
+.actividades-tipo-item:hover {
+  transform: translateX(4px);
+}
+
+.actividades-tipo-icon {
+  margin-right: var(--space-md);
+  font-size: var(--font-size-lg);
+}
+
+.actividades-tipo-content {
+  flex-grow: 1;
+}
+
+.actividades-tipo-name {
+  font-weight: 600;
+  color: var(--actividad-dark);
+  margin: 0;
+}
+
+.actividades-tipo-description {
+  font-size: var(--font-size-sm);
+  color: var(--actividad-secondary);
+  margin: 0;
+}
+
+/* =============================================================================
+   10. ESTADO VACÍO
+   ============================================================================= */
+
+.actividades-empty-state {
+  text-align: center;
+  padding: var(--space-xxl);
+  background: white;
+  border-radius: 16px;
+  border: 2px dashed var(--actividad-light);
+  margin: var(--space-xl) 0;
+}
+
+.actividades-empty-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-lg);
+  background: var(--actividad-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--actividad-secondary);
+}
+
+.actividades-empty-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--actividad-dark);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.actividades-empty-description {
+  font-size: var(--font-size-base);
+  color: var(--actividad-secondary);
+  margin: 0 0 var(--space-xl) 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.actividades-empty-action {
+  background: var(--actividad-primary);
+  color: white;
+  border: none;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: 25px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: var(--transition-normal);
+}
+
+.actividades-empty-action:hover {
+  background: #0056b3;
+  text-decoration: none;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =============================================================================
+   11. RESPONSIVIDAD
+   ============================================================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+  .actividades-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  
+  .actividades-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .actividades-header-content {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .actividades-actions {
+    justify-content: center;
+  }
+  
+  .actividades-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .actividades-filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .actividades-container {
+    padding: var(--space-sm);
+  }
+  
+  .actividades-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actividades-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+  
+  .actividades-filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actividades-header,
+  .actividades-filters-section,
+  .actividades-control-panel {
+    padding: var(--space-lg);
+  }
+  
+  .actividades-detail-item {
+    padding: var(--space-xs);
+  }
+  
+  .actividades-item-actions {
+    flex-direction: column;
+  }
+  
+  .actividades-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .actividades-details-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .actividades-container {
+    padding: var(--space-xs);
+  }
+  
+  .actividades-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .actividades-header,
+  .actividades-filters-section,
+  .actividades-control-panel {
+    padding: var(--space-md);
+  }
+  
+  .actividad-card-body,
+  .actividad-card-header {
+    padding: var(--space-md);
+  }
+  
+  .actividades-empty-state {
+    padding: var(--space-xl);
+  }
+  
+  .actividades-empty-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+}
+
+/* =============================================================================
+   12. ANIMACIONES Y EFECTOS
+   ============================================================================= */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.actividades-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.actividades-pulse {
+  animation: pulse 2s infinite;
+}
+
+.actividades-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Loading spinner */
+.actividades-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-xl);
+}
+
+.actividades-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--actividad-light);
+  border-top: 4px solid var(--actividad-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+   13. UTILIDADES
+   ============================================================================= */
+
+.actividades-text-center { text-align: center; }
+.actividades-text-left { text-align: left; }
+.actividades-text-right { text-align: right; }
+
+.actividades-mb-0 { margin-bottom: 0; }
+.actividades-mb-sm { margin-bottom: var(--space-sm); }
+.actividades-mb-md { margin-bottom: var(--space-md); }
+.actividades-mb-lg { margin-bottom: var(--space-lg); }
+.actividades-mb-xl { margin-bottom: var(--space-xl); }
+
+.actividades-mt-0 { margin-top: 0; }
+.actividades-mt-sm { margin-top: var(--space-sm); }
+.actividades-mt-md { margin-top: var(--space-md); }
+.actividades-mt-lg { margin-top: var(--space-lg); }
+.actividades-mt-xl { margin-top: var(--space-xl); }
+
+.actividades-hidden { display: none; }
+.actividades-visible { display: block; }
+
+/* Toast notifications */
+.actividades-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--actividad-success);
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1060;
+  animation: slideIn 0.3s ease-out;
+  max-width: 300px;
+}
+
+.actividades-toast-error {
+  background: var(--actividad-danger);
+}
+
+.actividades-toast-warning {
+  background: var(--actividad-warning);
+  color: var(--actividad-dark);
+}
+
+.actividades-toast-info {
+  background: var(--actividad-info);
+}
+
+/* =============================================================================
+   14. MODO OSCURO (Futuro)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .actividades-page {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+  
+  .actividad-card {
+    background: #2d2d2d;
+    border-color: rgba(255,255,255,0.1);
+  }
+  
+  .actividades-title,
+  .actividad-item-title {
+    color: #ffffff;
+  }
+  
+  .actividades-subtitle,
+  .actividad-description {
+    color: #adb5bd;
+  }
+  
+  .actividades-filters-section,
+  .actividades-control-panel {
+    background: #2d2d2d;
+    border-color: rgba(255,255,255,0.1);
+  }
+}
+
+/* =============================================================================
+   15. MEJORAS DE ACCESIBILIDAD
+   ============================================================================= */
+
+/* Focus visible para navegación por teclado */
+.actividad-action-btn:focus-visible,
+.actividades-view-btn:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--actividad-primary);
+  outline-offset: 2px;
+}
+
+/* Alto contraste para texto importante */
+.actividad-item-title,
+.actividades-stat-value,
+.actividades-title {
+  font-weight: 700;
+  color: var(--actividad-dark);
+}
+
+/* Indicadores de estado más claros */
+.status-indicator {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+/* Hover states más prominentes */
+.actividad-card:hover,
+.actividades-stat-item:hover {
+  border-color: var(--actividad-primary);
+}

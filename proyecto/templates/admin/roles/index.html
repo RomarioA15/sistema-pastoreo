@@ -1,0 +1,252 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Gestión de Roles - Sistema de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="template-header roles-header">
+        <div class="row align-items-center">
+            <div class="col-8">
+                <h1 class="mb-3">
+                    <i class="fas fa-user-tag me-3"></i>
+                    Gestión de Roles
+                </h1>
+                <p class="lead mb-0 text-responsive-wrap">
+                    Administra los roles del sistema y define permisos granulares
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ url_for('admin.nuevo_rol') }}" class="create-role-btn">
+                    <i class="fas fa-plus me-2"></i>
+                    Crear Nuevo Rol
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="template-breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('admin.index') }}">
+                    <i class="fas fa-home"></i> Administración
+                </a>
+            </li>
+            <li class="breadcrumb-item active">Roles</li>
+        </ol>
+    </nav>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="row mb-4">
+        <div class="col-3">
+            <div class="template-card text-center border-primary">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ roles|length }}</h3>
+                    <p class="mb-0">Total Roles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center border-danger">
+                <div class="card-body">
+                    <h3 class="text-danger">{{ roles|selectattr('es_admin')|list|length }}</h3>
+                    <p class="mb-0">Roles Admin</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center border-success">
+                <div class="card-body">
+                    <h3 class="text-success">{{ roles|rejectattr('es_admin')|list|length }}</h3>
+                    <p class="mb-0">Roles Regulares</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center border-info">
+                <div class="card-body">
+                    <h3 class="text-info">11</h3>
+                    <p class="mb-0">Módulos Sistema</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Roles -->
+    <div class="template-grid">
+        {% for rol in roles %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="role-card h-100 {% if rol.es_admin %}admin-role{% else %}regular-role{% endif %}">
+                <div class="card-body">
+                    <!-- Header del Rol -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="template-header" class="card-title mb-1">
+                                {{ rol.nombre }}
+                                {% if rol.es_admin %}
+                                    <i class="fas fa-crown text-warning ms-1"></i>
+                                {% endif %}
+                            </h5>
+                            {% if rol.es_admin %}
+                                <span class="admin-badge">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Super Admin
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                    type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" 
+                                       href="{{ url_for('admin.editar_rol', rol_id=rol.id) }}">
+                                        <i class="fas fa-edit me-2"></i>Editar
+                                    </a>
+                                </li>
+                                {% if not rol.es_admin %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" 
+                                          action="{{ url_for('admin.eliminar_rol', rol_id=rol.id) }}"
+                                          onsubmit="return confirm('¿Estás seguro de eliminar este rol?')">
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-trash me-2"></i>Eliminar
+                                        </button>
+                                    </form>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <p class="text-muted small mb-3">{{ rol.descripcion or 'Sin descripción' }}</p>
+
+                    <!-- Permisos -->
+                    <div class="mb-3">
+                        <h6 class="small text-uppercase text-muted mb-2">
+                            Permisos ({{ rol.permisos|length if rol.permisos else 0 }} módulos)
+                        </h6>
+                        
+                        {% if rol.es_admin %}
+                            <div class="alert alert-responsive alert-warning alert-sm py-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small>Acceso completo a todos los módulos</small>
+                            </div>
+                        {% elif rol.permisos %}
+                            <div class="d-flex flex-wrap">
+                                {% for modulo, acciones in rol.permisos.items() %}
+                                <span class="permission-badge">
+                                    <i class="fas fa-key me-1"></i>
+                                    {{ modulo|title }}
+                                    <span class="badge bg-primary ms-1">{{ acciones|length }}</span>
+                                </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-responsive alert-light alert-sm py-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <small>Sin permisos asignados</small>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ rol.fecha_creacion.strftime('%d/%m/%Y') if rol.fecha_creacion else 'N/A' }}
+                        </small>
+                        
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('admin.editar_rol', rol_id=rol.id) }}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% if not rol.es_admin %}
+                            <form method="POST" 
+                                  action="{{ url_for('admin.eliminar_rol', rol_id=rol.id) }}"
+                                  class="d-inline"
+                                  onsubmit="return confirm('¿Estás seguro?')">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Estado Vacío -->
+    {% if not roles %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-user-tag fa-5x text-muted"></i>
+        </div>
+        <h3 class="text-muted">No hay roles registrados</h3>
+        <p class="text-muted mb-4 text-responsive-wrap">Crea tu primer rol para comenzar a gestionar permisos</p>
+        <a href="{{ url_for('admin.nuevo_rol') }}" class="create-role-btn">
+            <i class="fas fa-plus me-2"></i>
+            Crear Primer Rol
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Información Adicional -->
+    <div class="mt-5">
+        <div class="template-card">
+            <div class="template-header card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información sobre Roles y Permisos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="template-grid">
+                    <div class="col-6">
+                        <h6>Tipos de Roles:</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-crown text-warning me-2"></i>
+                                <strong>Super Administrador:</strong> Acceso completo al sistema
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-user-tag text-primary me-2"></i>
+                                <strong>Roles Regulares:</strong> Permisos específicos por módulo
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <h6>Acciones Disponibles:</h6>
+                        <div class="template-grid">
+                            <div class="col-6">
+                                <small>
+                                    • <strong>Crear:</strong> Agregar nuevos registros<br>
+                                    • <strong>Leer:</strong> Visualizar información
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small>
+                                    • <strong>Actualizar:</strong> Modificar datos<br>
+                                    • <strong>Eliminar:</strong> Borrar registros
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

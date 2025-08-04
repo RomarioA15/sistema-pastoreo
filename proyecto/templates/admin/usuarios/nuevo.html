@@ -1,0 +1,253 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Crear Usuario - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-user-plus me-3"></i>
+                Crear Nuevo Usuario
+            </h1>
+            <p class="lead mb-0">Añade un nuevo usuario al sistema y asigna sus permisos</p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="template-breadcrumb">
+        <ol>
+            <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-home"></i> Administración</a></li>
+            <li><a href="{{ url_for('admin.usuarios') }}">Usuarios</a></li>
+            <li class="active">Nuevo Usuario</li>
+        </ol>
+    </nav>
+
+    <form method="POST" id="userForm">
+        <div class="template-grid">
+            <!-- Información básica del usuario -->
+            <div class="template-grid-main">
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-user"></i> Información Personal</h3>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-user"></i> Nombre Completo
+                            </label>
+                            <input type="text" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   class="form-control" 
+                                   placeholder="Ej: Juan Pérez García"
+                                   required>
+                            <small class="form-help">Nombre completo del usuario</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Correo Electrónico
+                            </label>
+                            <input type="email" 
+                                   id="email" 
+                                   name="email" 
+                                   class="form-control" 
+                                   placeholder="usuario@ejemplo.com"
+                                   required>
+                            <small class="form-help">Este será su nombre de usuario para iniciar sesión</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="password" class="form-label">
+                                        <i class="fas fa-lock"></i> Contraseña
+                                    </label>
+                                    <input type="password" 
+                                           id="password" 
+                                           name="password" 
+                                           class="form-control" 
+                                           placeholder="Contraseña segura"
+                                           required>
+                                    <small class="form-help">Mínimo 6 caracteres</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="password_confirm" class="form-label">
+                                        <i class="fas fa-lock"></i> Confirmar Contraseña
+                                    </label>
+                                    <input type="password" 
+                                           id="password_confirm" 
+                                           name="password_confirm" 
+                                           class="form-control" 
+                                           placeholder="Repite la contraseña"
+                                           required>
+                                    <small class="form-help">Debe coincidir con la contraseña anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asignación de Permisos -->
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-user-tag"></i> Asignación de Permisos</h3>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="finca_id" class="form-label">
+                                        <i class="fas fa-map-marked-alt"></i> Finca
+                                    </label>
+                                    <select id="finca_id" name="finca_id" class="form-control">
+                                        <option value="">Seleccionar finca...</option>
+                                        {% for finca in fincas %}
+                                        <option value="{{ finca.id }}">{{ finca.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-help">Finca donde trabajará el usuario</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="rol_id" class="form-label">
+                                        <i class="fas fa-user-shield"></i> Rol
+                                    </label>
+                                    <select id="rol_id" name="rol_id" class="form-control">
+                                        <option value="">Seleccionar rol...</option>
+                                        {% for rol in roles %}
+                                        <option value="{{ rol.id }}" 
+                                                data-admin="{{ rol.es_admin|lower }}"
+                                                data-descripcion="{{ rol.descripcion }}">
+                                            {{ rol.nombre }}
+                                            {% if rol.es_admin %}<span class="badge badge-warning ms-1">Admin</span>{% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="form-help">Define los permisos del usuario</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista previa del rol -->
+                        <div id="rol-preview" class="role-preview" style="display: none;">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Descripción del Rol</h6>
+                                <p id="rol-descripcion" class="mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel lateral con ayuda -->
+            <div class="template-grid-sidebar">
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-info-circle"></i> Información</h4>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="help-section">
+                            <h6><i class="fas fa-user-plus"></i> Creación de Usuario</h6>
+                            <p>Completa todos los campos obligatorios para crear el usuario. La contraseña debe ser segura.</p>
+                        </div>
+
+                        <div class="help-section">
+                            <h6><i class="fas fa-user-tag"></i> Asignación de Rol</h6>
+                            <p>Puedes asignar un rol inmediatamente o hacerlo después desde la gestión de usuarios.</p>
+                        </div>
+
+                        <div class="help-section">
+                            <h6><i class="fas fa-shield-alt"></i> Permisos</h6>
+                            <p>Los permisos se definen por el rol asignado. Puedes cambiar el rol posteriormente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas rápidas -->
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="stat-item">
+                            <span class="stat-number">{{ fincas|length }}</span>
+                            <span class="stat-label">Fincas Disponibles</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">{{ roles|length }}</span>
+                            <span class="stat-label">Roles Disponibles</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="template-actions">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-save me-2"></i>
+                Crear Usuario
+            </button>
+            <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times me-2"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview del rol seleccionado
+    const rolSelect = document.getElementById('rol_id');
+    const rolPreview = document.getElementById('rol-preview');
+    const rolDescripcion = document.getElementById('rol-descripcion');
+
+    rolSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (this.value) {
+            const descripcion = selectedOption.dataset.descripcion;
+            rolDescripcion.textContent = descripcion;
+            rolPreview.style.display = 'block';
+        } else {
+            rolPreview.style.display = 'none';
+        }
+    });
+
+    // Validación de contraseñas
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password_confirm');
+
+    function validatePasswords() {
+        if (password.value !== passwordConfirm.value) {
+            passwordConfirm.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            passwordConfirm.setCustomValidity('');
+        }
+    }
+
+    password.addEventListener('input', validatePasswords);
+    passwordConfirm.addEventListener('input', validatePasswords);
+
+    // Validación del formulario
+    document.getElementById('userForm').addEventListener('submit', function(e) {
+        validatePasswords();
+        
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Potrero - {{ potrero.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Configurar variables para el header -->
+    {% set title = 'Editar Potrero' %}
+    {% set subtitle = 'Modificar información del potrero ' + potrero.nombre %}
+    {% set icon = 'fas fa-edit' %}
+    {% set show_breadcrumb = true %}
+    {% set breadcrumb_active = 'Editar: ' + potrero.nombre %}
+    {% set breadcrumb_icon = 'fas fa-edit' %}
+    {% set back_url = url_for('potreros.index') %}
+    {% set back_text = 'Volver a Potreros' %}
+    
+    {% include 'potreros/_header.html' with context %}
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Editar Potrero: {{ potrero.nombre }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('potreros.editar', id=potrero.id) }}">
+                        {% include 'potreros/_form_fields.html' with context %}
+                        
+                        <div class="d-flex justify-content-between pt-3 border-top">
+                            <a href="{{ url_for('potreros.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                Actualizar Potrero
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            {% include 'potreros/_help_panel.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

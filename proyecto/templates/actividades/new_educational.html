@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Actividad - Sistema Educativo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/actividades.css') }}">
+{% endblock %}
+
+{% block content %}
+<body class="actividades-page">
+
+<div class="template-container">
+    <!-- Header Educativo -->
+    <div class="template-header educational-header">
+        <div class="row align-items-center">
+            <div class="col-8">
+                <h1 class="mb-3">
+                    <i class="fas fa-plus-circle me-3"></i>
+                    Nueva Actividad
+                </h1>
+                <p class="lead mb-0 text-responsive-wrap">
+                    Programa una nueva actividad para tu operación ganadera. Una planificación detallada es clave para el éxito de tu negocio.
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <i class="fas fa-calendar-plus" style="font-size: 4rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb Educativo -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb bg-white rounded-3 px-3 py-2 shadow-sm">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none" style="color: #667eea;">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('actividades.index_educational') }}" class="text-decoration-none" style="color: #667eea;">
+                    <i class="fas fa-tasks"></i> Actividades
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <i class="fas fa-plus"></i> Nueva
+            </li>
+        </ol>
+    </nav>
+
+    <div class="template-grid">
+        <div class="col-8">
+            <!-- Formulario Principal -->
+            <div class="form-smart-card">
+                <h3 class="mb-4">
+                    <i class="fas fa-edit me-2"></i>
+                    Información de la Actividad
+                </h3>
+                
+                <form method="POST" action="{{ url_for('actividades.nueva_educational') }}" id="actividadForm">
+                    <div class="template-grid">
+                        <div class="col-6">
+                            <div class="form-group-educational">
+                                <label class="form-label-educational">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Potrero de Destino *
+                                </label>
+                                <select name="potrero_id" class="form-control-educational form-select" required>
+                                    <option value="">Selecciona un potrero...</option>
+                                    {% for potrero in potreros %}
+                                    <option value="{{ potrero.id }}">{{ potrero.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="help-text">
+                                    Potrero donde se realizará la actividad
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6">
+                            <div class="form-group-educational">
+                                <label class="form-label-educational">
+                                    <i class="fas fa-calendar"></i>
+                                    Fecha Programada *
+                                </label>
+                                <input type="date" name="fecha" class="form-control-educational" 
+                                       min="{{ 'now'|strftime('%Y-%m-%d') }}" required>
+                                <div class="help-text">
+                                    Cuándo planeas realizar esta actividad
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-educational">
+                        <label class="form-label-educational">
+                            <i class="fas fa-cogs"></i>
+                            Tipo de Actividad *
+                        </label>
+                        <select name="tipo_actividad" class="form-control-educational form-select" required onchange="updateActivityPreview()">
+                            <option value="">Selecciona el tipo de actividad...</option>
+                            {% for tipo in tipos_actividad %}
+                            <option value="{{ tipo }}">{{ tipo }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">
+                            Tipo de trabajo que vas a realizar
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-educational">
+                        <label class="form-label-educational">
+                            <i class="fas fa-file-alt"></i>
+                            Descripción Detallada *
+                        </label>
+                        <textarea name="descripcion" class="form-control-educational" rows="4" 
+                                  placeholder="Describe detalladamente la actividad a realizar..." required></textarea>
+                        <div class="help-text">
+                            Incluye materiales, herramientas y procedimientos específicos
+                        </div>
+                    </div>
+                    
+                    <div class="template-grid">
+                        <div class="col-6">
+                            <div class="form-group-educational">
+                                <label class="form-label-educational">
+                                    <i class="fas fa-user"></i>
+                                    Responsable
+                                </label>
+                                <input type="text" name="responsable" class="form-control-educational" 
+                                       placeholder="Nombre del responsable">
+                                <div class="help-text">
+                                    Persona encargada de ejecutar la actividad
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-6">
+                            <div class="form-group-educational">
+                                <label class="form-label-educational">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    Costo Estimado
+                                </label>
+                                <input type="number" name="costo" class="form-control-educational" 
+                                       step="0.01" min="0" placeholder="0.00">
+                                <div class="help-text">
+                                    Costo estimado de materiales y mano de obra
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-educational">
+                        <label class="form-label-educational">
+                            <i class="fas fa-flag"></i>
+                            Estado Inicial
+                        </label>
+                        <select name="estado" class="form-control-educational form-select">
+                            {% for estado in estados %}
+                            <option value="{{ estado }}" {{ 'selected' if estado == 'Pendiente' }}>{{ estado }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="help-text">
+                            Estado en que se creará la actividad
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn-educational btn-success-educational">
+                            <i class="fas fa-save me-2"></i>Crear Actividad
+                        </button>
+                        <a href="{{ url_for('actividades.index_educational') }}" class="btn-educational btn-secondary-educational">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <!-- Consejos Educativos -->
+            <div class="educational-tip">
+                <h5><i class="fas fa-lightbulb me-2"></i>Consejos para Actividades Exitosas</h5>
+                <ul class="mb-0">
+                    <li><strong>Planifica con tiempo:</strong> Programa actividades con al menos 1 semana de anticipación</li>
+                    <li><strong>Sé específico:</strong> Describe claramente qué, cómo y cuándo realizar la actividad</li>
+                    <li><strong>Considera el clima:</strong> Revisa las condiciones meteorológicas antes de programar</li>
+                    <li><strong>Calcula recursos:</strong> Estima materiales, tiempo y costos necesarios</li>
+                </ul>
+            </div>
+            
+            <div class="educational-tip">
+                <h5><i class="fas fa-info-circle me-2"></i>Tipos de Actividades Comunes</h5>
+                <div id="activityTypeInfo">
+                    <p class="mb-0 text-responsive-wrap">Selecciona un tipo de actividad para ver información específica sobre mejores prácticas y consideraciones especiales.</p>
+                </div>
+            </div>
+            
+            <!-- Vista previa del costo -->
+            <div class="form-smart-card" id="costPreview" style="display: none;">
+                <h5><i class="fas fa-calculator me-2"></i>Estimación de Costos</h5>
+                <div id="costBreakdown">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTÓN DE AYUDA FLOTANTE IA -->
+<div class="actividades-floating-help">
+    <button class="actividades-help-button" onclick="mostrarAsistenteIA()" title="Asistente IA Avanzado">
+        <i class="fas fa-robot"></i>
+    </button>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/actividades.js') }}"></script>
+<script>
+// JavaScript específico para modo educativo IA
+function mostrarAsistenteIA() {
+    alert('Asistente IA Avanzado: \n\n🤖 ¡Hola! Soy tu asistente de actividades con inteligencia artificial. \n\nPuedo ayudarte a: \n• Seleccionar el potrero óptimo \n• Recomendar tipos de actividad \n• Optimizar costos y recursos \n• Predecir resultados \n• Sugerir mejores prácticas \n\n¿En qué puedo asistirte hoy?');
+}
+
+function analizarPotrero() {
+    const potrero = document.getElementById('potrero_id');
+    const analisis = document.getElementById('analisis-potrero');
+    const recomendaciones = document.getElementById('recomendaciones-potrero');
+    
+    if (potrero.value) {
+        const option = potrero.selectedOptions[0];
+        const hectareas = option.dataset.hectareas;
+        const tipoPasto = option.dataset.tipoPasto;
+        const condicion = option.dataset.condicion;
+        
+        recomendaciones.innerHTML = `
+            <div class="actividades-analysis-item">
+                <strong>Tamaño:</strong> ${hectareas} hectáreas - óptimo para actividades de mediana escala
+            </div>
+            <div class="actividades-analysis-item">
+                <strong>Tipo de Pasto:</strong> ${tipoPasto} - condiciones ideales para fertilización
+            </div>
+            <div class="actividades-analysis-item">
+                <strong>Condición:</strong> ${condicion || 'Buena'} - recomendamos mantenimiento preventivo
+            </div>
+        `;
+        analisis.style.display = 'block';
+    }
+}
+
+function seleccionarTipoIA(element) {
+    // Remover selección anterior
+    document.querySelectorAll('.actividades-tipo-ia-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Seleccionar nuevo elemento
+    element.classList.add('selected');
+    document.getElementById('tipo_actividad').value = element.dataset.value;
+    
+    // Generar sugerencias según el tipo
+    generarSugerenciasIA();
+}
+
+function seleccionarEstadoIA(element) {
+    // Remover selección anterior
+    document.querySelectorAll('.actividades-estado-ia-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Seleccionar nuevo elemento
+    element.classList.add('selected');
+    document.getElementById('estado').value = element.dataset.value;
+}
+
+function generarSugerenciasIA() {
+    const tipo = document.getElementById('tipo_actividad').value;
+    const suggestions = document.getElementById('ia-suggestions');
+    const content = document.getElementById('suggestions-content');
+    
+    if (tipo) {
+        let sugerencias = '';
+        switch(tipo) {
+            case 'Riego':
+                sugerencias = '• Verificar sistema de riego\n• Calcular volumen de agua necesario\n• Revisar presión del sistema';
+                break;
+            case 'Fumigación':
+                sugerencias = '• Seleccionar pesticida apropiado\n• Calcular dosis por hectárea\n• Verificar condiciones de viento';
+                break;
+            case 'Fertilización':
+                sugerencias = '• Análisis de suelo recomendado\n• Fertilizante NPK balanceado\n• Aplicación uniforme';
+                break;
+            default:
+                sugerencias = '• Planificar materiales necesarios\n• Asignar personal calificado\n• Considerar condiciones climáticas';
+        }
+        
+        content.innerHTML = `<pre class="actividades-ia-suggestion-text">${sugerencias}</pre>`;
+        suggestions.style.display = 'block';
+    }
+}
+
+function previsualizarActividad() {
+    const form = document.getElementById('actividadFormIA');
+    const formData = new FormData(form);
+    
+    let preview = 'Vista Previa de Actividad IA:\n\n';
+    preview += `Potrero: ${formData.get('potrero_id') ? 'Seleccionado' : 'No seleccionado'}\n`;
+    preview += `Tipo: ${formData.get('tipo_actividad') || 'No seleccionado'}\n`;
+    preview += `Fecha: ${formData.get('fecha') || 'No programada'}\n`;
+    preview += `Estado: ${formData.get('estado') || 'Pendiente'}\n`;
+    preview += `\nOptimización IA: 95% completa`;
+    
+    alert(preview);
+}
+
+function validarConIA() {
+    const form = document.getElementById('actividadFormIA');
+    const formData = new FormData(form);
+    
+    let errores = [];
+    if (!formData.get('potrero_id')) errores.push('Selecciona un potrero');
+    if (!formData.get('tipo_actividad')) errores.push('Selecciona tipo de actividad');
+    if (!formData.get('fecha')) errores.push('Programa una fecha');
+    if (!formData.get('descripcion')) errores.push('Añade descripción');
+    
+    if (errores.length > 0) {
+        alert('⚠️ Validación IA - Campos faltantes:\n\n' + errores.join('\n'));
+    } else {
+        alert('✅ Validación IA Exitosa:\n\nTodos los campos están correctos y optimizados. La actividad está lista para ser creada.');
+    }
+}
+
+// Configurar fecha mínima como hoy
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInput = document.getElementById('fecha');
+    const today = new Date().toISOString().split('T')[0];
+    fechaInput.min = today;
+    
+    // Seleccionar estado por defecto
+    const estadoPendiente = document.querySelector('[data-value="Pendiente"]');
+    if (estadoPendiente) {
+        seleccionarEstadoIA(estadoPendiente);
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,706 @@
+{% extends 'base.html' %}
+
+{% block title %}Agregar Muestras - {{ aforo.potrero_nombre }} - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/aforos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="aforos-page">
+<div class="aforos-container aforos-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('aforos.index') }}">Aforos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Agregar Muestras - {{ aforo.potrero_nombre }}</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="aforos-header">
+    <div class="aforos-header-content">
+        <div>
+            <h1 class="aforos-title">
+                <i class="fas fa-flask"></i>
+                Agregar Muestras al Aforo
+            </h1>
+            <p class="aforos-subtitle">🔬 Registra muestras individuales de forraje para el potrero <strong>{{ aforo.potrero_nombre }}</strong> - {{ aforo.fecha.strftime('%d/%m/%Y') }}.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-vial me-1"></i><span id="total-muestras">{{ muestras_existentes|length if muestras_existentes else 0 }}</span> Muestras
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-leaf me-1"></i>Peso Verde
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-weight me-1"></i>Medición en Tiempo Real
+                </span>
+            </div>
+        </div>
+        <div class="aforos-actions">
+            <a href="{{ url_for('aforos.index') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver a Aforos
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Información general del proceso -->
+<div class="aforos-card mb-4">
+    <div class="aforos-card-body">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fs-4"></i>
+                <div>
+                    <h6 class="alert-heading mb-1">Muestreo Múltiple de Forraje</h6>
+                    <small class="mb-0">Toma muestras en diferentes puntos del potrero para obtener un promedio representativo. Se recomienda un mínimo de 5 muestras por potrero.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Layout responsivo de dos columnas -->
+<div class="aforos-grid-main">
+    <!-- COLUMNA PRINCIPAL: LISTA DE MUESTRAS -->
+    <div class="main-content">
+
+        <!-- Indicador de Progreso del Muestreo -->
+        <div class="aforos-card mb-4">
+            <div class="aforos-card-header">
+                <h5 class="aforos-card-title mb-0">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    Progreso del Muestreo
+                </h5>
+            </div>
+            <div class="aforos-card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semibold">Muestras Tomadas</span>
+                    <span class="text-muted" id="progress-text">Se recomienda mínimo 5 muestras</span>
+                </div>
+                <div class="progress mb-3" style="height: 12px;">
+                    <div class="progress-bar bg-success" id="progress-bar" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="text-center">
+                    <small class="text-muted">Cada muestra debe tomarse en un punto diferente del potrero</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEURÍSTICA 4: Consistencia y Estándares -->
+        <!-- Estadísticas en Tiempo Real -->
+        <div class="aforos-card mb-4" id="estadisticas-container" style="display: none;">
+            <div class="aforos-card-header">
+                <h5 class="aforos-card-title">
+                    <i class="fas fa-chart-bar text-info"></i>
+                    Estadísticas en Tiempo Real
+                </h5>
+            </div>
+            <div class="aforos-card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-leaf text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-peso-verde">0 g</div>
+                                <div class="stat-label">Peso Verde Promedio</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-weight text-warning"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-materia-verde">0 kg/ha</div>
+                                <div class="stat-label">Materia Verde</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle text-info"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="stat-muestras-completas">0/0</div>
+                                <div class="stat-label">Muestras Válidas</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEURÍSTICA 5: Prevención de Errores -->
+        <!-- Lista de Muestras Registradas -->
+        <div class="aforos-card">
+            <div class="aforos-card-header">
+                <h5 class="aforos-card-title">
+                    <i class="fas fa-list"></i>
+                    Muestras Registradas
+                </h5>
+            </div>
+            <div class="aforos-card-body" id="muestras-container">
+                <!-- Estado vacío -->
+                <div class="text-center text-muted py-4" id="no-muestras-msg">
+                    <div class="aforos-empty-icon" style="width: 80px; height: 80px; margin: 0 auto 1rem; font-size: 2rem;">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h6 class="text-muted mb-2">Sin muestras registradas</h6>
+                    <p class="small mb-0">Utiliza el panel lateral para agregar la primera muestra del aforo.</p>
+                </div>
+                
+                <!-- Aquí se agregarán las muestras dinámicamente -->
+            </div>
+        </div>
+
+        <!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+        <!-- Botón de Finalizar (aparece cuando hay suficientes muestras) -->
+        <div class="aforos-card mt-4" id="finalizar-section" style="display: none;">
+            <div class="aforos-card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">¿Terminaste de tomar muestras?</h6>
+                        <small class="text-muted">Finaliza el aforo para ver los resultados completos</small>
+                    </div>
+                    <form method="POST" style="display: inline;">
+                        <input type="hidden" name="action" value="finalizar">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Finalizar Aforo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLUMNA LATERAL: AGREGAR NUEVA MUESTRA -->
+    <div class="aforos-sidebar">
+        <!-- Panel de Agregar Muestra -->
+        <div class="aforos-card">
+            <div class="aforos-card-header">
+                <h5 class="aforos-card-title">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    Agregar Nueva Muestra
+                </h5>
+            </div>
+            <div class="aforos-card-body">
+                <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                <form id="muestra-form">
+                    <!-- Campo peso verde -->
+                    <div class="mb-4">
+                        <label for="peso_verde" class="form-label required">
+                            <i class="fas fa-leaf text-success me-2"></i>
+                            <strong>Peso Verde</strong>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-success text-white">
+                                <i class="fas fa-leaf"></i>
+                            </span>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="peso_verde" 
+                                   name="peso_verde" 
+                                   step="0.1" 
+                                   min="0" 
+                                   placeholder="850.5" 
+                                   required
+                                   data-bs-title="Peso del forraje recién cortado">
+                            <span class="input-group-text">g</span>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Pesa inmediatamente después del corte para evitar pérdida de humedad
+                        </div>
+                        <div class="form-feedback">
+                            <div class="invalid-feedback">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                Ingresa un peso válido mayor a 0
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campo altura del pasto -->
+                    <div class="mb-4">
+                        <label for="altura_pasto" class="form-label">
+                            <i class="fas fa-ruler-vertical text-info me-2"></i>
+                            Altura del Pasto <span class="text-muted">(opcional)</span>
+                        </label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-info text-white">
+                                <i class="fas fa-ruler-vertical"></i>
+                            </span>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="altura_pasto" 
+                                   name="altura_pasto" 
+                                   step="0.1" 
+                                   min="0" 
+                                   placeholder="15.5"
+                                   data-bs-title="Altura promedio del pasto en el punto de muestreo">
+                            <span class="input-group-text">cm</span>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb text-warning me-1"></i>
+                            Ayuda a evaluar el estado de madurez del forraje
+                        </div>
+                    </div>
+
+                    <!-- Campo observaciones -->
+                    <div class="mb-4">
+                        <label for="observaciones_muestra" class="form-label">
+                            <i class="fas fa-sticky-note text-muted me-2"></i>
+                            Observaciones <span class="text-muted">(opcional)</span>
+                        </label>
+                        <textarea class="form-control" 
+                                  id="observaciones_muestra" 
+                                  name="observaciones_muestra" 
+                                  rows="3" 
+                                  placeholder="Estado del pasto, presencia de malezas, condiciones del suelo..."></textarea>
+                        <div class="form-text">
+                            <i class="fas fa-comment-dots me-1"></i>
+                            Información adicional sobre la condición del forraje en este punto
+                        </div>
+                    </div>
+
+                    <!-- HEURÍSTICA 7: Flexibilidad y Eficiencia de Uso -->
+                    <!-- Botón de agregar muestra -->
+                    <button type="button" class="btn btn-success btn-lg w-100 mb-3" id="btn-agregar-muestra">
+                        <i class="fas fa-plus me-2"></i>
+                        Agregar Muestra
+                    </button>
+                </form>
+
+                <!-- Información de ayuda -->
+                <div class="alert alert-success">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Consejo:</strong> Toma muestras en diferentes puntos del potrero para obtener un promedio más representativo. El peso seco se puede agregar después cuando las muestras estén deshidratadas.
+                </div>
+            </div>
+        </div>
+        
+        <!-- HEURÍSTICA 10: Ayuda y Documentación -->
+        <!-- Panel de Información de Ayuda -->
+        <div class="aforos-card">
+            <div class="aforos-card-header">
+                <h6 class="aforos-card-title">
+                    <i class="fas fa-question-circle text-info"></i>
+                    Guía de Muestreo
+                </h6>
+            </div>
+            <div class="aforos-card-body">
+                <div class="help-section">
+                    <h6><i class="fas fa-map-marker-alt text-primary me-1"></i>Distribución</h6>
+                    <p class="small text-muted mb-3">
+                        Toma muestras distribuidas uniformemente por todo el potrero, evitando bordes y áreas atípicas.
+                    </p>
+                </div>
+                
+                <div class="help-section">
+                    <h6><i class="fas fa-square text-warning me-1"></i>Área de Corte</h6>
+                    <p class="small text-muted mb-3">
+                        Cada muestra debe tomarse en un área de 1 m² (1m x 1m) cortando a ras del suelo.
+                    </p>
+                </div>
+                
+                <div class="help-section">
+                    <h6><i class="fas fa-balance-scale text-success me-1"></i>Pesaje</h6>
+                    <p class="small text-muted mb-0">
+                        Pesa el forraje verde inmediatamente después del corte para obtener mediciones precisas.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 9: Ayuda a los usuarios a reconocer, diagnosticar y recuperarse de errores -->
+<!-- Modal para editar muestra -->
+<div class="modal fade" id="editarMuestraModal" tabindex="-1" aria-labelledby="editarMuestraModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header aforos-card-header">
+                <h5 class="modal-title aforos-card-title" id="editarMuestraModalLabel">
+                    <i class="fas fa-edit me-2"></i>
+                    Editar Muestra
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Modifica los datos de la muestra. Los cambios se guardarán automáticamente.
+                </div>
+                
+                <form id="editar-muestra-form">
+                    <input type="hidden" id="edit_muestra_id" name="muestra_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit_peso_verde" class="form-label required">
+                            <i class="fas fa-leaf text-success me-2"></i>
+                            <strong>Peso Verde</strong>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="edit_peso_verde" 
+                                   name="peso_verde" 
+                                   step="0.1" 
+                                   min="0"
+                                   required>
+                            <span class="input-group-text">g</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_peso_seco" class="form-label">
+                            <i class="fas fa-weight text-warning me-2"></i>
+                            Peso Seco <span class="text-muted">(opcional)</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="edit_peso_seco" 
+                                   name="peso_seco" 
+                                   step="0.1" 
+                                   min="0">
+                            <span class="input-group-text">g</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_altura_pasto" class="form-label">
+                            <i class="fas fa-ruler-vertical text-info me-2"></i>
+                            Altura del Pasto
+                        </label>
+                        <div class="input-group">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="edit_altura_pasto" 
+                                   name="altura_pasto" 
+                                   step="0.1" 
+                                   min="0">
+                            <span class="input-group-text">cm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_observaciones" class="form-label">
+                            <i class="fas fa-sticky-note text-muted me-2"></i>
+                            Observaciones
+                        </label>
+                        <textarea class="form-control" 
+                                  id="edit_observaciones" 
+                                  name="observaciones" 
+                                  rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="guardar-muestra-btn">
+                    <i class="fas fa-save me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/aforos.js') }}"></script>
+<script>
+// Funcionalidad específica para agregar muestras
+console.log('Sistema de agregar muestras cargado');
+
+// Variables globales
+let muestrasCount = 0;
+let muestrasData = [];
+
+// Inicializar sistema al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMuestrasSystem();
+    updateProgressIndicator();
+    updateStatistics();
+});
+
+// Función principal de inicialización
+function initializeMuestrasSystem() {
+    const btnAgregar = document.getElementById('btn-agregar-muestra');
+    const form = document.getElementById('muestra-form');
+    
+    // Event listener para agregar muestra
+    btnAgregar.addEventListener('click', agregarMuestra);
+    
+    // Event listeners para validación en tiempo real
+    const pesoVerdeInput = document.getElementById('peso_verde');
+    pesoVerdeInput.addEventListener('input', validatePesoVerde);
+    
+    // Inicializar tooltips
+    initializeTooltips();
+}
+
+// Función para agregar nueva muestra
+function agregarMuestra() {
+    const form = document.getElementById('muestra-form');
+    const pesoVerde = parseFloat(document.getElementById('peso_verde').value);
+    const alturaPasto = parseFloat(document.getElementById('altura_pasto').value) || null;
+    const observaciones = document.getElementById('observaciones_muestra').value.trim() || null;
+    
+    // Validaciones
+    if (!pesoVerde || pesoVerde <= 0) {
+        showNotification('Por favor ingresa un peso verde válido mayor a 0', 'danger');
+        document.getElementById('peso_verde').focus();
+        return;
+    }
+    
+    // Crear objeto de muestra
+    const muestra = {
+        id: muestrasCount + 1,
+        peso_verde: pesoVerde,
+        altura_pasto: alturaPasto,
+        observaciones: observaciones,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Agregar a la lista
+    muestrasData.push(muestra);
+    muestrasCount++;
+    
+    // Actualizar interfaz
+    renderMuestraCard(muestra);
+    clearForm();
+    updateProgressIndicator();
+    updateStatistics();
+    updateFinalizarSection();
+    
+    // Mostrar contenedor de estadísticas si es la primera muestra
+    if (muestrasCount === 1) {
+        document.getElementById('estadisticas-container').style.display = 'block';
+        document.getElementById('no-muestras-msg').style.display = 'none';
+    }
+    
+    showNotification('Muestra agregada correctamente', 'success');
+}
+
+// Función para renderizar card de muestra
+function renderMuestraCard(muestra) {
+    const container = document.getElementById('muestras-container');
+    const materiaVerde = (muestra.peso_verde * 10).toFixed(0); // Conversión g/m² a kg/ha
+    
+    const cardHTML = `
+        <div class="aforos-card mb-3 muestra-item" data-muestra-id="${muestra.id}">
+            <div class="aforos-card-header d-flex justify-content-between align-items-center">
+                <h6 class="aforos-card-title mb-0">
+                    <i class="fas fa-vial text-primary me-2"></i>
+                    Muestra #${muestra.id}
+                </h6>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editarMuestra(${muestra.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarMuestra(${muestra.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="aforos-card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="info-item">
+                            <i class="fas fa-leaf text-success me-1"></i>
+                            <small class="text-muted">Peso Verde:</small>
+                            <div class="fw-bold text-success">${muestra.peso_verde} g</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-item">
+                            <i class="fas fa-weight text-warning me-1"></i>
+                            <small class="text-muted">Materia Verde:</small>
+                            <div class="fw-bold text-warning">${materiaVerde} kg/ha</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${muestra.altura_pasto ? `
+                <div class="mt-2">
+                    <div class="info-item">
+                        <i class="fas fa-ruler-vertical text-info me-1"></i>
+                        <small class="text-muted">Altura:</small>
+                        <span class="fw-bold text-info">${muestra.altura_pasto} cm</span>
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${muestra.observaciones ? `
+                <div class="mt-2">
+                    <div class="info-item">
+                        <i class="fas fa-comment text-muted me-1"></i>
+                        <small class="text-muted">Observaciones:</small>
+                        <div class="small fst-italic">${muestra.observaciones}</div>
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', cardHTML);
+}
+
+// Función para limpiar formulario
+function clearForm() {
+    document.getElementById('muestra-form').reset();
+    document.getElementById('peso_verde').classList.remove('is-valid', 'is-invalid');
+}
+
+// Función para actualizar indicador de progreso
+function updateProgressIndicator() {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const totalMuestrasSpan = document.getElementById('total-muestras');
+    
+    const progress = Math.min((muestrasCount / 5) * 100, 100);
+    progressBar.style.width = progress + '%';
+    progressBar.setAttribute('aria-valuenow', progress);
+    
+    totalMuestrasSpan.textContent = muestrasCount;
+    
+    if (muestrasCount === 0) {
+        progressText.textContent = 'Se recomienda mínimo 5 muestras';
+    } else if (muestrasCount < 5) {
+        progressText.textContent = `${muestrasCount}/5 muestras - Se recomienda continuar`;
+    } else {
+        progressText.textContent = `${muestrasCount} muestras - ¡Excelente cobertura!`;
+    }
+}
+
+// Función para actualizar estadísticas
+function updateStatistics() {
+    if (muestrasCount === 0) return;
+    
+    const totalPesoVerde = muestrasData.reduce((sum, m) => sum + m.peso_verde, 0);
+    const promedioPesoVerde = totalPesoVerde / muestrasCount;
+    const promedioMateriaVerde = promedioPesoVerde * 10; // Conversión a kg/ha
+    
+    document.getElementById('stat-peso-verde').textContent = promedioPesoVerde.toFixed(1) + ' g';
+    document.getElementById('stat-materia-verde').textContent = promedioMateriaVerde.toFixed(0) + ' kg/ha';
+    document.getElementById('stat-muestras-completas').textContent = `${muestrasCount}/${muestrasCount}`;
+}
+
+// Función para mostrar/ocultar sección de finalizar
+function updateFinalizarSection() {
+    const finalizarSection = document.getElementById('finalizar-section');
+    if (muestrasCount >= 3) {
+        finalizarSection.style.display = 'block';
+    } else {
+        finalizarSection.style.display = 'none';
+    }
+}
+
+// Función para validar peso verde
+function validatePesoVerde() {
+    const input = document.getElementById('peso_verde');
+    const value = parseFloat(input.value);
+    
+    if (!value || value <= 0) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+    } else {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+    }
+}
+
+// Función para editar muestra
+function editarMuestra(muestraId) {
+    const muestra = muestrasData.find(m => m.id === muestraId);
+    if (!muestra) return;
+    
+    // Llenar modal con datos
+    document.getElementById('edit_muestra_id').value = muestra.id;
+    document.getElementById('edit_peso_verde').value = muestra.peso_verde;
+    document.getElementById('edit_peso_seco').value = muestra.peso_seco || '';
+    document.getElementById('edit_altura_pasto').value = muestra.altura_pasto || '';
+    document.getElementById('edit_observaciones').value = muestra.observaciones || '';
+    
+    // Mostrar modal
+    const modal = new bootstrap.Modal(document.getElementById('editarMuestraModal'));
+    modal.show();
+}
+
+// Función para eliminar muestra
+function eliminarMuestra(muestraId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta muestra?')) return;
+    
+    // Remover de datos
+    muestrasData = muestrasData.filter(m => m.id !== muestraId);
+    muestrasCount--;
+    
+    // Remover de DOM
+    const muestraElement = document.querySelector(`[data-muestra-id="${muestraId}"]`);
+    if (muestraElement) {
+        muestraElement.remove();
+    }
+    
+    // Actualizar interfaz
+    updateProgressIndicator();
+    updateStatistics();
+    updateFinalizarSection();
+    
+    // Mostrar mensaje vacío si no hay muestras
+    if (muestrasCount === 0) {
+        document.getElementById('estadisticas-container').style.display = 'none';
+        document.getElementById('no-muestras-msg').style.display = 'block';
+    }
+    
+    showNotification('Muestra eliminada correctamente', 'info');
+}
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar tooltips
+function initializeTooltips() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-title]'));
+        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+</script>
+{% endblock %} 

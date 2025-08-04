@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Actividad - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="actividades-page">
+    <div class="actividades-container actividades-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="actividades-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('actividades.index') }}" class="text-decoration-none">
+                        <i class="fas fa-tasks me-1"></i>Actividades
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-edit me-1"></i>Editar Actividad
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="actividades-header">
+            <div class="actividades-header-content">
+                <div>
+                    <h1 class="actividades-title">
+                        <i class="fas fa-edit text-warning"></i>
+                        Editar Actividad
+                    </h1>
+                    <p class="actividades-subtitle actividades-mb-0">
+                        Modifica los detalles de esta actividad de manejo
+                    </p>
+                </div>
+                <div class="actividades-actions">
+                    <a href="{{ url_for('actividades.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver a la lista
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMULARIO DE EDICIÓN -->
+        <div class="actividades-grid-main">
+            
+            <!-- CONTENIDO PRINCIPAL -->
+            <div class="actividades-main-content">
+                
+                <form method="POST" action="{{ url_for('actividades.edit', actividad_id=actividad.id) }}" class="actividades-fade-in">
+                    
+                    <!-- Información Básica -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                Información Básica
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="potrero_id" class="form-label fw-semibold">
+                                        🌱 Potrero
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="potrero_id" name="potrero_id" required>
+                                        <option value="">Seleccionar potrero</option>
+                                        {% for potrero in potreros %}
+                                            <option value="{{ potrero.id }}" {% if potrero.id == actividad.potrero_id %}selected{% endif %}>
+                                                {{ potrero.nombre }} ({{ potrero.hectareas }} ha)
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fecha" class="form-label fw-semibold">
+                                        📅 Fecha
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="fecha" name="fecha" required
+                                          value="{{ actividad.fecha.strftime('%Y-%m-%d') }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo y Estado -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-clipboard-list text-success"></i>
+                                Tipo y Estado
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="tipo_actividad" class="form-label fw-semibold">
+                                        🔧 Tipo de Actividad
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="tipo_actividad" name="tipo_actividad" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="Riego" {% if actividad.tipo_actividad == 'Riego' %}selected{% endif %}>Riego</option>
+                                        <option value="Fumigación" {% if actividad.tipo_actividad == 'Fumigación' %}selected{% endif %}>Fumigación</option>
+                                        <option value="Reparación de Cercas" {% if actividad.tipo_actividad == 'Reparación de Cercas' %}selected{% endif %}>Reparación de Cercas</option>
+                                        <option value="Limpieza" {% if actividad.tipo_actividad == 'Limpieza' %}selected{% endif %}>Limpieza</option>
+                                        <option value="Fertilización" {% if actividad.tipo_actividad == 'Fertilización' %}selected{% endif %}>Fertilización</option>
+                                        <option value="Otro" {% if actividad.tipo_actividad == 'Otro' %}selected{% endif %}>Otro</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="estado" class="form-label fw-semibold">
+                                        🚩 Estado
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="estado" name="estado" required>
+                                        {% for est in estados %}
+                                            <option value="{{ est }}" {% if est == actividad.estado %}selected{% endif %}>
+                                                {{ est }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-edit text-warning"></i>
+                                Descripción y Detalles
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-semibold">
+                                    📝 Descripción detallada
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ actividad.descripcion }}</textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info me-1"></i>
+                                    Describe los detalles específicos de la actividad
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="responsable" class="form-label fw-semibold">
+                                        👤 Responsable
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="responsable" name="responsable"
+                                           value="{{ actividad.responsable or '' }}" placeholder="Nombre del responsable">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="costo" class="form-label fw-semibold">
+                                        💰 Costo
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </span>
+                                        <input type="number" class="form-control" id="costo" name="costo" step="0.01" min="0"
+                                               value="{{ actividad.costo or '' }}" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="actividad-card">
+                        <div class="actividad-card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('actividades.index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-save me-2"></i>Actualizar Actividad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- SIDEBAR -->
+            <div class="actividades-sidebar">
+                
+                <!-- Información de la Actividad -->
+                <div class="actividad-card">
+                    <div class="actividad-card-header">
+                        <h5 class="actividades-mb-0">
+                            <i class="fas fa-info-circle text-info"></i>
+                            Información de la Actividad
+                        </h5>
+                    </div>
+                    <div class="actividad-card-body">
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-label">Creada el</p>
+                                <p class="actividades-stat-value">{{ actividad.fecha_creacion.strftime('%d/%m/%Y') if actividad.fecha_creacion else 'N/A' }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="actividades-stat-item">
+                            <div class="actividades-stat-content">
+                                <p class="actividades-stat-label">Estado actual</p>
+                                <p class="actividades-stat-value">
+                                    {% if actividad.estado == 'Completada' %}
+                                        <span class="actividad-badge actividad-badge-completada">{{ actividad.estado }}</span>
+                                    {% elif actividad.estado == 'En Progreso' %}
+                                        <span class="actividad-badge actividad-badge-progreso">{{ actividad.estado }}</span>
+                                    {% elif actividad.estado == 'Pendiente' %}
+                                        <span class="actividad-badge actividad-badge-pendiente">{{ actividad.estado }}</span>
+                                    {% else %}
+                                        <span class="actividad-badge actividad-badge-cancelada">{{ actividad.estado }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Consejos de Edición -->
+                <div class="actividad-card">
+                    <div class="actividad-card-header">
+                        <h5 class="actividades-mb-0">
+                            <i class="fas fa-lightbulb text-warning"></i>
+                            Consejos de Edición
+                        </h5>
+                    </div>
+                    <div class="actividad-card-body">
+                        <ul class="text-muted ps-3">
+                            <li>Actualiza el estado según el progreso real</li>
+                            <li>Modifica la fecha si cambias la planificación</li>
+                            <li>Añade detalles en la descripción</li>
+                            <li>Registra el costo real al completar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+ 

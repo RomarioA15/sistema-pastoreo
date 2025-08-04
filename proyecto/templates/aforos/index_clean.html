@@ -1,0 +1,430 @@
+{% extends 'base.html' %}
+
+{% block title %}Aforos - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Estilos específicos para aforos organizados */
+.aforos-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.stats-dashboard {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.search-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.aforos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.aforo-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aforo-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.aforo-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.aforo-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.quality-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.quality-excellent { background: #d4edda; color: #155724; }
+.quality-good { background: #cce5ff; color: #004085; }
+.quality-regular { background: #fff3cd; color: #856404; }
+.quality-poor { background: #f8d7da; color: #721c24; }
+
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.metric {
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.actions-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.btn-primary-action {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.btn-primary-action:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .aforos-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .metrics-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="aforos-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Aforos</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-2">
+                <i class="fas fa-chart-bar text-success me-2"></i>
+                Centro de Aforos
+            </h1>
+            <p class="text-muted mb-0">Monitoreo científico de biomasa disponible</p>
+        </div>
+        {% if usuario_puede('aforos', 'crear') %}
+        <a href="{{ url_for('aforos.nuevo') }}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus me-2"></i>
+            Nuevo Aforo
+        </a>
+        {% endif %}
+    </div>
+
+    {% if aforos %}
+    <!-- Statistics Dashboard -->
+    <div class="stats-dashboard">
+        <h4 class="mb-0">📊 Resumen General</h4>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="h3 mb-1">{{ total }}</div>
+                <div>Aforos Registrados</div>
+            </div>
+            <div class="stat-item">
+                <div class="h3 mb-1">
+                    {% set total_mv = aforos | map(attribute='materia_verde') | sum %}
+                    {{ "%.0f"|format(total_mv / aforos|length) }}
+                </div>
+                <div>kg/ha MV Promedio</div>
+            </div>
+            <div class="stat-item">
+                <div class="h3 mb-1">
+                    {% set promedio_mv = total_mv / aforos|length %}
+                    {% if promedio_mv >= 2500 %}🟢
+                    {% elif promedio_mv >= 2000 %}🔵
+                    {% elif promedio_mv >= 1500 %}🟡
+                    {% else %}🔴
+                    {% endif %}
+                </div>
+                <div>Calidad Promedio</div>
+            </div>
+            <div class="stat-item">
+                <div class="h3 mb-1">{{ aforos[0].fecha }}</div>
+                <div>Último Aforo</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-section">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="searchAforos" placeholder="🔍 Buscar por potrero o fecha...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterCalidad">
+                    <option value="">Todas las calidades</option>
+                    <option value="excellent">🟢 Excelente</option>
+                    <option value="good">🔵 Buena</option>
+                    <option value="regular">🟡 Regular</option>
+                    <option value="poor">🔴 Baja</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="sortBy">
+                    <option value="fecha_desc">Más recientes</option>
+                    <option value="fecha_asc">Más antiguos</option>
+                    <option value="mv_desc">Mayor MV</option>
+                    <option value="mv_asc">Menor MV</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aforos Grid -->
+    <div class="aforos-grid" id="aforosGrid">
+        {% for aforo in aforos %}
+        {% set calidad_class = 'poor' %}
+        {% set calidad_text = 'Baja' %}
+        {% set calidad_icon = '🔴' %}
+        
+        {% if aforo.materia_verde >= 2500 %}
+            {% set calidad_class = 'excellent' %}
+            {% set calidad_text = 'Excelente' %}
+            {% set calidad_icon = '🟢' %}
+        {% elif aforo.materia_verde >= 2000 %}
+            {% set calidad_class = 'good' %}
+            {% set calidad_text = 'Buena' %}
+            {% set calidad_icon = '🔵' %}
+        {% elif aforo.materia_verde >= 1500 %}
+            {% set calidad_class = 'regular' %}
+            {% set calidad_text = 'Regular' %}
+            {% set calidad_icon = '🟡' %}
+        {% endif %}
+        
+        <div class="aforo-card" 
+             data-potrero="{{ aforo.potrero_nombre|lower }}" 
+             data-fecha="{{ aforo.fecha }}" 
+             data-mv="{{ aforo.materia_verde }}"
+             data-calidad="{{ calidad_class }}">
+            
+            <!-- Header -->
+            <div class="aforo-header">
+                <h3 class="aforo-title">{{ aforo.potrero_nombre }}</h3>
+                <span class="quality-badge quality-{{ calidad_class }}">
+                    {{ calidad_icon }} {{ calidad_text }}
+                </span>
+            </div>
+            
+            <!-- Date -->
+            <div class="mb-3">
+                <i class="fas fa-calendar text-muted me-2"></i>
+                <span class="text-muted">{{ aforo.fecha }}</span>
+            </div>
+            
+            <!-- Metrics -->
+            <div class="metrics-row">
+                <div class="metric">
+                    <div class="metric-value text-success">{{ "%.0f"|format(aforo.materia_verde) }}</div>
+                    <div class="metric-label">kg/ha MV</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value text-primary">{{ "%.0f"|format(aforo.materia_seca) }}</div>
+                    <div class="metric-label">kg/ha MS</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value text-warning">{{ "%.1f"|format(aforo.porcentaje_ms) }}%</div>
+                    <div class="metric-label">% MS</div>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="actions-row">
+                {% if usuario_puede('aforos', 'actualizar') %}
+                <a href="{{ url_for('aforos.editar', aforo_id=aforo.id) }}" class="btn-action btn-primary-action">
+                    <i class="fas fa-edit me-1"></i> Editar
+                </a>
+                {% endif %}
+                <button class="btn-action" onclick="verDetalles({{ aforo.id }})">
+                    <i class="fas fa-eye me-1"></i> Ver
+                </button>
+                {% if usuario_puede('aforos', 'eliminar') %}
+                <button class="btn-action text-danger" onclick="confirmarEliminar({{ aforo.id }})">
+                    <i class="fas fa-trash me-1"></i> Eliminar
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="mb-4">
+            <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+            <h3>¡Comienza tu Monitoreo Científico!</h3>
+            <p class="text-muted">Los aforos te permiten medir con precisión la biomasa disponible y tomar decisiones informadas.</p>
+        </div>
+        
+        {% if usuario_puede('aforos', 'crear') %}
+        <a href="{{ url_for('aforos.nuevo') }}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus me-2"></i>
+            Crear Primer Aforo
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Simple search and filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchAforos');
+    const filterCalidad = document.getElementById('filterCalidad');
+    const sortSelect = document.getElementById('sortBy');
+    const aforosGrid = document.getElementById('aforosGrid');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterAforos);
+    }
+    
+    if (filterCalidad) {
+        filterCalidad.addEventListener('change', filterAforos);
+    }
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', sortAforos);
+    }
+    
+    function filterAforos() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const calidadFilter = filterCalidad.value;
+        const cards = aforosGrid.querySelectorAll('.aforo-card');
+        
+        cards.forEach(card => {
+            const potrero = card.dataset.potrero;
+            const fecha = card.dataset.fecha;
+            const calidad = card.dataset.calidad;
+            
+            const matchesSearch = !searchTerm || potrero.includes(searchTerm) || fecha.includes(searchTerm);
+            const matchesCalidad = !calidadFilter || calidad === calidadFilter;
+            
+            card.style.display = matchesSearch && matchesCalidad ? 'block' : 'none';
+        });
+    }
+    
+    function sortAforos() {
+        const sortValue = sortSelect.value;
+        const cards = Array.from(aforosGrid.querySelectorAll('.aforo-card'));
+        
+        cards.sort((a, b) => {
+            switch(sortValue) {
+                case 'fecha_desc':
+                    return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
+                case 'fecha_asc':
+                    return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
+                case 'mv_desc':
+                    return parseFloat(b.dataset.mv) - parseFloat(a.dataset.mv);
+                case 'mv_asc':
+                    return parseFloat(a.dataset.mv) - parseFloat(b.dataset.mv);
+                default:
+                    return 0;
+            }
+        });
+        
+        cards.forEach(card => aforosGrid.appendChild(card));
+    }
+});
+
+function verDetalles(aforoId) {
+    // Implementar modal o navegación a detalles
+    alert('Ver detalles del aforo ' + aforoId);
+}
+
+function confirmarEliminar(aforoId) {
+    if (confirm('¿Está seguro de que desea eliminar este aforo? Esta acción no se puede deshacer.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/aforos/${aforoId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

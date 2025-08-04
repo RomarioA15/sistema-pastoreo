@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Actividad - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="actividades-page">
+    <div class="actividades-container actividades-fade-in">
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="actividades-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('actividades.index') }}" class="text-decoration-none">
+                        <i class="fas fa-tasks me-1"></i>Actividades
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-plus-circle me-1"></i>Nueva Actividad
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="actividades-header">
+            <div class="actividades-header-content">
+                <div>
+                    <h1 class="actividades-title">
+                        <i class="fas fa-plus-circle text-success"></i>
+                        Nueva Actividad
+                    </h1>
+                    <p class="actividades-subtitle actividades-mb-0">
+                        Registra las actividades de manejo realizadas en tus potreros para llevar un control completo de las labores y optimizar la planificación futura.
+                    </p>
+                </div>
+                <div class="actividades-actions">
+                    <a href="{{ url_for('actividades.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: FORMULARIO + SIDEBAR -->
+        <div class="actividades-grid-main">
+            
+            <!-- FORMULARIO PRINCIPAL -->
+            <div class="actividades-main-content">
+            
+                <!-- FORMULARIO DE NUEVA ACTIVIDAD -->
+                <form method="POST" action="{{ url_for('actividades.nueva') }}" id="actividadForm" class="actividades-fade-in">
+
+                    <!-- Información Básica -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                Información Básica
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="potrero_id" class="form-label fw-semibold">
+                                        🌱 Potrero para la actividad
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="potrero_id" name="potrero_id" required>
+                                        <option value="" selected disabled>Selecciona el potrero...</option>
+                                        {% for potrero in potreros %}
+                                            <option value="{{ potrero.id }}" 
+                                                    data-hectareas="{{ potrero.hectareas }}"
+                                                    data-tipo-pasto="{{ potrero.tipo_pasto }}"
+                                                    data-etapa-ganado="{{ potrero.etapa_ganado }}">
+                                                {{ potrero.nombre }} ({{ potrero.hectareas }} ha)
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                                        Elige el potrero donde se realizará la actividad
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fecha" class="form-label fw-semibold">
+                                        📅 Fecha planificada
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="fecha" name="fecha" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-calendar-alt text-info me-1"></i>
+                                        Fecha de ejecución de la actividad
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Actividad -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-clipboard-list text-success"></i>
+                                Tipo de Actividad
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <label class="form-label fw-semibold actividades-mb-md">
+                                🔧 ¿Qué tipo de actividad vas a realizar?
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="actividades-tipos-list">
+                                <div class="actividades-tipo-item activity-type-card" data-value="Riego" style="background-color: rgba(13, 110, 253, 0.1); cursor: pointer;">
+                                    <i class="fas fa-tint text-primary actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Riego</div>
+                                        <div class="actividades-tipo-description">Irrigación y manejo de agua</div>
+                                    </div>
+                                </div>
+                                <div class="actividades-tipo-item activity-type-card" data-value="Fumigación" style="background-color: rgba(255, 193, 7, 0.1); cursor: pointer;">
+                                    <i class="fas fa-spray-can text-warning actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Fumigación</div>
+                                        <div class="actividades-tipo-description">Control de plagas y malezas</div>
+                                    </div>
+                                </div>
+                                <div class="actividades-tipo-item activity-type-card" data-value="Reparación de Cercas" style="background-color: rgba(220, 53, 69, 0.1); cursor: pointer;">
+                                    <i class="fas fa-hammer text-danger actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Reparaciones</div>
+                                        <div class="actividades-tipo-description">Cercas e infraestructura</div>
+                                    </div>
+                                </div>
+                                <div class="actividades-tipo-item activity-type-card" data-value="Limpieza" style="background-color: rgba(32, 201, 151, 0.1); cursor: pointer;">
+                                    <i class="fas fa-broom text-success actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Limpieza</div>
+                                        <div class="actividades-tipo-description">Mantenimiento general</div>
+                                    </div>
+                                </div>
+                                <div class="actividades-tipo-item activity-type-card" data-value="Fertilización" style="background-color: rgba(25, 135, 84, 0.1); cursor: pointer;">
+                                    <i class="fas fa-seedling text-success actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Fertilización</div>
+                                        <div class="actividades-tipo-description">Nutrición del suelo</div>
+                                    </div>
+                                </div>
+                                <div class="actividades-tipo-item activity-type-card" data-value="Otro" style="background-color: rgba(108, 117, 125, 0.1); cursor: pointer;">
+                                    <i class="fas fa-cog text-secondary actividades-tipo-icon"></i>
+                                    <div class="actividades-tipo-content">
+                                        <div class="actividades-tipo-name">Otro</div>
+                                        <div class="actividades-tipo-description">Otra actividad</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="tipo_actividad" name="tipo_actividad" required>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-mouse-pointer text-primary me-1"></i>
+                                Haz clic en el tipo de actividad que mejor describe tu tarea
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalles de la Actividad -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-edit text-warning"></i>
+                                Detalles de la Actividad
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label fw-semibold">
+                                    📝 Descripción detallada
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" 
+                                         placeholder="Describe qué actividad realizarás, qué materiales necesitas, procedimientos específicos, etc." required></textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info me-1"></i>
+                                    Una descripción detallada ayuda a planificar mejor y hacer seguimiento
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="responsable" class="form-label fw-semibold">
+                                        👤 Responsable
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="responsable" name="responsable"
+                                           placeholder="Nombre del responsable o equipo">
+                                    <div class="form-text">
+                                        <i class="fas fa-user text-success me-1"></i>
+                                        Persona o equipo a cargo de la actividad (opcional)
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="costo" class="form-label fw-semibold">
+                                        💰 Costo estimado
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-success text-white">
+                                            <i class="fas fa-dollar-sign"></i>
+                                        </span>
+                                        <input type="number" class="form-control" id="costo" name="costo" 
+                                              step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-calculator text-info me-1"></i>
+                                        Costo estimado o real de la actividad (opcional)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado de la Actividad -->
+                    <div class="actividad-card actividades-mb-lg">
+                        <div class="actividad-card-header">
+                            <h5 class="actividades-mb-0">
+                                <i class="fas fa-flag text-info"></i>
+                                Estado de la Actividad
+                            </h5>
+                        </div>
+                        <div class="actividad-card-body">
+                            <label class="form-label fw-semibold actividades-mb-md">
+                                🚩 Estado inicial de la actividad
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="actividades-stats">
+                                <div class="actividades-stat-item status-option" data-value="Pendiente" style="background: rgba(255, 193, 7, 0.15); cursor: pointer; border: 2px solid #ffc107;">
+                                    <span class="actividades-stat-value text-warning">
+                                        <i class="fas fa-clock"></i>
+                                    </span>
+                                    <span class="actividades-stat-label">Pendiente</span>
+                                </div>
+                                <div class="actividades-stat-item status-option" data-value="En Progreso" style="background: rgba(23, 162, 184, 0.15); cursor: pointer; border: 2px solid transparent;">
+                                    <span class="actividades-stat-value text-info">
+                                        <i class="fas fa-play-circle"></i>
+                                    </span>
+                                    <span class="actividades-stat-label">En Progreso</span>
+                                </div>
+                                <div class="actividades-stat-item status-option" data-value="Completada" style="background: rgba(40, 167, 69, 0.15); cursor: pointer; border: 2px solid transparent;">
+                                    <span class="actividades-stat-value text-success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
+                                    <span class="actividades-stat-label">Completada</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="estado" name="estado" value="Pendiente" required>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle text-primary me-1"></i>
+                                El estado por defecto es "Pendiente" - puedes cambiarlo según corresponda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="actividad-card">
+                        <div class="actividad-card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('actividades.index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg px-5" id="submitBtn">
+                                    <i class="fas fa-save me-2"></i>Guardar Actividad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SIDEBAR -->
+            <div class="actividades-sidebar">
+                
+                <!-- Guía de Actividades -->
+                <div class="actividad-card">
+                    <div class="actividad-card-header">
+                        <h5 class="actividades-mb-0">
+                            <i class="fas fa-question-circle text-info"></i>
+                            Guía de Actividades
+                        </h5>
+                    </div>
+                    <div class="actividad-card-body">
+                        <div class="actividades-mb-lg">
+                            <h6 class="text-primary">📋 ¿Qué son las actividades?</h6>
+                            <p class="actividades-mb-0 text-muted">
+                                Las actividades de manejo son todas las labores que realizas en tus potreros para 
+                                mantenerlos en óptimas condiciones productivas.
+                            </p>
+                        </div>
+
+                        <div class="actividades-mb-lg">
+                            <h6 class="text-success">🔧 Tipos Comunes:</h6>
+                            <div class="actividades-tipos-list">
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <span><i class="fas fa-tint text-primary me-2"></i>Riego</span>
+                                    <span class="text-muted">Manejo de agua</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <span><i class="fas fa-spray-can text-warning me-2"></i>Fumigación</span>
+                                    <span class="text-muted">Control plagas</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <span><i class="fas fa-hammer text-danger me-2"></i>Reparaciones</span>
+                                    <span class="text-muted">Mantenimiento</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <span><i class="fas fa-broom text-success me-2"></i>Limpieza</span>
+                                    <span class="text-muted">Aseo general</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-2">
+                                    <span><i class="fas fa-seedling text-success me-2"></i>Fertilización</span>
+                                    <span class="text-muted">Nutrición</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="actividades-mb-lg">
+                            <h6 class="text-warning">💡 Consejos Importantes:</h6>
+                            <ul class="text-muted ps-3">
+                                <li>Registra actividades antes de realizarlas para planificar</li>
+                                <li>Incluye detalles específicos en la descripción</li>
+                                <li>Asigna responsables para mejor organización</li>
+                                <li>Actualiza el estado cuando cambies el progreso</li>
+                                <li>Registra costos para control presupuestario</li>
+                            </ul>
+                        </div>
+
+                        <!-- Información del potrero seleccionado -->
+                        <div id="potrero-info" class="alert alert-light" style="display: none;">
+                            <h6 class="actividades-mb-sm">🌱 Información del Potrero:</h6>
+                            <div id="potrero-details"></div>
+                        </div>
+
+                        <!-- Feedback dinámico -->
+                        <div id="dynamic-feedback" class="alert alert-info" style="display: none;">
+                            <h6 class="actividades-mb-sm">💡 Recomendaciones:</h6>
+                            <div id="feedback-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/actividades.js') }}"></script>
+{% endblock %} 

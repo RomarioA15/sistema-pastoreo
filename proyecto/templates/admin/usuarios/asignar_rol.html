@@ -1,0 +1,180 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Asignar Rol - {{ usuario.nombre }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-user-tag me-3"></i>
+                Asignar Rol
+            </h1>
+            <p class="lead mb-0">Asigna un rol a {{ usuario['nombre'] }}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <!-- Información del Usuario -->
+            <div class="usuario-info">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="avatar">
+                            {{ usuario['nombre'][0].upper() }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h4 class="mb-1">{{ usuario['nombre'] }}</h4>
+                        <p class="text-muted mb-1">{{ usuario['email'] }}</p>
+                        <small class="text-muted">ID: {{ usuario['id'] }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Roles Actuales -->
+            {% if usuario_roles %}
+            <div class="admin-card mb-4">
+                <div class="template-header card-header bg-transparent border-0 p-4">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-check me-2"></i>
+                        Roles Actuales
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% for rol in usuario_roles %}
+                    <div class="rol-actual">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="template-header" class="mb-1 fw-bold">{{ rol['rol_nombre'] }}</h6>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-map-marked-alt me-1"></i>
+                                    {{ rol['finca_nombre'] }}
+                                </p>
+                            </div>
+                            <div>
+                                {% if rol['es_admin'] %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-user-shield me-1"></i>
+                                        Administrador
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-user me-1"></i>
+                                        Usuario
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Formulario para Asignar Nuevo Rol -->
+            <div class="admin-card">
+                <div class="template-header card-header bg-transparent border-0 p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-plus-circle me-2"></i>
+                            Asignar Nuevo Rol
+                        </h5>
+                        <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Volver
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="template-grid">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="finca_id" class="form-label fw-bold">
+                                        <i class="fas fa-map-marked-alt me-2"></i>
+                                        Finca *
+                                    </label>
+                                    <select class="form-select" id="finca_id" name="finca_id" required>
+                                        <option value="">Selecciona una finca</option>
+                                        {% for finca in fincas %}
+                                        <option value="{{ finca['id'] }}">
+                                            {{ finca['nombre'] }}
+                                            {% if finca['descripcion'] %}
+                                                - {{ finca['descripcion'][:30] }}...
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">Selecciona la finca donde aplicará el rol</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label for="rol_id" class="form-label fw-bold">
+                                        <i class="fas fa-user-tag me-2"></i>
+                                        Rol *
+                                    </label>
+                                    <select class="form-select" id="rol_id" name="rol_id" required>
+                                        <option value="">Selecciona un rol</option>
+                                        {% for rol in roles %}
+                                        <option value="{{ rol['id'] }}" data-admin="{{ rol['es_admin'] }}">
+                                            {{ rol['nombre'] }}
+                                            {% if rol['es_admin'] %}
+                                                (Administrador)
+                                            {% endif %}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">Selecciona el rol a asignar</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información del rol seleccionado -->
+                        <div id="rol-info" class="template-alert template-alert-info" style="display: none;">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Información del Rol
+                            </h6>
+                            <p id="rol-descripcion" class="mb-0"></p>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Los campos marcados con * son obligatorios
+                                </small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('admin.usuarios') }}" class="btn btn-outline-secondary me-2">
+                                    <i class="fas fa-times me-2"></i>
+                                    Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-admin">
+                                    <i class="fas fa-save me-2"></i>
+                                    Asignar Rol
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Datos de roles para JavaScript -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+{% endblock %} 

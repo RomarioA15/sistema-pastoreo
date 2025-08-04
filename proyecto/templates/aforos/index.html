@@ -1,0 +1,609 @@
+{% extends 'base.html' %}
+
+{% block title %}Centro de Aforos - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="aforos-page">
+    <div class="aforos-container aforos-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="aforos-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-chart-bar me-1"></i>Centro de Aforos
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="aforos-header">
+            <div class="aforos-header-content">
+                <div>
+                    <h1 class="aforos-title">
+                        <i class="fas fa-chart-bar text-success"></i>
+                        Centro de Aforos
+                    </h1>
+                    <p class="aforos-subtitle aforos-mb-0">
+                        Monitoreo científico de biomasa disponible para toma de decisiones precisas
+                    </p>
+                </div>
+                <div class="aforos-actions">
+                    {% if usuario_puede('aforos', 'crear') %}
+                    <a href="{{ url_for('aforos.nuevo') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-plus me-2"></i>
+                        Nuevo Aforo
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-outline-secondary" id="toggleView" title="Cambiar vista">
+                        <i class="fas fa-th" id="viewIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if aforos %}
+        <!-- DASHBOARD DE ESTADÍSTICAS -->
+        <div class="aforos-stats-dashboard">
+            <h3 class="aforos-mb-md">📊 Resumen General de Aforos</h3>
+            <div class="aforos-stats-grid">
+                <div class="aforos-stat-item">
+                    <span class="aforos-stat-value">{{ total }}</span>
+                    <span class="aforos-stat-label">Aforos Registrados</span>
+                </div>
+                <div class="aforos-stat-item">
+                    <span class="aforos-stat-value">
+                        {% set total_mv = aforos | map(attribute='materia_verde') | sum %}
+                        {{ "%.0f"|format(total_mv / aforos|length) }}
+                    </span>
+                    <span class="aforos-stat-label">kg/ha MV Promedio</span>
+                </div>
+                <div class="aforos-stat-item">
+                    <span class="aforos-stat-value">
+                        {% set promedio_mv = total_mv / aforos|length %}
+                        {% if promedio_mv >= 2500 %}🟢
+                        {% elif promedio_mv >= 2000 %}🔵
+                        {% elif promedio_mv >= 1500 %}🟡
+                        {% else %}🔴
+                        {% endif %}
+                    </span>
+                    <span class="aforos-stat-label">Calidad Promedio</span>
+                </div>
+                <div class="aforos-stat-item">
+                    <span class="aforos-stat-value">{{ aforos[0].fecha }}</span>
+                    <span class="aforos-stat-label">Último Aforo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE BÚSQUEDA Y FILTROS -->
+        <div class="aforos-search-section">
+            <div class="aforos-search-header">
+                <h4 class="aforos-search-title">🔍 Buscar y Filtrar Aforos</h4>
+                <button class="aforos-search-toggle" id="toggleFilters">
+                    <i class="fas fa-filter me-1"></i>
+                    Filtros
+                </button>
+            </div>
+            
+            <!-- Búsqueda Principal -->
+            <div class="aforos-search-input aforos-mb-lg">
+                <i class="fas fa-search aforos-search-icon"></i>
+                <input 
+                    type="text" 
+                    id="searchAforos" 
+                    placeholder="Buscar por nombre de potrero, fecha o calidad..."
+                    class="form-control"
+                >
+            </div>
+            
+            <!-- Filtros Avanzados -->
+            <div class="aforos-filters-grid" id="advancedFilters" style="display: none;">
+                <div>
+                    <label class="form-label fw-semibold">Potrero</label>
+                    <select class="form-select" id="filterPotrero">
+                        <option value="">Todos los potreros</option>
+                        {% for potrero in potreros %}
+                            <option value="{{ potrero.nombre|lower }}">{{ potrero.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label fw-semibold">Desde</label>
+                    <input type="date" class="form-control" id="filterFechaInicio">
+                </div>
+                <div>
+                    <label class="form-label fw-semibold">Hasta</label>
+                    <input type="date" class="form-control" id="filterFechaFin">
+                </div>
+                <div>
+                    <label class="form-label fw-semibold">Calidad</label>
+                    <select class="form-select" id="filterCalidad">
+                        <option value="">Todas las calidades</option>
+                        <option value="excellent">🟢 Excelente (+2500 kg/ha)</option>
+                        <option value="good">🔵 Buena (2000-2500 kg/ha)</option>
+                        <option value="regular">🟡 Regular (1500-2000 kg/ha)</option>
+                        <option value="poor">🔴 Baja (-1500 kg/ha)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label fw-semibold">Ordenar por</label>
+                    <select class="form-select" id="sortBy">
+                        <option value="fecha_desc">Fecha (reciente)</option>
+                        <option value="fecha_asc">Fecha (antigua)</option>
+                        <option value="mv_desc">MV (mayor)</option>
+                        <option value="mv_asc">MV (menor)</option>
+                        <option value="potrero_asc">Potrero (A-Z)</option>
+                    </select>
+                </div>
+                <div class="d-flex align-items-end">
+                    <button class="btn btn-outline-danger w-100" id="clearFilters">
+                        <i class="fas fa-times me-1"></i>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: CONTENIDO + SIDEBAR -->
+        <div class="aforos-grid-main">
+            
+            <!-- CONTENIDO PRINCIPAL -->
+            <div class="aforos-main-content">
+                
+                <!-- Contador de Resultados -->
+                <div class="d-flex justify-content-between align-items-center aforos-mb-lg">
+                    <h5 class="aforos-mb-0">
+                        <span id="filteredCount">{{ total }}</span> aforos encontrados
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="exportData" title="Exportar datos">
+                            <i class="fas fa-download me-1"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- GRID DE AFOROS -->
+                <div class="aforos-cards-grid" id="aforosGrid">
+                    {% for aforo in aforos %}
+                    {% set calidad_class = 'poor' %}
+                    {% set calidad_text = 'Baja' %}
+                    {% set calidad_icon = '🔴' %}
+                    
+                    {% if aforo.materia_verde >= 2500 %}
+                        {% set calidad_class = 'excellent' %}
+                        {% set calidad_text = 'Excelente' %}
+                        {% set calidad_icon = '🟢' %}
+                    {% elif aforo.materia_verde >= 2000 %}
+                        {% set calidad_class = 'good' %}
+                        {% set calidad_text = 'Buena' %}
+                        {% set calidad_icon = '🔵' %}
+                    {% elif aforo.materia_verde >= 1500 %}
+                        {% set calidad_class = 'regular' %}
+                        {% set calidad_text = 'Regular' %}
+                        {% set calidad_icon = '🟡' %}
+                    {% endif %}
+                    
+                    <div class="aforo-item-card aforos-fade-in" 
+                         data-potrero="{{ aforo.potrero_nombre|lower }}" 
+                         data-fecha="{{ aforo.fecha }}" 
+                         data-mv="{{ aforo.materia_verde }}"
+                         data-calidad="{{ calidad_class }}">
+                        
+                        <!-- Header de la Card -->
+                        <div class="aforo-item-header">
+                            <div>
+                                <h3 class="aforo-item-title">{{ aforo.potrero_nombre }}</h3>
+                                <p class="aforo-item-date aforos-mb-0">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ aforo.fecha }}
+                                </p>
+                            </div>
+                            <span class="aforo-quality-badge aforo-quality-{{ calidad_class }}">
+                                {{ calidad_icon }} {{ calidad_text }}
+                            </span>
+                        </div>
+                        
+                        <!-- Cuerpo de la Card -->
+                        <div class="aforo-item-body">
+                            <!-- Métricas Principales -->
+                            <div class="aforo-metrics">
+                                <div class="aforo-metric aforo-metric-mv">
+                                    <div class="aforo-metric-value">{{ "%.0f"|format(aforo.materia_verde) }}</div>
+                                    <div class="aforo-metric-label">kg/ha MV</div>
+                                </div>
+                                <div class="aforo-metric aforo-metric-ms">
+                                    <div class="aforo-metric-value">{{ "%.0f"|format(aforo.materia_seca) }}</div>
+                                    <div class="aforo-metric-label">kg/ha MS</div>
+                                </div>
+                                <div class="aforo-metric aforo-metric-percent">
+                                    <div class="aforo-metric-value">{{ "%.1f"|format(aforo.porcentaje_ms) }}%</div>
+                                    <div class="aforo-metric-label">% MS</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Observaciones si existen -->
+                            {% if aforo.observaciones %}
+                            <div class="alert alert-light aforos-mb-0">
+                                <small class="text-muted">
+                                    <i class="fas fa-sticky-note me-1"></i>
+                                    {{ aforo.observaciones }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Acciones -->
+                        <div class="aforo-item-actions">
+                            {% if usuario_puede('aforos', 'actualizar') %}
+                            <a href="{{ url_for('aforos.editar', aforo_id=aforo.id) }}" 
+                               class="aforo-action-btn aforo-action-btn-primary"
+                               title="Editar aforo">
+                                <i class="fas fa-edit"></i>
+                                Editar
+                            </a>
+                            {% endif %}
+                            
+                            {% if usuario_puede('aforos', 'actualizar') %}
+                            <a href="{{ url_for('aforos.add_muestras', aforo_id=aforo.id) }}" 
+                               class="aforo-action-btn"
+                               title="Gestionar muestras">
+                                <i class="fas fa-flask"></i>
+                                Muestras
+                            </a>
+                            {% endif %}
+                            
+                            {% if usuario_puede('aforos', 'eliminar') %}
+                            <button class="aforo-action-btn aforo-action-btn-danger" 
+                                    onclick="confirmarEliminar({{ aforo.id }})"
+                                    title="Eliminar aforo">
+                                <i class="fas fa-trash"></i>
+                                Eliminar
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- SIDEBAR -->
+            <div class="aforos-sidebar">
+                
+                <!-- Estadísticas Rápidas -->
+                <div class="aforos-quick-stats">
+                    <h5 class="aforos-quick-stats-title">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Estadísticas Rápidas
+                    </h5>
+                    
+                    <div class="aforos-quick-stat-item">
+                        <div class="aforos-quick-stat-icon bg-success text-white">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="aforos-quick-stat-content">
+                            <p class="aforos-quick-stat-value">{{ total }}</p>
+                            <p class="aforos-quick-stat-label">Total Aforos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="aforos-quick-stat-item">
+                        <div class="aforos-quick-stat-icon bg-info text-white">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="aforos-quick-stat-content">
+                            <p class="aforos-quick-stat-value">
+                                {% set total_mv = aforos | map(attribute='materia_verde') | sum %}
+                                {{ "%.0f"|format(total_mv / aforos|length) }}
+                            </p>
+                            <p class="aforos-quick-stat-label">kg/ha MV Promedio</p>
+                        </div>
+                    </div>
+                    
+                    <div class="aforos-quick-stat-item">
+                        <div class="aforos-quick-stat-icon bg-warning text-white">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="aforos-quick-stat-content">
+                            <p class="aforos-quick-stat-value">{{ aforos[0].fecha }}</p>
+                            <p class="aforos-quick-stat-label">Último Registro</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Guía de Calidad -->
+                <div class="aforo-card">
+                    <div class="aforo-card-header">
+                        <h5 class="aforos-mb-0">
+                            <i class="fas fa-info-circle text-info"></i>
+                            Guía de Calidad
+                        </h5>
+                    </div>
+                    <div class="aforo-card-body">
+                        <div class="d-flex align-items-center aforos-mb-sm">
+                            <span class="badge bg-success me-2">🟢</span>
+                            <div>
+                                <strong>Excelente:</strong> +2500 kg/ha MV
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center aforos-mb-sm">
+                            <span class="badge bg-primary me-2">🔵</span>
+                            <div>
+                                <strong>Buena:</strong> 2000-2500 kg/ha MV
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center aforos-mb-sm">
+                            <span class="badge bg-warning me-2">🟡</span>
+                            <div>
+                                <strong>Regular:</strong> 1500-2000 kg/ha MV
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2">🔴</span>
+                            <div>
+                                <strong>Baja:</strong> -1500 kg/ha MV
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Acciones Rápidas -->
+                <div class="aforo-card">
+                    <div class="aforo-card-header">
+                        <h5 class="aforos-mb-0">
+                            <i class="fas fa-bolt text-warning"></i>
+                            Acciones Rápidas
+                        </h5>
+                    </div>
+                    <div class="aforo-card-body">
+                        {% if usuario_puede('aforos', 'crear') %}
+                        <a href="{{ url_for('aforos.nuevo') }}" class="btn btn-success w-100 aforos-mb-sm">
+                            <i class="fas fa-plus me-2"></i>
+                            Nuevo Aforo
+                        </a>
+                        {% endif %}
+                        <button class="btn btn-outline-info w-100 aforos-mb-sm" id="generateReport">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Generar Reporte
+                        </button>
+                        <button class="btn btn-outline-secondary w-100" id="exportAll">
+                            <i class="fas fa-download me-2"></i>
+                            Exportar Todo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- ESTADO VACÍO -->
+        <div class="aforos-empty-state">
+            <div class="aforos-empty-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3 class="aforos-empty-title">¡Comienza tu Monitoreo Científico!</h3>
+            <p class="aforos-empty-description">
+                Los aforos te permiten medir con precisión la biomasa disponible y tomar decisiones 
+                informadas sobre el pastoreo de tu ganado. Empieza registrando tu primer aforo.
+            </p>
+            {% if usuario_puede('aforos', 'crear') %}
+            <a href="{{ url_for('aforos.nuevo') }}" class="aforos-empty-action">
+                <i class="fas fa-play"></i>
+                Crear Primer Aforo
+            </a>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Contacta al administrador para obtener permisos de creación de aforos.
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- JavaScript Funcional -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
+    const searchInput = document.getElementById('searchAforos');
+    const filterPotrero = document.getElementById('filterPotrero');
+    const filterCalidad = document.getElementById('filterCalidad');
+    const filterFechaInicio = document.getElementById('filterFechaInicio');
+    const filterFechaFin = document.getElementById('filterFechaFin');
+    const sortSelect = document.getElementById('sortBy');
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    const advancedFilters = document.getElementById('advancedFilters');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    const aforosGrid = document.getElementById('aforosGrid');
+    const filteredCount = document.getElementById('filteredCount');
+    
+    // Toggle filtros avanzados
+    if (toggleFiltersBtn && advancedFilters) {
+        toggleFiltersBtn.addEventListener('click', function() {
+            const isHidden = advancedFilters.style.display === 'none';
+            advancedFilters.style.display = isHidden ? 'block' : 'none';
+            
+            const icon = this.querySelector('i');
+            icon.className = isHidden ? 'fas fa-times me-1' : 'fas fa-filter me-1';
+            this.textContent = isHidden ? ' Ocultar' : ' Filtros';
+            this.prepend(icon);
+        });
+    }
+    
+    // Búsqueda y filtros
+    function applyFilters() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        const potreroFilter = filterPotrero ? filterPotrero.value.toLowerCase() : '';
+        const calidadFilter = filterCalidad ? filterCalidad.value : '';
+        const fechaInicio = filterFechaInicio ? filterFechaInicio.value : '';
+        const fechaFin = filterFechaFin ? filterFechaFin.value : '';
+        
+        const cards = aforosGrid ? aforosGrid.querySelectorAll('.aforo-item-card') : [];
+        let visibleCount = 0;
+        
+        cards.forEach(card => {
+            const potrero = card.dataset.potrero || '';
+            const fecha = card.dataset.fecha || '';
+            const calidad = card.dataset.calidad || '';
+            const mv = parseFloat(card.dataset.mv) || 0;
+            
+            // Aplicar filtros
+            let isVisible = true;
+            
+            // Búsqueda de texto
+            if (searchTerm) {
+                isVisible = isVisible && (
+                    potrero.includes(searchTerm) || 
+                    fecha.includes(searchTerm) ||
+                    calidad.includes(searchTerm)
+                );
+            }
+            
+            // Filtro por potrero
+            if (potreroFilter) {
+                isVisible = isVisible && potrero.includes(potreroFilter);
+            }
+            
+            // Filtro por calidad
+            if (calidadFilter) {
+                isVisible = isVisible && calidad === calidadFilter;
+            }
+            
+            // Filtro por fecha inicio
+            if (fechaInicio) {
+                isVisible = isVisible && fecha >= fechaInicio;
+            }
+            
+            // Filtro por fecha fin
+            if (fechaFin) {
+                isVisible = isVisible && fecha <= fechaFin;
+            }
+            
+            // Mostrar/ocultar card
+            card.style.display = isVisible ? 'block' : 'none';
+            if (isVisible) visibleCount++;
+        });
+        
+        // Actualizar contador
+        if (filteredCount) {
+            filteredCount.textContent = visibleCount;
+        }
+    }
+    
+    // Ordenamiento
+    function sortCards() {
+        if (!sortSelect || !aforosGrid) return;
+        
+        const sortValue = sortSelect.value;
+        const cards = Array.from(aforosGrid.querySelectorAll('.aforo-item-card'));
+        
+        cards.sort((a, b) => {
+            switch(sortValue) {
+                case 'fecha_desc':
+                    return new Date(b.dataset.fecha) - new Date(a.dataset.fecha);
+                case 'fecha_asc':
+                    return new Date(a.dataset.fecha) - new Date(b.dataset.fecha);
+                case 'mv_desc':
+                    return parseFloat(b.dataset.mv) - parseFloat(a.dataset.mv);
+                case 'mv_asc':
+                    return parseFloat(a.dataset.mv) - parseFloat(b.dataset.mv);
+                case 'potrero_asc':
+                    return a.dataset.potrero.localeCompare(b.dataset.potrero);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Reordenar en el DOM
+        cards.forEach(card => aforosGrid.appendChild(card));
+    }
+    
+    // Event listeners
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (filterPotrero) filterPotrero.addEventListener('change', applyFilters);
+    if (filterCalidad) filterCalidad.addEventListener('change', applyFilters);
+    if (filterFechaInicio) filterFechaInicio.addEventListener('change', applyFilters);
+    if (filterFechaFin) filterFechaFin.addEventListener('change', applyFilters);
+    if (sortSelect) sortSelect.addEventListener('change', sortCards);
+    
+    // Limpiar filtros
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (filterPotrero) filterPotrero.value = '';
+            if (filterCalidad) filterCalidad.value = '';
+            if (filterFechaInicio) filterFechaInicio.value = '';
+            if (filterFechaFin) filterFechaFin.value = '';
+            if (sortSelect) sortSelect.value = 'fecha_desc';
+            
+            applyFilters();
+            sortCards();
+        });
+    }
+    
+    // Exportar datos
+    const exportBtn = document.getElementById('exportData');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            exportToCSV();
+        });
+    }
+    
+    function exportToCSV() {
+        const visibleCards = aforosGrid ? 
+            Array.from(aforosGrid.querySelectorAll('.aforo-item-card')).filter(card => 
+                card.style.display !== 'none'
+            ) : [];
+        
+        const headers = ['Potrero', 'Fecha', 'Materia Verde (kg/ha)', 'Materia Seca (kg/ha)', '% MS', 'Calidad'];
+        let csv = headers.join(',') + '\n';
+        
+        visibleCards.forEach(card => {
+            const potrero = card.dataset.potrero;
+            const fecha = card.dataset.fecha;
+            const calidad = card.dataset.calidad;
+            
+            const mvElement = card.querySelector('.aforo-metric-mv .aforo-metric-value');
+            const msElement = card.querySelector('.aforo-metric-ms .aforo-metric-value');
+            const percentElement = card.querySelector('.aforo-metric-percent .aforo-metric-value');
+            
+            const mv = mvElement ? mvElement.textContent : '0';
+            const ms = msElement ? msElement.textContent : '0';
+            const percent = percentElement ? percentElement.textContent : '0%';
+            
+            csv += `"${potrero}","${fecha}","${mv}","${ms}","${percent}","${calidad}"\n`;
+        });
+        
+        // Descargar archivo
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `aforos_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+});
+
+// Función para confirmar eliminación
+function confirmarEliminar(aforoId) {
+    if (confirm('¿Está seguro de que desea eliminar este aforo? Esta acción no se puede deshacer.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/aforos/${aforoId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

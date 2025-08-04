@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Error interno del servidor{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+{% endblock %}
+
+{% block breadcrumb %}
+<ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item">
+        <a href="{{ url_for('dashboard_simple.index') }}">
+            <i class="fas fa-home me-1" aria-hidden="true"></i>Inicio
+        </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Error 500</li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-code" aria-hidden="true">500</div>
+            <h1 class="error-title">¡Error interno del servidor!</h1>
+            <p class="mb-4 text-responsive-wrap">Lo sentimos, algo salió mal. Nuestro equipo está trabajando para resolver el problema.</p>
+            
+            <div class="error-actions">
+                <button onclick="location.reload()" class="btn btn-primary btn-lg">
+                    <i class="fas fa-redo me-2"></i>Intentar de nuevo
+                </button>
+                <a href="{{ url_for('dashboard_simple.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-home me-2"></i>Ir al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="template-grid">
+        <div class="col-6">
+            <!-- Información sobre qué hacer -->
+            <div class="info-card">
+                <h2 class="info-title">
+                    <i class="fas fa-info-circle me-2 text-info" aria-hidden="true"></i>
+                    ¿Qué puedes hacer mientras tanto?
+                </h2>
+                
+                <div class="info-item">
+                    <i class="fas fa-clock info-icon text-warning" aria-hidden="true"></i>
+                    <div>
+                        <strong>Esperar unos minutos</strong>
+                        <br><small class="text-muted">El problema podría ser temporal y resolverse automáticamente</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-refresh info-icon text-primary" aria-hidden="true"></i>
+                    <div>
+                        <strong>Refrescar la página</strong>
+                        <br><small class="text-muted">Intenta recargar la página después de un momento</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-route info-icon text-success" aria-hidden="true"></i>
+                    <div>
+                        <strong>Usar otra sección</strong>
+                        <br><small class="text-muted">Mientras tanto, puedes acceder a otras partes del sistema</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-phone info-icon text-danger" aria-hidden="true"></i>
+                    <div>
+                        <strong>Contactar soporte</strong>
+                        <br><small class="text-muted">Si el problema persiste, contacta al administrador</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <!-- Enlaces útiles -->
+            <div class="info-card">
+                <h3 class="info-title">
+                    <i class="fas fa-compass me-2 text-success" aria-hidden="true"></i>
+                    Navegación alternativa
+                </h3>
+                
+                {% if usuario_puede('dashboard', 'leer') %}
+                <div class="info-item">
+                    <i class="fas fa-tachometer-alt info-icon text-primary" aria-hidden="true"></i>
+                    <div>
+                        <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                            <strong>Dashboard Principal</strong>
+                        </a>
+                        <br><small class="text-muted">Resumen general del sistema</small>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if usuario_puede('potreros', 'leer') %}
+                <div class="info-item">
+                    <i class="fas fa-map-marked-alt info-icon text-success" aria-hidden="true"></i>
+                    <div>
+                        <a href="{{ url_for('potreros.index') }}" class="text-decoration-none">
+                            <strong>Gestión de Potreros</strong>
+                        </a>
+                        <br><small class="text-muted">Administrar potreros de la finca</small>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if usuario_puede('aforos', 'leer') %}
+                <div class="info-item">
+                    <i class="fas fa-chart-bar info-icon text-info" aria-hidden="true"></i>
+                    <div>
+                        <a href="{{ url_for('aforos.index') }}" class="text-decoration-none">
+                            <strong>Aforos de Pastos</strong>
+                        </a>
+                        <br><small class="text-muted">Medición de disponibilidad forrajera</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Status del sistema -->
+            <div class="info-card">
+                <h3 class="info-title">
+                    <i class="fas fa-heartbeat me-2 text-danger" aria-hidden="true"></i>
+                    Estado del sistema
+                </h3>
+                
+                <div class="info-item">
+                    <i class="fas fa-exclamation-triangle info-icon text-warning" aria-hidden="true"></i>
+                    <div>
+                        <strong>Problema detectado</strong>
+                        <br><small class="text-muted" id="errorTime">{{ now().strftime('%d/%m/%Y %H:%M:%S') }}</small>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-tools info-icon text-info" aria-hidden="true"></i>
+                    <div>
+                        <strong>Trabajando en la solución</strong>
+                        <br><small class="text-muted">Nuestro equipo técnico está resolviendo el problema</small>
+                    </div>
+                </div>
+                
+                {% if es_admin() %}
+                <div class="info-item">
+                    <i class="fas fa-cog info-icon text-primary" aria-hidden="true"></i>
+                    <div>
+                        <a href="{{ url_for('admin.index') }}" class="text-decoration-none">
+                            <strong>Panel de administración</strong>
+                        </a>
+                        <br><small class="text-muted">Acceso a configuración del sistema</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/general.js') }}"></script>
+{% endblock %} 

@@ -1,0 +1,360 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Panel de Administración - Sistema de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+
+<div class="admin-container">
+    <div class="admin-card">
+        <!-- Header -->
+        <div class="template-header admin-header">
+            <div class="mb-4">
+                <i class="fas fa-crown" style="font-size: 4rem; opacity: 0.8;"></i>
+            </div>
+            <h1 class="display-3 mb-3">Panel de Administración</h1>
+            <p class="lead">Bienvenido, {{ current_user.nombre }}</p>
+            <div class="welcome-badge">
+                <i class="fas fa-user-shield me-2"></i>
+                Super Administrador
+            </div>
+        </div>
+        
+        <!-- Contenido Principal -->
+        <div class="p-4">
+            
+            <!-- Información de Finca Actual -->
+            {% if finca_actual %}
+            <div class="current-farm-info">
+                <h5 class="mb-2">
+                    <i class="fas fa-map-marked-alt me-2 text-primary"></i>
+                    Finca Actual: <strong>{{ finca_actual.nombre }}</strong>
+                </h5>
+                <p class="mb-0 text-muted">
+                    <i class="fas fa-chart-area me-1"></i>
+                    {{ "%.1f"|format(finca_actual.area_total or 0) }} hectáreas
+                    {% if finca_actual.propietario %}
+                    | <i class="fas fa-user me-1"></i> {{ finca_actual.propietario }}
+                    {% endif %}
+                </p>
+            </div>
+            {% else %}
+            <div class="farm-selector">
+                <div class="row align-items-center">
+                    <div class="col-8">
+                        <h5 class="mb-2">
+                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                            Selecciona una Finca para Trabajar
+                        </h5>
+                        <p class="mb-0 text-muted text-responsive-wrap">Elige una finca para ver sus datos específicos en otras secciones</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <form method="POST" action="{{ url_for('admin.cambiar_finca') }}" class="d-flex">
+                            <select name="finca_id" class="form-select me-2" required>
+                                <option value="">Seleccionar finca...</option>
+                                {% for finca in fincas %}
+                                <option value="{{ finca.id }}">{{ finca.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-change-farm">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Estadísticas Generales -->
+            <div class="row mb-5">
+                <div class="col-md-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-map-marked-alt text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ fincas|length }}</h2>
+                    <p class="text-muted mb-0">Fincas Registradas</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-users text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ total_usuarios }}</h2>
+                    <p class="text-muted mb-0">Usuarios Totales</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-tag text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ roles|length }}</h2>
+                    <p class="text-muted mb-0">Roles Disponibles</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-shield-alt text-info" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="mb-1">{{ roles_usuario|length }}</h2>
+                    <p class="text-muted mb-0">Mis Roles</p>
+                </div>
+            </div>
+            
+            <hr class="mb-5">
+            
+            <!-- Opciones de Administración -->
+            <div class="template-grid">
+                <div class="col-12 mb-4">
+                    <h2 class="text-center mb-4">
+                        <i class="fas fa-tools me-2 text-primary"></i>
+                        Herramientas de Administración
+                    </h2>
+                </div>
+                
+                <!-- Cambiar Finca -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="#" class="admin-option" data-bs-toggle="modal" data-bs-target="#cambiarFincaModal">
+                        <div class="option-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="option-title">Cambiar Finca</div>
+                        <div class="option-description">
+                            Cambiar la finca de trabajo actual para gestionar sus datos específicos
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ fincas|length }}</span>
+                            <span class="stats-label">Fincas disponibles</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Gestión de Fincas -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.fincas') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="option-title">Gestión de Fincas</div>
+                        <div class="option-description">
+                            Crear, editar y administrar las fincas del sistema
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ fincas|length }}</span>
+                            <span class="stats-label">Fincas registradas</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Gestión de Usuarios -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.usuarios') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="option-title">Gestión de Usuarios</div>
+                        <div class="option-description">
+                            Administrar usuarios y asignar roles y permisos
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ total_usuarios }}</span>
+                            <span class="stats-label">Usuarios totales</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Gestión de Roles -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.roles') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-user-tag"></i>
+                        </div>
+                        <div class="option-title">Gestión de Roles</div>
+                        <div class="option-description">
+                            Crear y configurar roles con permisos específicos
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ roles|length }}</span>
+                            <span class="stats-label">Roles disponibles</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Dashboard Avanzado -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.dashboard') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="option-title">Dashboard Avanzado</div>
+                        <div class="option-description">
+                            Estadísticas detalladas y métricas del sistema
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ estadisticas.total_fincas }}</span>
+                            <span class="stats-label">Fincas activas</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Configuración del Sistema -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.configuracion') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="option-title">Configuración</div>
+                        <div class="option-description">
+                            Configuración general y herramientas del sistema
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ estadisticas.usuarios_activos }}</span>
+                            <span class="stats-label">Usuarios activos</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Crear Usuario -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.nuevo_usuario') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="option-title">Crear Usuario</div>
+                        <div class="option-description">
+                            Añadir nuevos usuarios al sistema rápidamente
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ estadisticas.roles_admin }}</span>
+                            <span class="stats-label">Roles admin</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Crear Rol -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.nuevo_rol') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="option-title">Crear Rol</div>
+                        <div class="option-description">
+                            Definir nuevos roles con permisos personalizados
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ roles|length }}</span>
+                            <span class="stats-label">Total roles</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Crear Finca -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <a href="{{ url_for('admin.nueva_finca') }}" class="admin-option">
+                        <div class="option-icon">
+                            <i class="fas fa-plus-square"></i>
+                        </div>
+                        <div class="option-title">Crear Finca</div>
+                        <div class="option-description">
+                            Registrar una nueva finca en el sistema
+                        </div>
+                        <div class="template-stats-card option-stats">
+                            <span class="stats-number">{{ estadisticas.fincas_activas }}</span>
+                            <span class="stats-label">Fincas activas</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <hr class="my-5">
+            
+            <!-- Acciones Adicionales -->
+            <div class="template-grid">
+                <div class="col-md-6 text-center">
+                    <h5 class="mb-3">
+                        <i class="fas fa-eye me-2 text-info"></i>
+                        Acceder al Sistema
+                    </h5>
+                    <p class="text-muted mb-3 text-responsive-wrap">
+                        Accede al sistema normal de pastoreo para trabajar con los datos de la finca
+                    </p>
+                    {% if finca_actual %}
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="btn btn-info btn-lg">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Ir al Dashboard
+                    </a>
+                    {% else %}
+                    <p class="text-warning">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        Selecciona una finca primero
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 text-center">
+                    <h5 class="mb-3">
+                        <i class="fas fa-sign-out-alt me-2 text-secondary"></i>
+                        Cerrar Sesión
+                    </h5>
+                    <p class="text-muted mb-3 text-responsive-wrap">
+                        Salir del sistema de administración de forma segura
+                    </p>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Cerrar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para cambiar finca -->
+<div class="modal fade" id="cambiarFincaModal" tabindex="-1" aria-labelledby="cambiarFincaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.cambiar_finca') }}">
+                <div class="template-header modal-header">
+                    <h5 class="modal-title" id="cambiarFincaModalLabel">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Cambiar Finca de Trabajo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="finca_id" class="template-form-label">Selecciona una finca:</label>
+                        <select name="finca_id" id="finca_id" class="form-select" required>
+                            <option value="">Seleccionar finca...</option>
+                            {% for finca in fincas %}
+                            <option value="{{ finca.id }}" 
+                                    {% if finca_actual and finca.id == finca_actual.id %}selected{% endif %}>
+                                {{ finca.nombre }}
+                                {% if finca.area_total %}
+                                ({{ "%.1f"|format(finca.area_total) }} ha)
+                                {% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="template-alert template-alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Información:</strong> Cambiar la finca afectará los datos mostrados en todas las secciones del sistema.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="template-btn template-btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="template-btn template-btn-primary">
+                        <i class="fas fa-check me-2"></i>
+                        Cambiar Finca
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+{% endblock %}
+
+{% endblock %}

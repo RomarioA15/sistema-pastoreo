@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Potrero - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/potreros.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="potreros-page">
+<div class="potreros-container potreros-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('potreros.index') }}">Mapa de Potreros</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Nuevo Potrero</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="potreros-header">
+    <div class="potreros-header-content">
+        <div>
+            <h1 class="potreros-title">
+                <i class="fas fa-plus-circle"></i>
+                Crear Nuevo Potrero
+            </h1>
+            <p class="potreros-subtitle">Complete la información básica para crear un potrero en su finca.</p>
+        </div>
+        <div class="potreros-actions">
+            <a href="{{ url_for('potreros.index') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Cancelar y Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Información general del formulario -->
+<div class="potreros-card mb-4">
+    <div class="potreros-card-body">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fs-4"></i>
+                <div>
+                    <h6 class="alert-heading mb-1">Complete la información del potrero</h6>
+                    <small class="mb-0">Todos los campos con asterisco (*) son obligatorios. Los demás campos son opcionales pero recomendados.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Layout de dos columnas: formulario y consejos -->
+<div class="row">
+    <!-- COLUMNA PRINCIPAL: FORMULARIO -->
+    <div class="col-lg-8">
+        <!-- Formulario con validación en tiempo real y control de errores -->
+        <form method="POST" action="{{ url_for('potreros.nuevo') }}" id="potreroForm" novalidate>
+    
+    <!-- HEURÍSTICA 4: Consistencia y Estándares -->
+    <!-- Sección 1: Información Esencial -->
+    <div class="potreros-card mb-4">
+        <div class="potreros-card-header">
+            <h4 class="potreros-card-title">
+                <i class="fas fa-edit"></i>
+                Información Esencial
+                <small class="text-muted">(Campos obligatorios)</small>
+            </h4>
+        </div>
+        <div class="potreros-card-body">
+                
+                <!-- HEURÍSTICA 5: Prevención de Errores -->
+                <!-- Campo nombre con validación -->
+                <div class="mb-4">
+                    <label for="nombre" class="form-label required">
+                        <i class="fas fa-tag text-primary me-2"></i>
+                        <strong>¿Cómo se llama este potrero?</strong>
+                    </label>
+                    <input type="text" 
+                           class="form-control form-control-lg" 
+                           id="nombre" 
+                           name="nombre" 
+                           value="{{ request.form.get('nombre', '') }}" 
+                           placeholder="Ej: Potrero Norte, Campo Alto, Lote 1..."
+                           required
+                           autocomplete="off"
+                           data-bs-title="Use un nombre descriptivo y fácil de recordar"
+                           data-bs-toggle="tooltip">
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Nombre válido
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Por favor ingrese un nombre para el potrero
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        Sugerencia: Use nombres que identifiquen ubicación o características del terreno
+                    </div>
+                </div>
+
+                <!-- Campo área con calculadora integrada -->
+                <div class="mb-4">
+                    <label for="hectareas" class="form-label required">
+                        <i class="fas fa-expand-arrows-alt text-primary me-2"></i>
+                        <strong>¿Cuál es el área del potrero?</strong>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control" 
+                               id="hectareas" 
+                               name="hectareas" 
+                               min="0.01" 
+                               step="0.01"
+                               value="{{ request.form.get('hectareas', '') }}" 
+                               placeholder="2.5"
+                               required
+                               data-bs-title="Ingrese el área en hectáreas">
+                        <span class="input-group-text">hectáreas</span>
+                        <button class="btn btn-outline-secondary" type="button" id="calculatorBtn">
+                            <i class="fas fa-calculator"></i>
+                        </button>
+                    </div>
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Área válida
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Ingrese un área válida mayor a 0
+                        </div>
+                    </div>
+                    
+                    <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                    <!-- Calculadora visual -->
+                    <div class="area-calculator mt-3" id="areaCalculator" style="display: none;">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-calculator me-2"></i>Calculadora de Área</h6>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label">Largo (metros)</label>
+                                    <input type="number" class="form-control" id="largo" placeholder="100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ancho (metros)</label>
+                                    <input type="number" class="form-control" id="ancho" placeholder="200">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary mt-2" onclick="calcularArea()">
+                                <i class="fas fa-equals me-1"></i>Calcular
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback visual del área -->
+                    <div class="area-feedback mt-2" id="areaFeedback" style="display: none;">
+                        <div class="d-flex justify-content-between small">
+                            <span>Equivale a: <strong id="metrosCuadrados">0</strong> m²</span>
+                            <span>Capacidad estimada: <strong id="capacidadEstimada">0</strong> animales</span>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <!-- Sección 2: Características del Potrero -->
+    <div class="potreros-card mb-4">
+        <div class="potreros-card-header">
+            <h4 class="potreros-card-title">
+                <i class="fas fa-seedling"></i>
+                Características del Potrero
+                <small class="text-muted">(Información técnica)</small>
+            </h4>
+        </div>
+        <div class="potreros-card-body">
+                
+                <!-- Tipo de pastura con opciones visuales -->
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="fas fa-seedling text-success me-2"></i>
+                        <strong>¿Qué tipo de pasto predomina?</strong>
+                    </label>
+                    <div class="pasture-selector">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="brachiaria" id="brachiaria">
+                                <label class="btn btn-outline-success w-100 h-100" for="brachiaria">
+                                    <i class="fas fa-leaf d-block mb-2"></i>
+                                    <strong>Brachiaria</strong>
+                                    <small class="text-muted d-block">Resistente, tropical</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="guinea" id="guinea">
+                                <label class="btn btn-outline-success w-100 h-100" for="guinea">
+                                    <i class="fas fa-seedling d-block mb-2"></i>
+                                    <strong>Guinea</strong>
+                                    <small class="text-muted d-block">Alta productividad</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="estrella" id="estrella">
+                                <label class="btn btn-outline-success w-100 h-100" for="estrella">
+                                    <i class="fas fa-star d-block mb-2"></i>
+                                    <strong>Estrella</strong>
+                                    <small class="text-muted d-block">Muy adaptable</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="kikuyo" id="kikuyo">
+                                <label class="btn btn-outline-success w-100 h-100" for="kikuyo">
+                                    <i class="fas fa-mountain d-block mb-2"></i>
+                                    <strong>Kikuyo</strong>
+                                    <small class="text-muted d-block">Clima frío</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="natural" id="natural">
+                                <label class="btn btn-outline-success w-100 h-100" for="natural">
+                                    <i class="fas fa-tree d-block mb-2"></i>
+                                    <strong>Natural</strong>
+                                    <small class="text-muted d-block">Pastura nativa</small>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="tipo_pastura" value="mixta" id="mixta">
+                                <label class="btn btn-outline-success w-100 h-100" for="mixta">
+                                    <i class="fas fa-layer-group d-block mb-2"></i>
+                                    <strong>Mixta</strong>
+                                    <small class="text-muted d-block">Combinación</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado del potrero con indicadores visuales -->
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="fas fa-chart-line text-info me-2"></i>
+                        <strong>¿Cuál es el estado actual del potrero?</strong>
+                    </label>
+                    <div class="estado-selector">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="estado" value="bueno" id="bueno" checked>
+                                <label class="btn btn-outline-success w-100" for="bueno">
+                                    <i class="fas fa-check-circle d-block mb-1"></i>
+                                    <strong>Excelente</strong>
+                                    <small class="text-muted d-block">Listo para pastoreo</small>
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="estado" value="regular" id="regular">
+                                <label class="btn btn-outline-warning w-100" for="regular">
+                                    <i class="fas fa-exclamation-triangle d-block mb-1"></i>
+                                    <strong>Regular</strong>
+                                    <small class="text-muted d-block">Manejo cuidadoso</small>
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="estado" value="malo" id="malo">
+                                <label class="btn btn-outline-danger w-100" for="malo">
+                                    <i class="fas fa-times-circle d-block mb-1"></i>
+                                    <strong>Degradado</strong>
+                                    <small class="text-muted d-block">Requiere mejoras</small>
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="estado" value="descanso" id="descanso">
+                                <label class="btn btn-outline-info w-100" for="descanso">
+                                    <i class="fas fa-pause-circle d-block mb-1"></i>
+                                    <strong>Descanso</strong>
+                                    <small class="text-muted d-block">En recuperación</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observaciones opcionales -->
+                <div class="mb-4">
+                    <label for="observaciones" class="form-label">
+                        <i class="fas fa-sticky-note text-muted me-2"></i>
+                        Observaciones adicionales <span class="text-muted">(opcional)</span>
+                    </label>
+                    <textarea class="form-control" 
+                              id="observaciones" 
+                              name="observaciones" 
+                              rows="3" 
+                              placeholder="Características especiales, mejoras planificadas, acceso al agua, etc.">{{ request.form.get('observaciones', '') }}</textarea>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Información adicional que pueda ser útil para el manejo futuro
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <!-- Sección 3: Botones de Acción -->
+    <div class="potreros-card">
+        <div class="potreros-card-body">
+            <!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+            <!-- Botones finales con confirmación -->
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('potreros.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-times me-2"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Crear Potrero
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+        <!-- Espacio reservado para mensajes de error -->
+        <div id="errorMessages" style="display: none;"></div>
+    </div>
+    
+    <!-- COLUMNA LATERAL: CONSEJOS Y AYUDA -->
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 20px;">
+            {% include 'potreros/_help_panel.html' %}
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/potreros.js') }}"></script>
+{% endblock %}

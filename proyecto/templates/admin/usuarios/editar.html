@@ -1,0 +1,290 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Editar Usuario - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-user-edit me-3"></i>
+                Editar Usuario
+            </h1>
+            <p class="lead mb-0">Modifica la información y permisos de {{ usuario.nombre }}</p>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="template-breadcrumb">
+        <ol>
+            <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-home"></i> Administración</a></li>
+            <li><a href="{{ url_for('admin.usuarios') }}">Usuarios</a></li>
+            <li class="active">Editar: {{ usuario.nombre }}</li>
+        </ol>
+    </nav>
+
+    <form method="POST" id="userEditForm">
+        <div class="template-grid">
+            <!-- Información básica del usuario -->
+            <div class="template-grid-main">
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-user"></i> Información Personal</h3>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-user"></i> Nombre Completo
+                            </label>
+                            <input type="text" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   class="form-control" 
+                                   value="{{ usuario.nombre }}"
+                                   required>
+                            <small class="form-help">Nombre completo del usuario</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Correo Electrónico
+                            </label>
+                            <input type="email" 
+                                   id="email" 
+                                   name="email" 
+                                   class="form-control" 
+                                   value="{{ usuario.email }}"
+                                   required>
+                            <small class="form-help">Email para iniciar sesión</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Nueva Contraseña
+                            </label>
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="form-control" 
+                                   placeholder="Dejar vacío para mantener la actual">
+                            <small class="form-help">Solo completa si deseas cambiar la contraseña</small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" 
+                                       id="activo" 
+                                       name="activo" 
+                                       class="form-check-input"
+                                       {% if usuario.activo %}checked{% endif %}>
+                                <label for="activo" class="form-check-label">
+                                    <strong>Usuario Activo</strong>
+                                    <br><small>Los usuarios inactivos no pueden iniciar sesión</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roles asignados -->
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-user-tag"></i> Roles Asignados</h3>
+                    </div>
+                    <div class="template-card-body">
+                        {% if roles_usuario %}
+                            <div class="roles-list">
+                                {% for rol_usuario in roles_usuario %}
+                                <div class="role-item">
+                                    <div class="role-info">
+                                        <h5>
+                                            <i class="fas fa-user-shield"></i>
+                                            {{ rol_usuario.rol_nombre }}
+                                            {% if rol_usuario.es_admin %}
+                                                <span class="badge badge-warning">Admin</span>
+                                            {% endif %}
+                                        </h5>
+                                        <p class="text-muted mb-1">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                            Finca: {{ rol_usuario.finca_nombre }}
+                                        </p>
+                                        <small class="text-muted">
+                                            Asignado: {{ rol_usuario.fecha_asignacion.strftime('%d/%m/%Y') if rol_usuario.fecha_asignacion else 'N/A' }}
+                                        </small>
+                                    </div>
+                                    <div class="role-actions">
+                                        <form method="POST" 
+                                              action="{{ url_for('admin.remover_rol_usuario', usuario_id=usuario.id, finca_id=rol_usuario.finca_id) }}" 
+                                              style="display: inline;"
+                                              onsubmit="return confirm('¿Estás seguro de remover este rol?')">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-trash"></i>
+                                                Remover
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Este usuario no tiene roles asignados aún.
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            <a href="{{ url_for('admin.asignar_rol_usuario', usuario_id=usuario.id) }}" 
+                               class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Asignar Nuevo Rol
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel lateral con información -->
+            <div class="template-grid-sidebar">
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-info-circle"></i> Información del Usuario</h4>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="user-info">
+                            <p><strong>ID:</strong> {{ usuario.id }}</p>
+                            <p><strong>Email:</strong> {{ usuario.email }}</p>
+                            <p><strong>Estado:</strong> 
+                                {% if usuario.activo %}
+                                    <span class="badge badge-success">Activo</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Inactivo</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Creado:</strong> {{ usuario.fecha_creacion.strftime('%d/%m/%Y') if usuario.fecha_creacion else 'N/A' }}</p>
+                            <p><strong>Total Roles:</strong> {{ roles_usuario|length }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-shield-alt"></i> Permisos</h4>
+                    </div>
+                    <div class="template-card-body">
+                        {% if roles_usuario %}
+                            <div class="permissions-summary">
+                                {% set es_admin = roles_usuario|selectattr('es_admin')|list|length > 0 %}
+                                {% if es_admin %}
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-crown"></i>
+                                        <strong>Administrador</strong><br>
+                                        Tiene permisos de administrador en al menos una finca.
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-user"></i>
+                                        <strong>Usuario Regular</strong><br>
+                                        Permisos limitados según roles asignados.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="template-actions">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-save me-2"></i>
+                Guardar Cambios
+            </button>
+            <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver a Usuarios
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.role-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+}
+
+.role-info h5 {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.role-actions {
+    flex-shrink: 0;
+}
+
+.user-info p {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.permissions-summary .alert {
+    margin-bottom: 0;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    document.getElementById('userEditForm').addEventListener('submit', function(e) {
+        const nombre = document.getElementById('nombre').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!nombre || !email) {
+            e.preventDefault();
+            alert('Nombre y email son obligatorios');
+            return false;
+        }
+        
+        // Validar email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Por favor ingresa un email válido');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %} 

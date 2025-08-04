@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block title %}Mapa Interactivo de Potreros{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/potreros.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="potreros-page">
+<div class="potreros-container potreros-fade-in">
+    <!-- Header del Módulo -->
+    <div class="potreros-header">
+        <div class="potreros-header-content">
+            <div>
+                <h1 class="potreros-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Mapa Interactivo de Potreros
+                </h1>
+                <p class="potreros-subtitle">🗺️ Diseña y gestiona tu finca de forma visual. Arrastra los potreros y elementos para crear tu mapa personalizado.</p>
+                <div class="d-flex flex-wrap gap-3 mt-3">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-hand-pointer me-1"></i>Drag & Drop
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-cube me-1"></i>Vista 3D
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-tools me-1"></i>Herramientas completas
+                    </span>
+                </div>
+            </div>
+            <div class="potreros-actions">
+                {% if usuario_puede('potreros', 'crear') %}
+                <a href="{{ url_for('potreros.nuevo') }}" class="btn btn-light btn-lg shadow-lg">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nuevo Potrero
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="potreros-grid-main">
+        <!-- Área Principal del Mapa -->
+        <div class="potreros-main-content">
+            <!-- Barra de Herramientas -->
+            <div class="potreros-toolbar">
+                <div class="potreros-tool-palette element-palette">
+                    <div class="potreros-tool palette-item active" data-tool="select">
+                        <div class="potreros-tool-icon">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <div class="potreros-tool-name">Seleccionar</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="bebedero">
+                        <div class="potreros-tool-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="potreros-tool-name">Bebedero</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="cerca">
+                        <div class="potreros-tool-icon">
+                            <i class="fas fa-grip-lines"></i>
+                        </div>
+                        <div class="potreros-tool-name">Cerca</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="rio">
+                        <div class="potreros-tool-icon">
+                            <i class="fas fa-water"></i>
+                        </div>
+                        <div class="potreros-tool-name">Río</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="camino">
+                        <div class="potreros-tool-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="potreros-tool-name">Camino</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="arbol">
+                        <div class="potreros-tool-icon text-success">
+                            <i class="fas fa-tree"></i>
+                        </div>
+                        <div class="potreros-tool-name">Árbol</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-tool="casa">
+                        <div class="potreros-tool-icon text-warning">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="potreros-tool-name">Casa</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-action="clear">
+                        <div class="potreros-tool-icon text-danger">
+                            <i class="fas fa-eraser"></i>
+                        </div>
+                        <div class="potreros-tool-name">Limpiar</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-action="save">
+                        <div class="potreros-tool-icon text-success">
+                            <i class="fas fa-save"></i>
+                        </div>
+                        <div class="potreros-tool-name">Guardar</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-action="zoom">
+                        <div class="potreros-tool-icon text-info">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                        <div class="potreros-tool-name">Zoom</div>
+                    </div>
+                    <div class="potreros-tool palette-item" data-action="info">
+                        <div class="potreros-tool-icon text-warning">
+                            <i class="fas fa-info"></i>
+                        </div>
+                        <div class="potreros-tool-name">Ayuda</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa Interactivo -->
+            <div class="potreros-card">
+                <div class="potreros-card-body">
+                    <div class="potreros-map-container">
+                        <div class="map-grid" id="mapGrid">
+                            <!-- Grid cells will be generated by JavaScript -->
+                        </div>
+                        
+                        <!-- Panel de Información del Potrero -->
+                        <div class="potreros-info-panel" id="potreroInfo" style="display: none;">
+                            <div class="potreros-info-title">
+                                <i class="fas fa-info-circle"></i>
+                                Información del Potrero
+                            </div>
+                            <div class="potreros-info-details" id="potreroDetails"></div>
+                            <div class="potrero-actions mt-3">
+                                <button class="btn btn-primary btn-sm" onclick="editPotrero()">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                {% if usuario_puede('potreros', 'eliminar') %}
+                                <button class="btn btn-danger btn-sm" onclick="deletePotrero()">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="potreros-card">
+                <div class="potreros-card-body">
+                    <div class="potreros-grid potreros-grid-2">
+                        <div>
+                            <h6 class="potreros-card-subtitle"><i class="fas fa-info-circle"></i> Instrucciones</h6>
+                            <ul class="instruction-list">
+                                <li>Arrastra los potreros para ubicarlos en el mapa</li>
+                                <li>Haz clic en una herramienta y luego en el mapa para agregar elementos</li>
+                                <li>Haz clic en un potrero para ver su información</li>
+                                <li>Guarda tu diseño con el botón "Guardar"</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h6 class="potreros-card-subtitle"><i class="fas fa-keyboard"></i> Atajos de Teclado</h6>
+                            <div class="keyboard-shortcuts">
+                                <span class="potreros-badge">S</span> Seleccionar
+                                <span class="potreros-badge">B</span> Bebedero
+                                <span class="potreros-badge">C</span> Cerca
+                                <span class="potreros-badge">R</span> Río
+                                <span class="potreros-badge">Del</span> Eliminar
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Sidebar -->
+        <div class="potreros-sidebar">
+            <div class="potreros-card">
+                <div class="potreros-card-header">
+                    <h5 class="potreros-card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Estadísticas del Mapa
+                    </h5>
+                </div>
+                <div class="potreros-card-body">
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-cube text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Potreros</div>
+                                <div class="stat-value" id="statPotreros">{{ potreros|length }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-tint text-primary"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Bebederos</div>
+                                <div class="stat-value" id="statBebederos">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-grip-lines text-secondary"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Cercas</div>
+                                <div class="stat-value" id="statCercas">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-water text-info"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Ríos</div>
+                                <div class="stat-value" id="statRios">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-road text-warning"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Caminos</div>
+                                <div class="stat-value" id="statCaminos">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-tree text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Árboles</div>
+                                <div class="stat-value" id="statArboles">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-home text-warning"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Casas</div>
+                                <div class="stat-value" id="statCasas">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-expand-arrows-alt text-success"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Área Total</div>
+                                <div class="stat-value">
+                                    {% set total_hectareas = potreros | map(attribute='hectareas') | sum %}
+                                    {{ "%.1f"|format(total_hectareas) }} ha
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Potreros List -->
+            <div class="potreros-card">
+                <div class="potreros-card-header">
+                    <h6 class="potreros-card-subtitle">
+                        <i class="fas fa-list"></i>
+                        Lista de Potreros
+                    </h6>
+                </div>
+                <div class="potreros-card-body">
+                    <div id="potrerosList">
+                        {% for potrero in potreros %}
+                        <div class="potrero-list-item" data-potrero-id="{{ potrero.id }}">
+                            <div class="potrero-item-content">
+                                <div class="potrero-item-info">
+                                    <strong>{{ potrero.nombre }}</strong>
+                                    <small>{{ potrero.hectareas }} ha</small>
+                                </div>
+                                <div class="potrero-cube">
+                                    <div class="cube-face cube-front"></div>
+                                    <div class="cube-shadow"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/potreros.js') }}"></script>
+<script>
+// Funcionalidad específica del mapa interactivo
+console.log('Mapa de potreros cargado');
+
+// Detectar si hay un nuevo potrero para resaltar
+{% if request.args.get('nuevo_potrero') %}
+window.nuevoPotrero = {{ request.args.get('nuevo_potrero') }};
+{% endif %}
+</script>
+{% endblock %} 

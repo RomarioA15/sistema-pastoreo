@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle Lote - Sistema de Gestión de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+    <div class="ganado-container ganado-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="ganado-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('ganado.lotes') }}" class="text-decoration-none">
+                        <i class="fas fa-cow me-1"></i>Gestión de Lotes
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-layer-group me-1"></i>{{ lote.nombre }}
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="ganado-header">
+            <div class="ganado-header-content">
+                <div>
+                    <h1 class="ganado-title">
+                        <i class="fas fa-layer-group text-warning"></i>
+                        {{ lote.nombre }}
+                    </h1>
+                    <p class="ganado-subtitle ganado-mb-0">
+                        🐄 Información detallada del lote de ganado y su historial de movimientos. 
+                        Gestiona eficientemente tu ganado con datos precisos y seguimiento completo.
+                    </p>
+                </div>
+                <div class="ganado-actions">
+                    <a href="{{ url_for('ganado.nuevo_movimiento') }}?lote_id={{ lote.id }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Nuevo Movimiento
+                    </a>
+                    <a href="{{ url_for('ganado.lotes') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver a Lotes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD DE ESTADÍSTICAS -->
+        <div class="ganado-stats-section">
+            <h3 class="ganado-section-title">
+                <i class="fas fa-chart-bar text-primary"></i>
+                Resumen del Lote
+            </h3>
+            <div class="ganado-stats">
+                <div class="ganado-stat-item ganado-stat-primary">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ lote.numero_animales or 0 }}</div>
+                        <div class="ganado-stat-label">Animales Total</div>
+                        <div class="ganado-stat-description">Inventario del lote</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-cow"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-success">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ "%.0f"|format(lote.peso_promedio or 0) }}</div>
+                        <div class="ganado-stat-label">Peso Promedio</div>
+                        <div class="ganado-stat-description">Kilogramos por animal</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-weight"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-warning">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ "%.0f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0))) }}</div>
+                        <div class="ganado-stat-label">Peso Total</div>
+                        <div class="ganado-stat-description">Biomasa total del lote</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+                
+                <div class="ganado-stat-item ganado-stat-info">
+                    <div class="ganado-stat-content">
+                        <div class="ganado-stat-value">{{ "%.2f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0)) / 450) }}</div>
+                        <div class="ganado-stat-label">UGM Total</div>
+                        <div class="ganado-stat-description">Unidades Ganaderas Mayores</div>
+                    </div>
+                    <div class="ganado-stat-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: CONTENIDO + SIDEBAR -->
+        <div class="ganado-grid-main">
+            
+            <!-- CONTENIDO PRINCIPAL: INFORMACIÓN DEL LOTE -->
+            <div class="ganado-main-content">
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h3 class="ganado-mb-0">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            Información Detallada del Lote
+                        </h3>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <strong>Nombre del Lote:</strong>
+                                    <span class="ms-2">{{ lote.nombre }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-paw text-success me-2"></i>
+                                    <strong>Raza:</strong>
+                                    <span class="ms-2">{{ lote.raza or 'No especificada' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-calendar text-warning me-2"></i>
+                                    <strong>Edad Promedio:</strong>
+                                    <span class="ms-2">{{ lote.edad_promedio or 0 }} meses</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-map-marker-alt text-info me-2"></i>
+                                    <strong>Potrero Actual:</strong>
+                                    <span class="ms-2">{{ lote.potrero_nombre or 'Sin asignar' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-flag text-secondary me-2"></i>
+                                    <strong>Estado:</strong>
+                                    <span class="ganado-badge ganado-badge-activo ms-2">Activo</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="ganado-detail-item">
+                                    <i class="fas fa-clock text-muted me-2"></i>
+                                    <strong>Fecha de Creación:</strong>
+                                    <span class="ms-2">{{ lote.fecha_creacion.strftime('%d/%m/%Y') if lote.fecha_creacion else 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if lote.observaciones %}
+                        <div class="ganado-mt-lg">
+                            <div class="ganado-detail-item">
+                                <i class="fas fa-sticky-note text-warning me-2"></i>
+                                <strong>Observaciones:</strong>
+                            </div>
+                            <div class="ganado-mt-sm p-3 bg-light rounded">
+                                <p class="ganado-mb-0 text-muted">{{ lote.observaciones }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Calculadora UGM -->
+                        <div class="ganado-ugm-calculator ganado-mt-lg">
+                            <div class="ganado-ugm-value">{{ "%.2f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0)) / 450) }}</div>
+                            <div class="ganado-ugm-label">Unidades Ganaderas Mayores del Lote</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- HISTORIAL DE MOVIMIENTOS -->
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h3 class="ganado-mb-0">
+                            <i class="fas fa-history text-success"></i>
+                            Historial de Movimientos
+                        </h3>
+                    </div>
+                    <div class="ganado-card-body">
+                        {% if movimientos %}
+                            <div class="ganado-timeline">
+                                {% for movimiento in movimientos %}
+                                <div class="ganado-timeline-item">
+                                    <div class="ganado-timeline-marker">
+                                        <i class="fas fa-{{ 'check' if movimiento.fecha_salida else 'arrow-right' }}"></i>
+                                    </div>
+                                    <div class="ganado-timeline-content">
+                                        <div class="ganado-timeline-header">
+                                            <h4 class="ganado-timeline-title">
+                                                {% if movimiento.potrero_origen and movimiento.potrero_destino %}
+                                                    {{ movimiento.potrero_origen }} → {{ movimiento.potrero_destino }}
+                                                {% elif movimiento.potrero_destino %}
+                                                    Ingreso a {{ movimiento.potrero_destino }}
+                                                {% else %}
+                                                    Movimiento
+                                                {% endif %}
+                                            </h4>
+                                            <div class="ganado-timeline-meta">
+                                                {% if movimiento.fecha_salida %}
+                                                    <span class="ganado-badge ganado-badge-inactivo">Finalizado</span>
+                                                {% else %}
+                                                    <span class="ganado-badge ganado-badge-activo">En curso</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="ganado-timeline-description">
+                                            {{ movimiento.motivo or 'Movimiento de ganado' }}
+                                            {% if movimiento.observaciones %}
+                                                - {{ movimiento.observaciones }}
+                                            {% endif %}
+                                        </p>
+                                        <div class="ganado-timeline-details">
+                                            <div class="ganado-detail-item">
+                                                <i class="fas fa-calendar-alt text-primary"></i>
+                                                <span>Entrada: {{ movimiento.fecha_ingreso.strftime('%d/%m/%Y') if movimiento.fecha_ingreso else 'N/A' }}</span>
+                                            </div>
+                                            {% if movimiento.fecha_salida %}
+                                            <div class="ganado-detail-item">
+                                                <i class="fas fa-calendar-check text-success"></i>
+                                                <span>Salida: {{ movimiento.fecha_salida.strftime('%d/%m/%Y') }}</span>
+                                            </div>
+                                            <div class="ganado-detail-item">
+                                                <i class="fas fa-clock text-info"></i>
+                                                <span>Duración: {{ (movimiento.fecha_salida - movimiento.fecha_ingreso).days }} días</span>
+                                            </div>
+                                            {% else %}
+                                            <div class="ganado-detail-item">
+                                                <i class="fas fa-clock text-warning"></i>
+                                                <span>En pastoreo actual</span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="ganado-detail-item">
+                                                <i class="fas fa-user text-secondary"></i>
+                                                <span>Responsable: {{ movimiento.usuario_nombre or 'Sistema' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="ganado-empty-state">
+                                <div class="ganado-empty-card">
+                                    <div class="ganado-empty-icon">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                    <h3 class="ganado-empty-title">
+                                        No hay movimientos registrados
+                                    </h3>
+                                    <p class="ganado-empty-description">
+                                        Este lote aún no ha sido movido a ningún potrero. 
+                                        Registra el primer movimiento para comenzar el seguimiento.
+                                    </p>
+                                    <div class="ganado-empty-actions">
+                                        <a href="{{ url_for('ganado.nuevo_movimiento') }}?lote_id={{ lote.id }}" class="btn btn-success btn-lg">
+                                            <i class="fas fa-plus-circle me-2"></i>Registrar Primer Movimiento
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- SIDEBAR EDUCATIVO -->
+            <div class="ganado-sidebar">
+                
+                <!-- Guía de Gestión -->
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-graduation-cap text-primary"></i>
+                            Gestión del Lote
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-primary ganado-mb-sm">📊 Indicadores Clave</h6>
+                            <div class="ganado-mb-md">
+                                <strong>UGM (Unidad Ganadera Mayor)</strong><br>
+                                <small class="text-muted">Equivale a 450 kg de peso vivo. Este lote representa {{ "%.2f"|format(((lote.numero_animales or 0) * (lote.peso_promedio or 0)) / 450) }} UGM.</small>
+                            </div>
+                            <div class="ganado-mb-md">
+                                <strong>Carga Animal</strong><br>
+                                <small class="text-muted">Capacidad de pastoreo basada en el peso total del lote y disponibilidad forrajera.</small>
+                            </div>
+                        </div>
+
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-success ganado-mb-sm">🎯 Acciones Disponibles</h6>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('ganado.nuevo_movimiento') }}?lote_id={{ lote.id }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-exchange-alt me-1"></i>Nuevo Movimiento
+                                </a>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editarLoteModal">
+                                    <i class="fas fa-edit me-1"></i>Editar Lote
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarLoteModal">
+                                    <i class="fas fa-trash me-1"></i>Eliminar Lote
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mejores Prácticas -->
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-star text-gold"></i>
+                            Mejores Prácticas
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <ul class="text-muted small ganado-mb-0">
+                            <li><strong>Monitoreo regular:</strong> Evalúa el estado del lote semanalmente</li>
+                            <li><strong>Rotación planificada:</strong> Mueve el ganado antes del sobrepastoreo</li>
+                            <li><strong>Registros actualizados:</strong> Mantén información precisa de peso y salud</li>
+                            <li><strong>Balance forrajero:</strong> Calcula la capacidad de carga del potrero</li>
+                            <li><strong>Bienestar animal:</strong> Asegura acceso a agua y sombra</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="eliminarLoteModal" tabindex="-1" aria-labelledby="eliminarLoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="eliminarLoteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-warning me-2"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                <p>¿Estás seguro de que deseas eliminar el lote <strong>{{ lote.nombre }}</strong>?</p>
+                <p class="text-muted">Esta acción eliminará:</p>
+                <ul class="text-muted">
+                    <li>Toda la información del lote</li>
+                    <li>El historial completo de movimientos</li>
+                    <li>Los registros asociados</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <form action="{{ url_for('ganado.lotes') }}/{{ lote.id }}/delete" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>Eliminar Definitivamente
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar lote -->
+<div class="modal fade" id="editarLoteModal" tabindex="-1" aria-labelledby="editarLoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editarLoteModalLabel">
+                    <i class="fas fa-edit me-2"></i>Editar Lote: {{ lote.nombre }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota:</strong> La funcionalidad de edición estará disponible próximamente.
+                </div>
+                <p>Por el momento, para modificar la información del lote, contacta al administrador del sistema.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+{% endblock %} 

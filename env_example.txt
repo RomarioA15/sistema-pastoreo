@@ -1,0 +1,32 @@
+# Configuración de la aplicación
+FLASK_APP=app.py
+FLASK_ENV=development
+FLASK_DEBUG=True
+
+# Configuración de seguridad
+SECRET_KEY=pastoreo-secret-key-2024-change-in-production
+WTF_CSRF_SECRET_KEY=csrf-secret-key-2024
+
+# Configuración de base de datos
+MYSQL_HOST=localhost
+MYSQL_USER=root
+MYSQL_PASSWORD=1234
+MYSQL_DB=pastoreo
+
+# Configuración de sesiones
+SESSION_TYPE=filesystem
+
+# Configuración de archivos
+UPLOAD_FOLDER=proyecto/static/uploads
+MAX_CONTENT_LENGTH=16777216
+
+# Configuración de logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+
+# Configuración de zona horaria
+TIMEZONE=America/Bogota
+
+# Configuración específica del proyecto
+APP_NAME=Sistema de Gestión de Pastoreo
+APP_VERSION=2.0 

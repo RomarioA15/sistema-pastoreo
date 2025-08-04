@@ -1,0 +1,883 @@
+/**
+ * Módulo CSS para Ganado - Sistema de Gestión de Pastoreo
+ * Siguiendo Heurísticas de Nielsen y principios de UX/UI
+ * Arquitectura modular y responsive design
+ */
+
+/* =============================================================================
+   VARIABLES CSS DEL SISTEMA GANADO
+   ============================================================================= */
+
+:root {
+  /* Colores específicos del módulo Ganado */
+  --ganado-primary: #007bff;
+  --ganado-secondary: #6c757d;
+  --ganado-success: #28a745;
+  --ganado-info: #17a2b8;
+  --ganado-warning: #ffc107;
+  --ganado-danger: #dc3545;
+  --ganado-light: #f8f9fa;
+  --ganado-dark: #343a40;
+  
+  /* Colores temáticos de ganado */
+  --ganado-brown: #8B4513;
+  --ganado-green: #228B22;
+  --ganado-beige: #F5F5DC;
+  --ganado-gold: #FFD700;
+  
+  /* Espaciado sistemático */
+  --ganado-space-xs: 0.25rem;    /* 4px */
+  --ganado-space-sm: 0.5rem;     /* 8px */
+  --ganado-space-md: 1rem;       /* 16px */
+  --ganado-space-lg: 1.5rem;     /* 24px */
+  --ganado-space-xl: 2rem;       /* 32px */
+  --ganado-space-xxl: 3rem;      /* 48px */
+  
+  /* Tipografía */
+  --ganado-font-size-xs: 0.75rem;
+  --ganado-font-size-sm: 0.875rem;
+  --ganado-font-size-md: 1rem;
+  --ganado-font-size-lg: 1.125rem;
+  --ganado-font-size-xl: 1.25rem;
+  --ganado-font-size-xxl: 1.5rem;
+  
+  /* Bordes y radios */
+  --ganado-border-radius-sm: 0.375rem;
+  --ganado-border-radius-md: 0.5rem;
+  --ganado-border-radius-lg: 0.75rem;
+  
+  /* Sombras */
+  --ganado-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --ganado-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --ganado-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  
+  /* Transiciones */
+  --ganado-transition: all 0.3s ease;
+  --ganado-transition-fast: all 0.15s ease;
+}
+
+/* =============================================================================
+   LAYOUT BASE DEL MÓDULO GANADO
+   ============================================================================= */
+
+.ganado-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ganado-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--ganado-space-lg);
+}
+
+.ganado-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: ganadoFadeIn 0.8s ease forwards;
+}
+
+@keyframes ganadoFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE GRID RESPONSIVO
+   ============================================================================= */
+
+.ganado-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--ganado-space-xl);
+  margin-top: var(--ganado-space-xl);
+}
+
+.ganado-main-content {
+  min-height: 400px;
+}
+
+.ganado-sidebar {
+  position: sticky;
+  top: var(--ganado-space-lg);
+  height: fit-content;
+}
+
+.ganado-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--ganado-space-lg);
+  margin: var(--ganado-space-lg) 0;
+}
+
+.ganado-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ganado-space-md);
+  margin-bottom: var(--ganado-space-xl);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  .ganado-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--ganado-space-lg);
+  }
+  
+  .ganado-sidebar {
+    position: static;
+  }
+  
+  .ganado-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ganado-container {
+    padding: var(--ganado-space-md);
+  }
+}
+
+/* =============================================================================
+   COMPONENTES DE HEADER
+   ============================================================================= */
+
+.ganado-header {
+  background: linear-gradient(135deg, var(--ganado-brown) 0%, var(--ganado-dark) 100%);
+  color: white;
+  padding: var(--ganado-space-xl) var(--ganado-space-lg);
+  border-radius: var(--ganado-border-radius-lg);
+  margin-bottom: var(--ganado-space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.ganado-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="50" opacity="0.1">🐄</text></svg>') repeat;
+  background-size: 100px 100px;
+  pointer-events: none;
+}
+
+.ganado-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ganado-title {
+  font-size: var(--ganado-font-size-xxl);
+  font-weight: 700;
+  margin: 0 0 var(--ganado-space-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ganado-space-md);
+}
+
+.ganado-subtitle {
+  font-size: var(--ganado-font-size-md);
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ganado-actions {
+  display: flex;
+  gap: var(--ganado-space-md);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .ganado-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--ganado-space-lg);
+  }
+  
+  .ganado-title {
+    font-size: var(--ganado-font-size-xl);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE CARDS
+   ============================================================================= */
+
+.ganado-card {
+  background: white;
+  border-radius: var(--ganado-border-radius-lg);
+  box-shadow: var(--ganado-shadow-md);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: var(--ganado-transition);
+  position: relative;
+}
+
+.ganado-card:hover {
+  box-shadow: var(--ganado-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.ganado-card-header {
+  background: linear-gradient(135deg, var(--ganado-primary) 0%, var(--ganado-info) 100%);
+  color: white;
+  padding: var(--ganado-space-lg);
+  border-bottom: none;
+  position: relative;
+}
+
+.ganado-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ganado-gold) 0%, var(--ganado-warning) 100%);
+}
+
+.ganado-card-body {
+  padding: var(--ganado-space-lg);
+}
+
+.ganado-card-footer {
+  background: var(--ganado-light);
+  padding: var(--ganado-space-md) var(--ganado-space-lg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================================================
+   COMPONENTES DE LOTES
+   ============================================================================= */
+
+.ganado-lote-card {
+  background: white;
+  border-radius: var(--ganado-border-radius-lg);
+  box-shadow: var(--ganado-shadow-md);
+  border-left: 4px solid var(--ganado-success);
+  overflow: hidden;
+  transition: var(--ganado-transition);
+  position: relative;
+}
+
+.ganado-lote-card:hover {
+  box-shadow: var(--ganado-shadow-lg);
+  transform: translateY(-3px);
+}
+
+.ganado-lote-card::before {
+  content: '🐄';
+  position: absolute;
+  top: var(--ganado-space-md);
+  right: var(--ganado-space-md);
+  font-size: 2rem;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.ganado-lote-header {
+  padding: var(--ganado-space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.ganado-lote-title {
+  font-size: var(--ganado-font-size-lg);
+  font-weight: 700;
+  color: var(--ganado-dark);
+  margin: 0 0 var(--ganado-space-sm) 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ganado-lote-meta {
+  display: flex;
+  gap: var(--ganado-space-sm);
+  flex-wrap: wrap;
+}
+
+.ganado-lote-badge {
+  background: var(--ganado-info);
+  color: white;
+  padding: var(--ganado-space-xs) var(--ganado-space-sm);
+  border-radius: var(--ganado-border-radius-sm);
+  font-size: var(--ganado-font-size-xs);
+  font-weight: 600;
+}
+
+.ganado-lote-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--ganado-space-md);
+  padding: var(--ganado-space-lg);
+  background: var(--ganado-light);
+}
+
+.ganado-lote-stat {
+  text-align: center;
+}
+
+.ganado-lote-stat-value {
+  font-size: var(--ganado-font-size-lg);
+  font-weight: 700;
+  color: var(--ganado-primary);
+  margin-bottom: var(--ganado-space-xs);
+}
+
+.ganado-lote-stat-label {
+  font-size: var(--ganado-font-size-xs);
+  color: var(--ganado-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ganado-lote-actions {
+  padding: var(--ganado-space-md) var(--ganado-space-lg);
+  display: flex;
+  gap: var(--ganado-space-sm);
+  justify-content: space-between;
+}
+
+/* =============================================================================
+   COMPONENTES DE ESTADÍSTICAS
+   ============================================================================= */
+
+.ganado-stats-section {
+  margin-bottom: var(--ganado-space-xl);
+}
+
+.ganado-section-title {
+  font-size: var(--ganado-font-size-xl);
+  font-weight: 700;
+  color: var(--ganado-dark);
+  margin-bottom: var(--ganado-space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--ganado-space-md);
+}
+
+.ganado-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--ganado-space-lg);
+}
+
+.ganado-stat-item {
+  background: white;
+  border-radius: var(--ganado-border-radius-lg);
+  box-shadow: var(--ganado-shadow-sm);
+  padding: var(--ganado-space-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--ganado-transition);
+}
+
+.ganado-stat-item:hover {
+  box-shadow: var(--ganado-shadow-md);
+  transform: translateY(-3px);
+}
+
+.ganado-stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ganado-success) 0%, var(--ganado-primary) 100%);
+}
+
+.ganado-stat-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ganado-stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--ganado-space-sm);
+  background: linear-gradient(135deg, var(--ganado-primary) 0%, var(--ganado-success) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ganado-stat-label {
+  font-size: var(--ganado-font-size-md);
+  color: var(--ganado-secondary);
+  font-weight: 500;
+  margin-bottom: var(--ganado-space-xs);
+}
+
+.ganado-stat-description {
+  font-size: var(--ganado-font-size-sm);
+  color: var(--ganado-secondary);
+  opacity: 0.8;
+}
+
+.ganado-stat-icon {
+  font-size: 3rem;
+  margin-bottom: var(--ganado-space-md);
+  opacity: 0.1;
+  position: absolute;
+  bottom: var(--ganado-space-md);
+  right: var(--ganado-space-md);
+}
+
+/* Variantes de color para estadísticas */
+.ganado-stat-primary {
+  border-left: 4px solid var(--ganado-primary);
+}
+
+.ganado-stat-success {
+  border-left: 4px solid var(--ganado-success);
+}
+
+.ganado-stat-warning {
+  border-left: 4px solid var(--ganado-warning);
+}
+
+.ganado-stat-info {
+  border-left: 4px solid var(--ganado-info);
+}
+
+/* =============================================================================
+   COMPONENTES DE FILTROS
+   ============================================================================= */
+
+.ganado-filters-section {
+  background: white;
+  border-radius: var(--ganado-border-radius-lg);
+  box-shadow: var(--ganado-shadow-sm);
+  padding: var(--ganado-space-xl);
+  margin-bottom: var(--ganado-space-xl);
+}
+
+.ganado-filters-header {
+  margin-bottom: var(--ganado-space-lg);
+}
+
+.ganado-section-subtitle {
+  font-size: var(--ganado-font-size-md);
+  color: var(--ganado-secondary);
+  margin: 0;
+}
+
+.ganado-filters-form {
+  display: grid;
+  gap: var(--ganado-space-lg);
+}
+
+.ganado-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ganado-space-md);
+}
+
+.ganado-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ganado-space-sm);
+}
+
+.ganado-filter-label {
+  font-size: var(--ganado-font-size-sm);
+  font-weight: 600;
+  color: var(--ganado-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--ganado-space-sm);
+}
+
+.ganado-filter-select,
+.ganado-filter-input {
+  padding: var(--ganado-space-md);
+  border: 2px solid #e9ecef;
+  border-radius: var(--ganado-border-radius-md);
+  font-size: var(--ganado-font-size-md);
+  transition: var(--ganado-transition-fast);
+  background: white;
+}
+
+.ganado-filter-select:focus,
+.ganado-filter-input:focus {
+  outline: none;
+  border-color: var(--ganado-primary);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.ganado-filters-actions {
+  display: flex;
+  gap: var(--ganado-space-md);
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* =============================================================================
+   COMPONENTES DE MOVIMIENTOS
+   ============================================================================= */
+
+.ganado-timeline {
+  position: relative;
+  padding-left: var(--ganado-space-xl);
+}
+
+.ganado-timeline::before {
+  content: '';
+  position: absolute;
+  left: var(--ganado-space-md);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--ganado-primary) 0%, var(--ganado-success) 100%);
+}
+
+.ganado-timeline-item {
+  position: relative;
+  padding-bottom: var(--ganado-space-xl);
+}
+
+.ganado-timeline-marker {
+  position: absolute;
+  left: calc(-1 * var(--ganado-space-xl) - 8px);
+  top: var(--ganado-space-md);
+  width: 18px;
+  height: 18px;
+  background: var(--ganado-primary);
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: var(--ganado-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--ganado-font-size-xs);
+  color: white;
+}
+
+.ganado-timeline-content {
+  background: white;
+  border-radius: var(--ganado-border-radius-md);
+  box-shadow: var(--ganado-shadow-sm);
+  padding: var(--ganado-space-lg);
+  border-left: 4px solid var(--ganado-info);
+}
+
+.ganado-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--ganado-space-md);
+}
+
+.ganado-timeline-title {
+  font-size: var(--ganado-font-size-lg);
+  font-weight: 600;
+  color: var(--ganado-dark);
+  margin: 0;
+}
+
+.ganado-timeline-meta {
+  display: flex;
+  gap: var(--ganado-space-sm);
+  align-items: center;
+}
+
+.ganado-timeline-description {
+  color: var(--ganado-secondary);
+  margin-bottom: var(--ganado-space-md);
+}
+
+.ganado-timeline-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--ganado-space-md);
+}
+
+.ganado-detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ganado-space-sm);
+  font-size: var(--ganado-font-size-sm);
+  color: var(--ganado-secondary);
+}
+
+.ganado-timeline-actions {
+  margin-top: var(--ganado-space-md);
+  display: flex;
+  gap: var(--ganado-space-sm);
+}
+
+/* =============================================================================
+   BADGES Y ESTADOS
+   ============================================================================= */
+
+.ganado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ganado-space-xs);
+  padding: var(--ganado-space-xs) var(--ganado-space-sm);
+  border-radius: var(--ganado-border-radius-sm);
+  font-size: var(--ganado-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ganado-badge-activo {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--ganado-success);
+  border: 1px solid var(--ganado-success);
+}
+
+.ganado-badge-inactivo {
+  background: rgba(108, 117, 125, 0.1);
+  color: var(--ganado-secondary);
+  border: 1px solid var(--ganado-secondary);
+}
+
+.ganado-badge-vendido {
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--ganado-warning);
+  border: 1px solid var(--ganado-warning);
+}
+
+.ganado-badge-enfermo {
+  background: rgba(220, 53, 69, 0.1);
+  color: var(--ganado-danger);
+  border: 1px solid var(--ganado-danger);
+}
+
+/* =============================================================================
+   ESTADO VACÍO
+   ============================================================================= */
+
+.ganado-empty-state {
+  text-align: center;
+  padding: var(--ganado-space-xxl) var(--ganado-space-lg);
+  background: white;
+  border-radius: var(--ganado-border-radius-lg);
+  box-shadow: var(--ganado-shadow-sm);
+}
+
+.ganado-empty-card {
+  border: 2px dashed #dee2e6;
+  border-radius: var(--ganado-border-radius-lg);
+  padding: var(--ganado-space-xxl);
+}
+
+.ganado-empty-icon {
+  font-size: 4rem;
+  margin-bottom: var(--ganado-space-lg);
+  opacity: 0.3;
+  color: var(--ganado-brown);
+}
+
+.ganado-empty-title {
+  font-size: var(--ganado-font-size-xl);
+  font-weight: 700;
+  color: var(--ganado-dark);
+  margin-bottom: var(--ganado-space-md);
+}
+
+.ganado-empty-description {
+  font-size: var(--ganado-font-size-md);
+  color: var(--ganado-secondary);
+  margin-bottom: var(--ganado-space-xl);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.ganado-empty-actions {
+  display: flex;
+  gap: var(--ganado-space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =============================================================================
+   UTILIDADES DE ESPACIADO
+   ============================================================================= */
+
+.ganado-mb-0 { margin-bottom: 0 !important; }
+.ganado-mb-xs { margin-bottom: var(--ganado-space-xs) !important; }
+.ganado-mb-sm { margin-bottom: var(--ganado-space-sm) !important; }
+.ganado-mb-md { margin-bottom: var(--ganado-space-md) !important; }
+.ganado-mb-lg { margin-bottom: var(--ganado-space-lg) !important; }
+.ganado-mb-xl { margin-bottom: var(--ganado-space-xl) !important; }
+
+.ganado-mt-0 { margin-top: 0 !important; }
+.ganado-mt-xs { margin-top: var(--ganado-space-xs) !important; }
+.ganado-mt-sm { margin-top: var(--ganado-space-sm) !important; }
+.ganado-mt-md { margin-top: var(--ganado-space-md) !important; }
+.ganado-mt-lg { margin-top: var(--ganado-space-lg) !important; }
+.ganado-mt-xl { margin-top: var(--ganado-space-xl) !important; }
+
+.ganado-p-0 { padding: 0 !important; }
+.ganado-p-xs { padding: var(--ganado-space-xs) !important; }
+.ganado-p-sm { padding: var(--ganado-space-sm) !important; }
+.ganado-p-md { padding: var(--ganado-space-md) !important; }
+.ganado-p-lg { padding: var(--ganado-space-lg) !important; }
+.ganado-p-xl { padding: var(--ganado-space-xl) !important; }
+
+/* =============================================================================
+   COMPONENTES ESPECIALES DE GANADO
+   ============================================================================= */
+
+.ganado-ugm-calculator {
+  background: linear-gradient(135deg, var(--ganado-beige) 0%, #fff 100%);
+  border: 2px solid var(--ganado-gold);
+  border-radius: var(--ganado-border-radius-lg);
+  padding: var(--ganado-space-lg);
+  text-align: center;
+  position: relative;
+}
+
+.ganado-ugm-calculator::before {
+  content: '⚖️';
+  position: absolute;
+  top: var(--ganado-space-sm);
+  right: var(--ganado-space-sm);
+  font-size: 1.5rem;
+  opacity: 0.3;
+}
+
+.ganado-ugm-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ganado-brown);
+  margin-bottom: var(--ganado-space-xs);
+}
+
+.ganado-ugm-label {
+  font-size: var(--ganado-font-size-sm);
+  color: var(--ganado-secondary);
+  font-weight: 600;
+}
+
+.ganado-capacity-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ganado-space-lg);
+  border-radius: var(--ganado-border-radius-lg);
+  font-weight: 700;
+  font-size: var(--ganado-font-size-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ganado-capacity-optimal {
+  background: linear-gradient(135deg, var(--ganado-success) 0%, #20c997 100%);
+  color: white;
+}
+
+.ganado-capacity-warning {
+  background: linear-gradient(135deg, var(--ganado-warning) 0%, #fd7e14 100%);
+  color: white;
+}
+
+.ganado-capacity-critical {
+  background: linear-gradient(135deg, var(--ganado-danger) 0%, #e83e8c 100%);
+  color: white;
+}
+
+/* =============================================================================
+   ANIMACIONES Y EFECTOS
+   ============================================================================= */
+
+@keyframes ganado-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.ganado-loading {
+  animation: ganado-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ganado-slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ganado-slide-in {
+  animation: ganado-slideIn 0.6s ease-out forwards;
+}
+
+/* =============================================================================
+   COMPONENTES RESPONSIVOS ADICIONALES
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .ganado-filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ganado-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .ganado-lote-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .ganado-filters-actions {
+    justify-content: center;
+  }
+  
+  .ganado-timeline {
+    padding-left: var(--ganado-space-lg);
+  }
+  
+  .ganado-timeline-marker {
+    left: calc(-1 * var(--ganado-space-lg) - 8px);
+  }
+}
+
+/* =============================================================================
+   MODO OSCURO (OPCIONAL)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .ganado-page {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #f8f9fa;
+  }
+  
+  .ganado-card {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .ganado-filter-select,
+  .ganado-filter-input {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .ganado-timeline-content {
+    background: #2d2d2d;
+    color: #f8f9fa;
+  }
+}

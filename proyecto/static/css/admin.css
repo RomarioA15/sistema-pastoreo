@@ -1,0 +1,546 @@
+/**
+ * Panel de Administración Unificado - Sistema Consistente
+ * Aplicando principios de Nielsen manteniendo tu estilo familiar
+ */
+
+/* =============================================================================
+   VARIABLES Y BASE
+   ============================================================================= */
+:root {
+  --admin-primary: #2c3e50;
+  --admin-primary-light: #34495e;
+  --admin-accent: #3498db;
+  --admin-success: #27ae60;
+  --admin-warning: #f39c12;
+  --admin-danger: #e74c3c;
+  --admin-border-radius: 8px;
+  --admin-transition: all 0.2s ease;
+  --admin-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --admin-shadow-hover: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+/* =============================================================================
+   LAYOUT PRINCIPAL UNIFICADO
+   ============================================================================= */
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.admin-card {
+  background: white;
+  border-radius: var(--admin-border-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: var(--admin-transition);
+}
+
+.admin-card:hover {
+  box-shadow: var(--admin-shadow-hover);
+}
+
+/* =============================================================================
+   HEADERS UNIFICADOS
+   ============================================================================= */
+.admin-header {
+  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-light) 100%);
+  color: white;
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.admin-header h1 {
+  margin-bottom: 0.5rem;
+  font-weight: 300;
+}
+
+.admin-header .lead {
+  opacity: 0.9;
+}
+
+/* =============================================================================
+   NAVEGACIÓN Y BREADCRUMBS
+   ============================================================================= */
+.admin-navbar {
+  background: var(--admin-primary) !important;
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-navbar .navbar-brand {
+  color: white !important;
+  font-weight: 600;
+}
+
+.template-breadcrumb {
+  background: #f8f9fa;
+  border-radius: var(--admin-border-radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.template-breadcrumb ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.template-breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+
+.template-breadcrumb li + li::before {
+  content: '/';
+  margin: 0 0.5rem;
+  color: #6c757d;
+}
+
+.template-breadcrumb a {
+  color: var(--admin-accent);
+  text-decoration: none;
+}
+
+.template-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* =============================================================================
+   GRID UNIFICADO
+   ============================================================================= */
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.template-grid-main {
+  grid-column: 1 / -1;
+}
+
+.template-grid-sidebar {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 1024px) {
+  .template-grid-main {
+    grid-column: 1 / 3;
+  }
+  
+  .template-grid-sidebar {
+    grid-column: 3;
+  }
+}
+
+/* =============================================================================
+   ESTADÍSTICAS UNIFICADAS
+   ============================================================================= */
+.template-stats-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: var(--admin-border-radius);
+  text-align: center;
+  box-shadow: var(--admin-shadow);
+  transition: var(--admin-transition);
+  height: 100%;
+}
+
+.template-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-hover);
+}
+
+.template-stats-card h3 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.template-stats-card p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* =============================================================================
+   OPCIONES/BOTONES UNIFICADOS
+   ============================================================================= */
+.admin-option {
+  display: block;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: var(--admin-border-radius);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: var(--admin-transition);
+  height: 100%;
+}
+
+.admin-option:hover {
+  border-color: var(--admin-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-hover);
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-option:focus {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+  border-color: var(--admin-accent);
+}
+
+.option-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--admin-accent), #2980b9);
+  border-radius: var(--admin-border-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.option-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--admin-primary);
+}
+
+.option-description {
+  font-size: 0.875rem;
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.option-stats {
+  background: #f8f9fa;
+  border-radius: calc(var(--admin-border-radius) / 2);
+  padding: 0.75rem;
+  text-align: center;
+  margin-top: auto;
+}
+
+.stats-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--admin-accent);
+  line-height: 1;
+}
+
+.stats-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =============================================================================
+   BOTONES UNIFICADOS
+   ============================================================================= */
+.btn-admin {
+  background: var(--admin-accent);
+  border: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--admin-border-radius);
+  font-weight: 500;
+  transition: var(--admin-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-admin:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+  color: white;
+  text-decoration: none;
+}
+
+.btn-admin:focus {
+  outline: 2px solid rgba(52, 152, 219, 0.3);
+  outline-offset: 2px;
+}
+
+/* Variantes de botones */
+.btn-admin.btn-admin-success {
+  background: var(--admin-success);
+}
+
+.btn-admin.btn-admin-danger {
+  background: var(--admin-danger);
+}
+
+.btn-admin.btn-admin-warning {
+  background: var(--admin-warning);
+}
+
+/* =============================================================================
+   TABLAS UNIFICADAS
+   ============================================================================= */
+.template-table-wrapper {
+  border-radius: var(--admin-border-radius);
+  overflow: hidden;
+}
+
+.table th {
+  background: #f8f9fa;
+  border-top: none;
+  font-weight: 600;
+  color: var(--admin-primary);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--admin-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* =============================================================================
+   ALERTAS Y FEEDBACK UNIFICADOS
+   ============================================================================= */
+.template-alert {
+  border-radius: var(--admin-border-radius);
+  padding: 1rem;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.template-alert-info {
+  background: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.template-alert-success {
+  background: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.template-alert-warning {
+  background: #fff3cd;
+  border-color: #ffeaa7;
+  color: #856404;
+}
+
+.template-alert-danger {
+  background: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* =============================================================================
+   INFORMACIÓN CONTEXTUAL
+   ============================================================================= */
+.current-farm-info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-left: 4px solid var(--admin-accent);
+  padding: 1rem;
+  border-radius: 0 var(--admin-border-radius) var(--admin-border-radius) 0;
+  margin-bottom: 2rem;
+}
+
+.farm-selector {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: var(--admin-border-radius);
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* =============================================================================
+   ESTADOS Y BADGES
+   ============================================================================= */
+.badge-activa {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.badge-inactiva {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.area-badge {
+  background: #e7f1ff;
+  color: #0056b3;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* =============================================================================
+   RESPONSIVIDAD AVANZADA
+   ============================================================================= */
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 1rem;
+  }
+  
+  .template-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .admin-header {
+    padding: 1.5rem;
+  }
+  
+  .admin-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .option-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  .admin-option {
+    padding: 1rem;
+  }
+  
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1025px) {
+  .template-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .template-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* =============================================================================
+   ACCESIBILIDAD Y NIELSEN
+   ============================================================================= */
+/* Focus visible mejorado */
+*:focus {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+}
+
+/* Contraste alto */
+@media (prefers-contrast: high) {
+  .admin-option {
+    border-width: 3px;
+  }
+}
+
+/* Movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .admin-option,
+  .btn,
+  .admin-card {
+    transition: none;
+  }
+  
+  .admin-option:hover,
+  .btn:hover,
+  .template-stats-card:hover {
+    transform: none;
+  }
+}
+
+/* =============================================================================
+   ANIMACIONES SUTILES
+   ============================================================================= */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-option {
+  animation: fadeIn 0.3s ease;
+}
+
+.admin-option:nth-child(2) { animation-delay: 0.1s; }
+.admin-option:nth-child(3) { animation-delay: 0.2s; }
+.admin-option:nth-child(4) { animation-delay: 0.3s; }
+
+/* =============================================================================
+   UTILIDADES
+   ============================================================================= */
+.text-admin-primary { color: var(--admin-primary) !important; }
+.text-admin-accent { color: var(--admin-accent) !important; }
+
+.mb-responsive {
+  margin-bottom: 1.5rem;
+}
+
+.text-responsive-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Estados de carga */
+.loading-state {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.loading-state::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--admin-accent);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

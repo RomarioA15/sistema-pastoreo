@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Muestras - {{ aforo.potrero_nombre }} - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/aforos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="aforos-page">
+<div class="aforos-container aforos-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('aforos.index') }}">Aforos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Muestras - {{ aforo.potrero_nombre }}</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="aforos-header">
+    <div class="aforos-header-content">
+        <div>
+            <h1 class="aforos-title">
+                <i class="fas fa-edit"></i>
+                Editar Muestras del Aforo
+            </h1>
+            <p class="aforos-subtitle">🔬 Gestiona las muestras individuales y registra el peso seco para completar el análisis de <strong>{{ aforo.potrero_nombre }}</strong>.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-flask me-1"></i>{{ muestras|length }} Muestras
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar me-1"></i>{{ aforo.fecha.strftime('%d/%m/%Y') }}
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-weight me-1"></i>Peso Seco Pendiente
+                </span>
+            </div>
+        </div>
+        <div class="aforos-actions">
+            <a href="{{ url_for('aforos.index') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Volver a Aforos
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Resumen de Estadísticas -->
+<div class="aforos-card mb-4">
+    <div class="aforos-card-header">
+        <h4 class="aforos-card-title">
+            <i class="fas fa-chart-bar"></i>
+            Resumen del Aforo
+        </h4>
+    </div>
+    <div class="aforos-card-body">
+        <div class="row text-center" id="stats-container">
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-flask text-primary"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="stat-total">{{ muestras|length }}</div>
+                        <div class="stat-label">Total Muestras</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="stat-completas">0</div>
+                        <div class="stat-label">Con Peso Seco</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-leaf text-success"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="stat-peso-verde">0 g</div>
+                        <div class="stat-label">Peso Verde Prom.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-weight-hanging text-warning"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="stat-materia-seca">0 kg/ha</div>
+                        <div class="stat-label">Materia Seca</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Información general -->
+<div class="aforos-card mb-4">
+    <div class="aforos-card-body">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fs-4"></i>
+                <div>
+                    <h6 class="alert-heading mb-1">Gestión de Muestras Individuales</h6>
+                    <small class="mb-0">Para muestras pendientes, ingresa el peso seco después del secado. Para muestras completas, puedes modificar el peso seco si es necesario.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 4: Consistencia y Estándares -->
+<!-- Grid de Muestras -->
+<div class="row">
+    {% for muestra in muestras %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="aforos-card muestra-card {% if muestra.peso_seco %}muestra-completa{% else %}muestra-pendiente{% endif %}" 
+             data-muestra-id="{{ muestra.id }}">
+            
+            <!-- HEURÍSTICA 5: Prevención de Errores -->
+            <!-- Header de la muestra con estado visual claro -->
+            <div class="aforos-card-header d-flex justify-content-between align-items-center">
+                <h5 class="aforos-card-title mb-0">
+                    <i class="fas fa-flask me-2"></i>
+                    Muestra #{{ muestra.numero_muestra }}
+                </h5>
+                {% if muestra.peso_seco %}
+                    <span class="badge bg-success fs-6">✅ Completa</span>
+                {% else %}
+                    <span class="badge bg-warning fs-6">⏳ Pendiente</span>
+                {% endif %}
+            </div>
+            
+            <div class="aforos-card-body">
+                <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                <!-- Información básica de la muestra -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="info-item">
+                            <i class="fas fa-leaf text-success me-1"></i>
+                            <small class="text-muted">Peso Verde:</small>
+                            <div class="fw-bold text-success">{{ muestra.peso_verde }} g</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="info-item">
+                            <i class="fas fa-ruler-vertical text-info me-1"></i>
+                            <small class="text-muted">Altura:</small>
+                            <div class="fw-bold text-info">
+                                {% if muestra.altura_pasto %}
+                                    {{ muestra.altura_pasto }} cm
+                                {% else %}
+                                    No medida
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if muestra.observaciones %}
+                <div class="mb-3">
+                    <div class="info-item">
+                        <i class="fas fa-comment text-muted me-1"></i>
+                        <small class="text-muted">Observaciones:</small>
+                        <div class="small fst-italic">{{ muestra.observaciones }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- HEURÍSTICA 7: Flexibilidad y Eficiencia de Uso -->
+                <!-- Sección de peso seco con diferentes estados -->
+                <div class="peso-seco-section {% if muestra.peso_seco %}completado{% else %}pendiente{% endif %}">
+                    {% if muestra.peso_seco %}
+                        <!-- Muestra completa - mostrar datos y opción de editar -->
+                        <div class="alert alert-success">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Peso Seco Registrado
+                                </strong>
+                                <span class="badge bg-success">{{ muestra.peso_seco }} g</span>
+                            </div>
+                            
+                            <div class="row small">
+                                <div class="col-6">
+                                    <strong>% Materia Seca:</strong>
+                                    <div class="text-success fw-bold">{{ "%.1f"|format((muestra.peso_seco / muestra.peso_verde * 100)) }}%</div>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Fecha registro:</strong>
+                                    <div>{{ muestra.fecha_pesaje_seco.strftime('%d/%m/%Y') if muestra.fecha_pesaje_seco else 'N/A' }}</div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2 w-100" 
+                                    onclick="editarPesoSeco({{ muestra.id }}, {{ muestra.peso_seco }})">
+                                <i class="fas fa-edit me-1"></i>Modificar peso seco
+                            </button>
+                        </div>
+                    {% else %}
+                        <!-- Muestra pendiente - formulario de ingreso -->
+                        <div class="alert alert-warning">
+                            <div class="mb-2">
+                                <strong>
+                                    <i class="fas fa-clock me-1"></i>
+                                    Peso Seco Pendiente
+                                </strong>
+                            </div>
+                            
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">
+                                    <i class="fas fa-weight-hanging"></i>
+                                </span>
+                                <input type="number" 
+                                       class="form-control" 
+                                       placeholder="Peso seco en gramos" 
+                                       step="0.1" 
+                                       min="0" 
+                                       id="peso_seco_{{ muestra.id }}"
+                                       data-bs-title="Ingresa el peso después del secado completo">
+                                <span class="input-group-text">g</span>
+                                <button class="btn btn-success" 
+                                        type="button" 
+                                        onclick="actualizarPesoSeco({{ muestra.id }})">
+                                    <i class="fas fa-save me-1"></i>Guardar
+                                </button>
+                            </div>
+                            
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Ingresa el peso después de que la muestra esté completamente seca (24-48 horas a 60°C)
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+<!-- Botones de acción principales -->
+<div class="aforos-card">
+    <div class="aforos-card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">Gestión de Muestras</h6>
+                <small class="text-muted">Completa el registro de peso seco para finalizar el análisis</small>
+            </div>
+            <div class="d-flex gap-3">
+                <a href="{{ url_for('aforos.add_muestras', aforo_id=aforo.id) }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Agregar Más Muestras
+                </a>
+                <a href="{{ url_for('aforos.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Finalizar y Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 9: Ayuda a los usuarios a reconocer, diagnosticar y recuperarse de errores -->
+<!-- Modal para editar peso seco -->
+<div class="modal fade" id="editPesoSecoModal" tabindex="-1" aria-labelledby="editPesoSecoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header aforos-card-header">
+                <h5 class="modal-title aforos-card-title" id="editPesoSecoModalLabel">
+                    <i class="fas fa-edit me-2"></i>
+                    Modificar Peso Seco
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Asegúrate de que el nuevo peso sea correcto. Este cambio afectará los cálculos del aforo.
+                </div>
+                
+                <div class="mb-3">
+                    <label for="modal_peso_seco" class="form-label required">
+                        <i class="fas fa-weight-hanging text-warning me-2"></i>
+                        <strong>Nuevo Peso Seco</strong>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control" 
+                               id="modal_peso_seco" 
+                               step="0.1" 
+                               min="0" 
+                               required
+                               placeholder="0.0"
+                               data-bs-title="Peso seco corregido en gramos">
+                        <span class="input-group-text">g</span>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        El peso seco debe ser menor que el peso verde original
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="modal_save_btn">
+                    <i class="fas fa-save me-1"></i>Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/aforos.js') }}"></script>
+<script>
+// Funcionalidad específica para edición de muestras
+console.log('Editor de muestras de aforo cargado');
+
+// Variables globales
+let currentMuestraId = null;
+
+// Inicializar estadísticas al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    actualizarEstadisticas();
+    initializeTooltips();
+});
+
+// Función para actualizar estadísticas
+function actualizarEstadisticas() {
+    const muestras = document.querySelectorAll('[data-muestra-id]');
+    let totalMuestras = muestras.length;
+    let muestrasCompletas = 0;
+    let totalPesoVerde = 0;
+    let totalPesoSeco = 0;
+    
+    muestras.forEach(muestra => {
+        const muestraId = muestra.dataset.muestraId;
+        const pesoVerdeText = muestra.querySelector('.text-success').textContent;
+        const pesoVerde = parseFloat(pesoVerdeText.replace(' g', ''));
+        totalPesoVerde += pesoVerde;
+        
+        // Verificar si tiene peso seco
+        const pesoSecoElement = muestra.querySelector('.badge.bg-success');
+        if (pesoSecoElement) {
+            muestrasCompletas++;
+            const pesoSeco = parseFloat(pesoSecoElement.textContent.replace(' g', ''));
+            totalPesoSeco += pesoSeco;
+        }
+    });
+    
+    // Actualizar displays
+    document.getElementById('stat-total').textContent = totalMuestras;
+    document.getElementById('stat-completas').textContent = muestrasCompletas;
+    document.getElementById('stat-peso-verde').textContent = 
+        totalMuestras > 0 ? Math.round(totalPesoVerde / totalMuestras) + ' g' : '0 g';
+    
+    // Calcular materia seca promedio
+    if (muestrasCompletas > 0) {
+        const porcentajeMS = (totalPesoSeco / totalPesoVerde) * 100;
+        const materiaSecaKgHa = (totalPesoVerde / totalMuestras) * (porcentajeMS / 100) * 40; // Aproximación
+        document.getElementById('stat-materia-seca').textContent = Math.round(materiaSecaKgHa) + ' kg/ha';
+    } else {
+        document.getElementById('stat-materia-seca').textContent = '0 kg/ha';
+    }
+}
+
+// Función para actualizar peso seco
+function actualizarPesoSeco(muestraId) {
+    const input = document.getElementById(`peso_seco_${muestraId}`);
+    const pesoSeco = parseFloat(input.value);
+    
+    if (!pesoSeco || pesoSeco <= 0) {
+        showNotification('Por favor ingresa un peso seco válido mayor a 0', 'danger');
+        input.focus();
+        return;
+    }
+    
+    // Validar que el peso seco sea menor que el peso verde
+    const muestraCard = document.querySelector(`[data-muestra-id="${muestraId}"]`);
+    const pesoVerdeText = muestraCard.querySelector('.text-success').textContent;
+    const pesoVerde = parseFloat(pesoVerdeText.replace(' g', ''));
+    
+    if (pesoSeco >= pesoVerde) {
+        showNotification('El peso seco debe ser menor que el peso verde (' + pesoVerde + ' g)', 'danger');
+        input.focus();
+        return;
+    }
+    
+    // Enviar petición AJAX
+    fetch(`/aforos/muestras/${muestraId}/peso-seco`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            peso_seco: pesoSeco
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Peso seco actualizado correctamente', 'success');
+            // Recargar la página para mostrar los cambios
+            location.reload();
+        } else {
+            showNotification(data.message || 'Error al actualizar el peso seco', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error de conexión al actualizar el peso seco', 'danger');
+    });
+}
+
+// Función para editar peso seco existente
+function editarPesoSeco(muestraId, pesoSecoActual) {
+    currentMuestraId = muestraId;
+    document.getElementById('modal_peso_seco').value = pesoSecoActual;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editPesoSecoModal'));
+    modal.show();
+}
+
+// Event listener para el botón de guardar en el modal
+document.getElementById('modal_save_btn').addEventListener('click', function() {
+    const nuevoPesoSeco = parseFloat(document.getElementById('modal_peso_seco').value);
+    
+    if (!nuevoPesoSeco || nuevoPesoSeco <= 0) {
+        showNotification('Por favor ingresa un peso seco válido mayor a 0', 'danger');
+        return;
+    }
+    
+    // Validar que el peso seco sea menor que el peso verde
+    const muestraCard = document.querySelector(`[data-muestra-id="${currentMuestraId}"]`);
+    const pesoVerdeText = muestraCard.querySelector('.text-success').textContent;
+    const pesoVerde = parseFloat(pesoVerdeText.replace(' g', ''));
+    
+    if (nuevoPesoSeco >= pesoVerde) {
+        showNotification('El peso seco debe ser menor que el peso verde (' + pesoVerde + ' g)', 'danger');
+        return;
+    }
+    
+    // Enviar petición AJAX
+    fetch(`/aforos/muestras/${currentMuestraId}/peso-seco`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            peso_seco: nuevoPesoSeco
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Peso seco modificado correctamente', 'success');
+            // Cerrar modal y recargar página
+            bootstrap.Modal.getInstance(document.getElementById('editPesoSecoModal')).hide();
+            location.reload();
+        } else {
+            showNotification(data.message || 'Error al modificar el peso seco', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error de conexión al modificar el peso seco', 'danger');
+    });
+});
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar tooltips
+function initializeTooltips() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo Lote de Ganado - Sistema de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+    <div class="ganado-container ganado-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="ganado-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('ganado.lotes') }}" class="text-decoration-none">
+                        <i class="fas fa-cow me-1"></i>Gestión de Lotes
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-plus-circle me-1"></i>Nuevo Lote
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="ganado-header">
+            <div class="ganado-header-content">
+                <div>
+                    <h1 class="ganado-title">
+                        <i class="fas fa-plus-circle text-success"></i>
+                        Crear Nuevo Lote de Ganado
+                    </h1>
+                    <p class="ganado-subtitle ganado-mb-0">
+                        🐄 Organiza tu ganado en lotes eficientes para optimizar el manejo, control sanitario y pastoreo rotacional. 
+                        Un lote bien estructurado es la base de una ganadería productiva.
+                    </p>
+                </div>
+                <div class="ganado-actions">
+                    <a href="{{ url_for('ganado.lotes') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver a Lotes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN EDUCATIVA -->
+        <div class="ganado-card ganado-mb-xl">
+            <div class="ganado-card-header">
+                <h5 class="ganado-mb-0">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    ¿Por qué organizar en lotes?
+                </h5>
+            </div>
+            <div class="ganado-card-body">
+                <div class="ganado-stats-grid">
+                    <div class="text-center">
+                        <i class="fas fa-users-cog fa-2x text-primary ganado-mb-sm"></i>
+                        <h6>Gestión Eficiente</h6>
+                        <small class="text-muted">Facilita el manejo y control del ganado por grupos homogéneos</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-chart-line fa-2x text-success ganado-mb-sm"></i>
+                        <h6>Seguimiento</h6>
+                        <small class="text-muted">Monitorea rendimiento y salud por grupos específicos</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-leaf fa-2x text-warning ganado-mb-sm"></i>
+                        <h6>Pastoreo Óptimo</h6>
+                        <small class="text-muted">Ajusta carga animal según capacidad del potrero</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-calculator fa-2x text-info ganado-mb-sm"></i>
+                        <h6>Cálculos UGM</h6>
+                        <small class="text-muted">Determina capacidad de carga y consumo forrajero</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: FORMULARIO + SIDEBAR -->
+        <div class="ganado-grid-main">
+            
+            <!-- FORMULARIO PRINCIPAL -->
+            <div class="ganado-main-content">
+                
+                <form method="POST" action="{{ url_for('ganado.nuevo_lote') }}" id="nuevoLoteForm" class="ganado-fade-in">
+                    
+                    <!-- Información Básica -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-info-circle text-primary"></i>
+                                Información Básica del Lote
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="nombre" class="form-label fw-semibold">
+                                        🏷️ Nombre del Lote
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="nombre" name="nombre" 
+                                           placeholder="Ej: Vacas Lecheras A, Novillas Primer Parto, Toros Reproductores..." required>
+                                    <div class="form-text">
+                                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                                        Usa un nombre descriptivo que identifique fácilmente el grupo
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="raza" class="form-label fw-semibold">
+                                        🐄 Raza Principal
+                                    </label>
+                                    <select class="form-select form-select-lg" id="raza" name="raza">
+                                        <option value="">Seleccionar raza...</option>
+                                        <option value="Holstein">Holstein</option>
+                                        <option value="Jersey">Jersey</option>
+                                        <option value="Angus">Angus</option>
+                                        <option value="Brahman">Brahman</option>
+                                        <option value="Cebú">Cebú</option>
+                                        <option value="Normando">Normando</option>
+                                        <option value="Charolais">Charolais</option>
+                                        <option value="Simmental">Simmental</option>
+                                        <option value="Criollo">Criollo</option>
+                                        <option value="Mixto">Mixto</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 ganado-mt-md">
+                                <div class="col-12">
+                                    <label for="observaciones" class="form-label fw-semibold">
+                                        📝 Observaciones Especiales
+                                    </label>
+                                    <textarea class="form-control" id="observaciones" name="observaciones" rows="3"
+                                             placeholder="Información adicional, características especiales, notas importantes del lote..."></textarea>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-info me-1"></i>
+                                        Registra características importantes o notas específicas del lote
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Técnicos -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-chart-bar text-success"></i>
+                                Datos Técnicos del Lote
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="numero_animales" class="form-label fw-semibold">
+                                        🔢 Número de Animales
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="number" class="form-control" id="numero_animales" name="numero_animales" 
+                                               min="1" max="1000" placeholder="25" required onchange="calcularUGM()">
+                                        <span class="input-group-text">animales</span>
+                                    </div>
+                                    <input type="range" class="form-range ganado-mt-sm" id="numero-slider" 
+                                           min="1" max="100" value="25" onchange="actualizarNumero()">
+                                    <div class="d-flex justify-content-between text-muted small">
+                                        <span>1</span>
+                                        <span>50</span>
+                                        <span>100+</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="peso_promedio" class="form-label fw-semibold">
+                                        ⚖️ Peso Promedio Actual
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="number" class="form-control" id="peso_promedio" name="peso_promedio" 
+                                               min="50" max="800" step="0.1" placeholder="450" required onchange="calcularUGM()">
+                                        <span class="input-group-text">kg</span>
+                                    </div>
+                                    <input type="range" class="form-range ganado-mt-sm" id="peso-slider" 
+                                           min="50" max="800" value="450" onchange="actualizarPeso()">
+                                    <div class="d-flex justify-content-between text-muted small">
+                                        <span>50 kg</span>
+                                        <span>400 kg</span>
+                                        <span>800 kg</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="edad_promedio" class="form-label fw-semibold">
+                                        📅 Edad Promedio
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <input type="number" class="form-control" id="edad_promedio" name="edad_promedio" 
+                                               min="0" max="20" placeholder="24">
+                                        <span class="input-group-text">meses</span>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-calendar text-info me-1"></i>
+                                        Edad promedio en meses (opcional)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asignación de Potrero -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-map-marker-alt text-warning"></i>
+                                Asignación de Potrero (Opcional)
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label for="potrero_id" class="form-label fw-semibold">
+                                        🌱 Potrero Inicial
+                                    </label>
+                                    <select class="form-select form-select-lg" id="potrero_id" name="potrero_id" onchange="verificarCapacidad()">
+                                        <option value="">Asignar potrero después...</option>
+                                        {% for potrero in potreros %}
+                                            <option value="{{ potrero.id }}" 
+                                                    data-hectareas="{{ potrero.hectareas }}"
+                                                    data-nombre="{{ potrero.nombre }}">
+                                                {{ potrero.nombre }} ({{ potrero.hectareas }} ha)
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-leaf text-success me-1"></i>
+                                        Puedes asignar el lote a un potrero ahora o después
+                                    </div>
+                                </div>
+                                <div class="col-md-4" id="capacidad-warning" style="display: none;">
+                                    <div class="alert alert-warning ganado-mt-md">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        <strong>Atención:</strong>
+                                        <div id="capacidad-mensaje"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Cálculos Automáticos -->
+                    <div class="ganado-card ganado-mb-lg" id="calculosPanel" style="display: none;">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-calculator text-info"></i>
+                                Cálculos Automáticos
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="ganado-stats-grid">
+                                <div class="ganado-stat-item ganado-stat-primary">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="pesoTotal">0</div>
+                                        <div class="ganado-stat-label">Peso Total</div>
+                                        <div class="ganado-stat-description">kg de biomasa</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-success">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="ugmTotal">0</div>
+                                        <div class="ganado-stat-label">UGM Total</div>
+                                        <div class="ganado-stat-description">Unidades Ganaderas</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-warning">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="consumoDiario">0</div>
+                                        <div class="ganado-stat-label">Consumo Diario</div>
+                                        <div class="ganado-stat-description">kg MS/día</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-info">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="hectareasMinimas">0</div>
+                                        <div class="ganado-stat-label">Ha Mínimas</div>
+                                        <div class="ganado-stat-description">Capacidad requerida</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="ganado-ugm-calculator ganado-mt-lg">
+                                <div class="ganado-ugm-value" id="ugmDisplay">0.00</div>
+                                <div class="ganado-ugm-label">Unidades Ganaderas Mayores (UGM)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="ganado-card">
+                        <div class="ganado-card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('ganado.lotes') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn">
+                                    <i class="fas fa-save me-2"></i>Crear Lote de Ganado
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- SIDEBAR EDUCATIVO -->
+            <div class="ganado-sidebar">
+                
+                <!-- Guía de Gestión -->
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-graduation-cap text-primary"></i>
+                            Guía de Gestión de Lotes
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-primary ganado-mb-sm">📚 Conceptos Importantes</h6>
+                            <div class="ganado-mb-md">
+                                <strong>UGM (Unidad Ganadera Mayor)</strong><br>
+                                <small class="text-muted">Equivale a 450 kg de peso vivo. Sirve para comparar diferentes categorías de ganado y calcular capacidad de carga.</small>
+                            </div>
+                            <div class="ganado-mb-md">
+                                <strong>Consumo de Materia Seca</strong><br>
+                                <small class="text-muted">Generalmente entre 2-3% del peso vivo por día. Varía según la categoría y estado del animal.</small>
+                            </div>
+                            <div class="ganado-mb-0">
+                                <strong>Carga Animal</strong><br>
+                                <small class="text-muted">Número de UGM por hectárea que puede sostener un potrero de manera sostenible.</small>
+                            </div>
+                        </div>
+
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-success ganado-mb-sm">🎯 Consejos de Organización</h6>
+                            <ul class="text-muted small ganado-mb-0">
+                                <li><i class="fas fa-check text-success me-1"></i> Agrupa por categoría y peso similar</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Considera estado reproductivo</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Máximo 50-100 animales por lote</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Nombres descriptivos y únicos</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Registra datos precisos de peso</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recomendaciones Dinámicas -->
+                <div class="ganado-card ganado-mb-lg" id="recomendacionesPanel" style="display: none;">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-lightbulb text-warning"></i>
+                            Recomendaciones
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div id="recomendacionesContent"></div>
+                    </div>
+                </div>
+                
+                <!-- Mejores Prácticas -->
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-star text-gold"></i>
+                            Mejores Prácticas
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="alert alert-info border-0 ganado-mb-lg">
+                            <small><i class="fas fa-info-circle me-1"></i>
+                            <strong>Tamaño Óptimo:</strong> Los lotes de 20-50 animales son más fáciles de manejar y controlar.</small>
+                        </div>
+                        
+                        <ul class="text-muted small ganado-mb-0">
+                            <li><strong>Homogeneidad:</strong> Animales de características similares</li>
+                            <li><strong>Identificación:</strong> Nombres claros y descriptivos</li>
+                            <li><strong>Monitoreo:</strong> Evaluación periódica de desempeño</li>
+                            <li><strong>Registros:</strong> Movimientos y cambios documentados</li>
+                            <li><strong>Flexibilidad:</strong> Ajustes según necesidades</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+<script>
+// JavaScript específico para nuevo lote
+function actualizarNumero() {
+    const slider = document.getElementById('numero-slider');
+    const input = document.getElementById('numero_animales');
+    input.value = slider.value;
+    calcularUGM();
+}
+
+function actualizarPeso() {
+    const slider = document.getElementById('peso-slider');
+    const input = document.getElementById('peso_promedio');
+    input.value = slider.value;
+    calcularUGM();
+}
+
+function calcularUGM() {
+    const numeroAnimales = parseInt(document.getElementById('numero_animales').value) || 0;
+    const pesoPromedio = parseFloat(document.getElementById('peso_promedio').value) || 0;
+    
+    if (numeroAnimales > 0 && pesoPromedio > 0) {
+        // Mostrar panel de cálculos
+        document.getElementById('calculosPanel').style.display = 'block';
+        
+        // Cálculos
+        const pesoTotal = numeroAnimales * pesoPromedio;
+        const ugmTotal = pesoTotal / 450;
+        const consumoDiario = pesoTotal * 0.025; // 2.5% del peso vivo
+        const hectareasMinimas = ugmTotal / 2; // Asumiendo 2 UGM/ha como capacidad promedio
+        
+        // Actualizar displays
+        document.getElementById('pesoTotal').textContent = Math.round(pesoTotal);
+        document.getElementById('ugmTotal').textContent = ugmTotal.toFixed(1);
+        document.getElementById('ugmDisplay').textContent = ugmTotal.toFixed(2);
+        document.getElementById('consumoDiario').textContent = Math.round(consumoDiario);
+        document.getElementById('hectareasMinimas').textContent = hectareasMinimas.toFixed(1);
+        
+        // Generar recomendaciones
+        generarRecomendaciones(numeroAnimales, pesoPromedio, ugmTotal);
+        
+        // Verificar capacidad si hay potrero seleccionado
+        verificarCapacidad();
+    } else {
+        document.getElementById('calculosPanel').style.display = 'none';
+        document.getElementById('recomendacionesPanel').style.display = 'none';
+    }
+}
+
+function verificarCapacidad() {
+    const potreroSelect = document.getElementById('potrero_id');
+    const warningDiv = document.getElementById('capacidad-warning');
+    const mensajeDiv = document.getElementById('capacidad-mensaje');
+    
+    if (potreroSelect.value) {
+        const option = potreroSelect.selectedOptions[0];
+        const hectareas = parseFloat(option.dataset.hectareas);
+        const ugmTotal = parseFloat(document.getElementById('ugmTotal').textContent) || 0;
+        
+        if (hectareas && ugmTotal > 0) {
+            const cargaAnimal = ugmTotal / hectareas;
+            
+            if (cargaAnimal > 3) {
+                warningDiv.style.display = 'block';
+                mensajeDiv.innerHTML = `Carga muy alta: ${cargaAnimal.toFixed(1)} UGM/ha. Considera un potrero más grande.`;
+                warningDiv.className = 'alert alert-danger ganado-mt-md';
+            } else if (cargaAnimal > 2) {
+                warningDiv.style.display = 'block';
+                mensajeDiv.innerHTML = `Carga moderada: ${cargaAnimal.toFixed(1)} UGM/ha. Monitorea el pasto.`;
+                warningDiv.className = 'alert alert-warning ganado-mt-md';
+            } else {
+                warningDiv.style.display = 'block';
+                mensajeDiv.innerHTML = `Carga adecuada: ${cargaAnimal.toFixed(1)} UGM/ha. Excelente capacidad.`;
+                warningDiv.className = 'alert alert-success ganado-mt-md';
+            }
+        }
+    } else {
+        warningDiv.style.display = 'none';
+    }
+}
+
+function generarRecomendaciones(numeroAnimales, pesoPromedio, ugmTotal) {
+    const panel = document.getElementById('recomendacionesPanel');
+    const content = document.getElementById('recomendacionesContent');
+    
+    let recomendaciones = [];
+    
+    if (numeroAnimales > 100) {
+        recomendaciones.push('🔄 Considera dividir en lotes más pequeños (50-100 animales) para mejor manejo.');
+    }
+    
+    if (pesoPromedio < 200) {
+        recomendaciones.push('🍼 Peso bajo sugiere animales jóvenes. Considera suplementación nutricional.');
+    }
+    
+    if (ugmTotal < 10) {
+        recomendaciones.push('📏 Lote pequeño. Ideal para manejo intensivo y seguimiento detallado.');
+    }
+    
+    if (ugmTotal > 50) {
+        recomendaciones.push('📈 Lote grande. Asegúrate de tener suficiente capacidad forrajera.');
+    }
+    
+    if (recomendaciones.length > 0) {
+        content.innerHTML = '<ul class="text-muted small">' + 
+            recomendaciones.map(r => `<li>${r}</li>`).join('') + 
+            '</ul>';
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+// Eventos
+document.getElementById('numero_animales').addEventListener('input', function() {
+    document.getElementById('numero-slider').value = this.value;
+    calcularUGM();
+});
+
+document.getElementById('peso_promedio').addEventListener('input', function() {
+    document.getElementById('peso-slider').value = this.value;
+    calcularUGM();
+});
+
+// Validación del formulario
+document.getElementById('nuevoLoteForm').addEventListener('submit', function(e) {
+    const numeroAnimales = parseInt(document.getElementById('numero_animales').value);
+    const pesoPromedio = parseFloat(document.getElementById('peso_promedio').value);
+    
+    if (!numeroAnimales || numeroAnimales <= 0) {
+        e.preventDefault();
+        alert('Por favor ingresa un número válido de animales.');
+        return;
+    }
+    
+    if (!pesoPromedio || pesoPromedio <= 0) {
+        e.preventDefault();
+        alert('Por favor ingresa un peso promedio válido.');
+        return;
+    }
+});
+</script>
+{% endblock %}

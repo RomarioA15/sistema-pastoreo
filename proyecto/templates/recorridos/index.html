@@ -1,0 +1,701 @@
+{% extends 'base.html' %}
+
+{% block title %}Recorridos - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/recorridos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="recorridos-page">
+  <div class="recorridos-container">
+    
+    <!-- HEADER CON NAVEGACIÓN -->
+    <div class="recorridos-header recorridos-fade-in">
+      <div class="recorridos-header-content">
+        <div>
+          <h1 class="recorridos-title">
+            <i class="fas fa-route"></i>
+            Centro de Monitoreo de Crecimiento
+          </h1>
+          <p class="recorridos-subtitle">
+            Sistema inteligente de seguimiento del desarrollo vegetal para optimización del pastoreo y toma de decisiones basada en datos de campo
+          </p>
+        </div>
+        <div class="recorridos-actions">
+          {% if usuario_puede('recorridos', 'crear') %}
+          <a href="{{ url_for('recorridos.nuevo') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-plus-circle me-2"></i>
+            Nuevo Recorrido
+          </a>
+          {% endif %}
+          <a href="{{ url_for('recorridos.dashboard') }}" class="btn btn-outline-light">
+            <i class="fas fa-chart-line me-2"></i>
+            Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVEGACIÓN DE PESTAÑAS -->
+    <div class="recorridos-fade-in">
+      <nav class="recorridos-nav-tabs">
+        <div class="d-flex flex-wrap">
+          <button class="recorridos-nav-tab active" data-tab="recorridos">
+            <i class="fas fa-list"></i>Lista de Recorridos
+          </button>
+          <button class="recorridos-nav-tab" data-tab="estadisticas">
+            <i class="fas fa-chart-bar"></i>Estadísticas
+          </button>
+          <button class="recorridos-nav-tab" data-tab="analisis">
+            <i class="fas fa-analytics"></i>Análisis
+          </button>
+          <button class="recorridos-nav-tab" data-tab="timeline">
+            <i class="fas fa-history"></i>Línea de Tiempo
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="recorridos-grid-main">
+      
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="recorridos-main-content">
+        
+        <!-- PESTAÑA: LISTA DE RECORRIDOS -->
+        <div class="tab-content-recorridos active" id="tab-recorridos">
+          
+          <!-- FILTROS INTELIGENTES -->
+          <div class="recorridos-card recorridos-fade-in">
+            <div class="recorridos-card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Filtros Inteligentes
+              </h5>
+            </div>
+            <div class="recorridos-card-body">
+              <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                  <label for="potrero_filter" class="recorridos-form-label">
+                    <i class="fas fa-map-marker-alt me-1"></i>Potrero
+                  </label>
+                  <select class="recorridos-form-input" id="potrero_filter" name="potrero_id">
+                    <option value="">Todos los potreros</option>
+                    {% for potrero in potreros %}
+                    <option value="{{ potrero.id }}" 
+                            {{ 'selected' if potrero_id == potrero.id|string }}>
+                      {{ potrero.nombre }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label for="fecha_inicio_filter" class="recorridos-form-label">
+                    <i class="fas fa-calendar me-1"></i>Fecha Inicio
+                  </label>
+                  <input type="date" class="recorridos-form-input" 
+                         id="fecha_inicio_filter" name="fecha_inicio" 
+                         value="{{ fecha_inicio }}">
+                </div>
+                <div class="col-md-3">
+                  <label for="fecha_fin_filter" class="recorridos-form-label">
+                    <i class="fas fa-calendar me-1"></i>Fecha Fin
+                  </label>
+                  <input type="date" class="recorridos-form-input" 
+                         id="fecha_fin_filter" name="fecha_fin" 
+                         value="{{ fecha_fin }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <div class="d-flex gap-2 w-100">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                      <i class="fas fa-search me-1"></i>Filtrar
+                    </button>
+                    <a href="{{ url_for('recorridos.index') }}" class="btn btn-outline-secondary">
+                      <i class="fas fa-times"></i>
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- ESTADÍSTICAS RESUMEN -->
+          <div class="recorridos-growth-stats recorridos-fade-in">
+            <div class="recorridos-growth-stat">
+              <div class="recorridos-growth-stat-value">{{ total }}</div>
+              <div class="recorridos-growth-stat-label">Recorridos Registrados</div>
+              <div class="recorridos-growth-stat-description">
+                Total de inspecciones realizadas
+              </div>
+              <div class="recorridos-growth-stat-icon">🌱</div>
+            </div>
+
+            <div class="recorridos-growth-stat">
+              <div class="recorridos-growth-stat-value">
+                {% if recorridos %}
+                  {% set total_altura = recorridos | map(attribute='altura_promedio') | sum %}
+                  {{ "%.1f"|format(total_altura / recorridos|length) }}
+                {% else %}
+                  0.0
+                {% endif %}
+              </div>
+              <div class="recorridos-growth-stat-label">Altura Promedio (cm)</div>
+              <div class="recorridos-growth-stat-description">
+                Media de crecimiento actual
+              </div>
+              <div class="recorridos-growth-stat-icon">📏</div>
+            </div>
+
+            <div class="recorridos-growth-stat">
+              <div class="recorridos-growth-stat-value">
+                {% if recorridos %}
+                  {% set total_cobertura = recorridos | map(attribute='cobertura_vegetal') | sum %}
+                  {{ "%.0f"|format(total_cobertura / recorridos|length) }}%
+                {% else %}
+                  0%
+                {% endif %}
+              </div>
+              <div class="recorridos-growth-stat-label">Cobertura Promedio</div>
+              <div class="recorridos-growth-stat-description">
+                Porcentaje de suelo cubierto
+              </div>
+              <div class="recorridos-growth-stat-icon">🌿</div>
+            </div>
+
+            <div class="recorridos-growth-stat">
+              <div class="recorridos-growth-stat-value">
+                {{ recorridos_semana | length }}
+              </div>
+              <div class="recorridos-growth-stat-label">Esta Semana</div>
+              <div class="recorridos-growth-stat-description">
+                Recorridos últimos 7 días
+              </div>
+              <div class="recorridos-growth-stat-icon">📅</div>
+            </div>
+          </div>
+
+          <!-- ALERTAS DE CRECIMIENTO -->
+          {% if total < 4 %}
+          <div class="recorridos-alert growth-regular recorridos-fade-in">
+            <div class="recorridos-alert-icon">💡</div>
+            <div class="recorridos-alert-content">
+              <div class="recorridos-alert-title">Consejo de Monitoreo</div>
+              <div class="recorridos-alert-description">
+                Los recorridos semanales son fundamentales para un pastoreo exitoso. Te permiten detectar 
+                problemas temprano y optimizar el momento de entrada del ganado a cada potrero.
+                Frecuencia recomendada: 1 recorrido por semana por potrero.
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- GRID DE RECORRIDOS -->
+          {% if recorridos %}
+          <div class="recorridos-cards-grid">
+            {% for recorrido in recorridos %}
+            <div class="recorridos-card-educational recorridos-fade-in">
+              
+              <!-- INDICADOR DE CRECIMIENTO -->
+              {% set crecimiento = 'poor' %}
+              {% if recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 3 %}
+                {% set crecimiento = 'excellent' %}
+              {% elif recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 2 %}
+                {% set crecimiento = 'good' %}
+              {% elif recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 1 %}
+                {% set crecimiento = 'regular' %}
+              {% endif %}
+              
+              {% if crecimiento == 'excellent' %}
+                <div class="growth-indicator" title="Crecimiento excelente">🚀</div>
+              {% elif crecimiento == 'good' %}
+                <div class="growth-indicator" title="Buen crecimiento">📈</div>
+              {% elif crecimiento == 'regular' %}
+                <div class="growth-indicator" title="Crecimiento regular">📊</div>
+              {% else %}
+                <div class="growth-indicator" title="Crecimiento lento">⚠️</div>
+              {% endif %}
+              
+              <div class="recorridos-card-body">
+                <!-- HEADER -->
+                <div class="d-flex justify-content-between align-items-start recorridos-mb-md">
+                  <div>
+                    <h6 class="fw-bold recorridos-mb-xs">{{ recorrido.potrero_nombre }}</h6>
+                    <span class="badge bg-info text-white">{{ recorrido.fecha.strftime('%d/%m/%Y') }}</span>
+                  </div>
+                  <div class="text-end">
+                    <small class="text-muted d-block">{{ recorrido.responsable or 'Sin responsable' }}</small>
+                    <small class="text-muted">{{ recorrido.puntos_medicion }} puntos</small>
+                  </div>
+                </div>
+                
+                <!-- MÉTRICAS PRINCIPALES -->
+                <div class="recorridos-measurements-grid recorridos-mb-md">
+                  <div class="recorridos-measurement-card">
+                    <div class="recorridos-measurement-icon">
+                      <i class="fas fa-ruler-vertical"></i>
+                    </div>
+                    <div class="recorridos-measurement-value">{{ recorrido.altura_promedio }} cm</div>
+                    <div class="recorridos-measurement-label">Altura Promedio</div>
+                    <div class="recorridos-measurement-description">
+                      Rango: {{ recorrido.altura_minima }}-{{ recorrido.altura_maxima }} cm
+                    </div>
+                  </div>
+                  
+                  <div class="recorridos-measurement-card">
+                    <div class="recorridos-measurement-icon">
+                      <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="recorridos-measurement-value">{{ "%.0f"|format(recorrido.cobertura_vegetal) }}%</div>
+                    <div class="recorridos-measurement-label">Cobertura</div>
+                    <div class="recorridos-measurement-description">
+                      {% if recorrido.cobertura_vegetal >= 90 %}Excelente
+                      {% elif recorrido.cobertura_vegetal >= 70 %}Buena
+                      {% elif recorrido.cobertura_vegetal >= 50 %}Regular
+                      {% else %}Deficiente{% endif %}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ESTADO Y CONDICIONES -->
+                <div class="recorridos-mb-md">
+                  <div class="d-flex justify-content-between align-items-center recorridos-mb-sm">
+                    <span class="fw-bold">Estado General:</span>
+                    <span class="badge 
+                      {% if recorrido.estado_general == 'Excelente' %}bg-success
+                      {% elif recorrido.estado_general == 'Bueno' %}bg-primary
+                      {% elif recorrido.estado_general == 'Regular' %}bg-warning
+                      {% else %}bg-danger{% endif %}">
+                      {{ recorrido.estado_general }}
+                    </span>
+                  </div>
+                  
+                  {% if recorrido.humedad_suelo %}
+                  <div class="d-flex justify-content-between align-items-center recorridos-mb-sm">
+                    <span class="text-muted small">Humedad del suelo:</span>
+                    <span class="small">{{ recorrido.humedad_suelo }}</span>
+                  </div>
+                  {% endif %}
+                  
+                  <!-- CONDICIONES ESPECIALES -->
+                  <div class="d-flex flex-wrap gap-1 recorridos-mb-sm">
+                    {% if recorrido.presencia_plagas %}
+                      <span class="badge bg-danger" title="Presencia de plagas">🐛 Plagas</span>
+                    {% endif %}
+                    {% if recorrido.necesita_riego %}
+                      <span class="badge bg-info" title="Necesita riego">💧 Riego</span>
+                    {% endif %}
+                    {% if recorrido.necesita_fertilizacion %}
+                      <span class="badge bg-warning" title="Necesita fertilización">🌱 Fertilizar</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- OBSERVACIONES -->
+                {% if recorrido.observaciones %}
+                <div class="recorridos-mb-md">
+                  <div class="bg-light p-2 rounded">
+                    <small class="text-muted d-block fw-bold">Observaciones:</small>
+                    <small>{{ recorrido.observaciones[:100] }}{% if recorrido.observaciones|length > 100 %}...{% endif %}</small>
+                  </div>
+                </div>
+                {% endif %}
+                
+                <!-- TASA DE CRECIMIENTO -->
+                {% if recorrido.tasa_crecimiento_semanal %}
+                <div class="recorridos-progress-container">
+                  <div class="recorridos-progress-title">
+                    <i class="fas fa-chart-line"></i>
+                    Crecimiento Semanal
+                  </div>
+                  <div class="recorridos-progress-bar-container">
+                    {% set progress_width = (recorrido.tasa_crecimiento_semanal / 5 * 100) | round %}
+                    <div class="recorridos-progress-bar" style="width: {{ progress_width }}%"></div>
+                  </div>
+                  <div class="recorridos-progress-labels">
+                    <span>{{ "%.2f"|format(recorrido.tasa_crecimiento_semanal) }} cm/semana</span>
+                    <span>Objetivo: 3+ cm/sem</span>
+                  </div>
+                </div>
+                {% endif %}
+                
+                <!-- ACCIONES -->
+                <div class="d-flex gap-2 mt-auto">
+                  <a href="{{ url_for('recorridos.ver', recorrido_id=recorrido.id) }}" 
+                     class="btn btn-outline-primary btn-sm flex-fill" title="Ver detalles">
+                    <i class="fas fa-eye me-1"></i>Detalles
+                  </a>
+                  {% if usuario_puede('recorridos', 'editar') %}
+                  <a href="{{ url_for('recorridos.editar', recorrido_id=recorrido.id) }}" 
+                     class="btn btn-outline-success btn-sm flex-fill" title="Editar">
+                    <i class="fas fa-edit me-1"></i>Editar
+                  </a>
+                  {% endif %}
+                  {% if usuario_puede('recorridos', 'eliminar') %}
+                  <button type="button" class="btn btn-outline-danger btn-sm"
+                          onclick="confirmarEliminar({{ recorrido.id }}, '{{ recorrido.potrero_nombre }}')"
+                          title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- PAGINACIÓN -->
+          {% if pages > 1 %}
+          <nav aria-label="Paginación de recorridos" class="recorridos-fade-in">
+            <ul class="pagination justify-content-center">
+              <li class="page-item {{ 'disabled' if page <= 1 }}">
+                <a class="page-link" href="{{ url_for('recorridos.index', page=page-1, potrero_id=potrero_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}">
+                  <i class="fas fa-chevron-left me-1"></i>Anterior
+                </a>
+              </li>
+              
+              {% for page_num in range(1, pages + 1) %}
+                {% if page_num == page %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                  </li>
+                {% elif page_num <= 3 or page_num > pages - 3 or (page_num >= page - 1 and page_num <= page + 1) %}
+                  <li class="page-item">
+                    <a class="page-link" href="{{ url_for('recorridos.index', page=page_num, potrero_id=potrero_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}">
+                      {{ page_num }}
+                    </a>
+                  </li>
+                {% elif page_num == 4 or page_num == pages - 3 %}
+                  <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              
+              <li class="page-item {{ 'disabled' if page >= pages }}">
+                <a class="page-link" href="{{ url_for('recorridos.index', page=page+1, potrero_id=potrero_id, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin) }}">
+                  Siguiente<i class="fas fa-chevron-right ms-1"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          {% endif %}
+
+          {% else %}
+          <!-- ESTADO VACÍO -->
+          <div class="text-center py-5 recorridos-fade-in">
+            <div class="recorridos-mb-lg">
+              <i class="fas fa-route fa-5x text-primary opacity-50"></i>
+            </div>
+            <h3 class="text-muted recorridos-mb-md">¡Comienza a Monitorear el Crecimiento!</h3>
+            <p class="lead text-muted recorridos-mb-lg">
+              Los recorridos semanales son la clave para un pastoreo exitoso.
+              Te permiten tomar decisiones informadas sobre el manejo de tus potreros.
+            </p>
+            {% if usuario_puede('recorridos', 'crear') %}
+            <a href="{{ url_for('recorridos.nuevo') }}" class="btn btn-primary btn-lg px-5">
+              <i class="fas fa-plus-circle me-2"></i>Realizar Mi Primer Recorrido
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- PESTAÑA: ESTADÍSTICAS -->
+        <div class="tab-content-recorridos" id="tab-estadisticas">
+          <div class="recorridos-card">
+            <div class="recorridos-card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-chart-bar me-2"></i>
+                Estadísticas de Crecimiento
+              </h5>
+            </div>
+            <div class="recorridos-card-body">
+              <p class="text-center text-muted">
+                <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i><br>
+                Funcionalidad en desarrollo. Próximamente podrás ver gráficos detallados 
+                de crecimiento, tendencias y análisis comparativo entre potreros.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA: ANÁLISIS -->
+        <div class="tab-content-recorridos" id="tab-analisis">
+          <div class="recorridos-card">
+            <div class="recorridos-card-header">
+              <h5 class="mb-0">
+                <i class="fas fa-analytics me-2"></i>
+                Análisis Avanzado
+              </h5>
+            </div>
+            <div class="recorridos-card-body">
+              <p class="text-center text-muted">
+                <i class="fas fa-brain fa-3x mb-3 opacity-50"></i><br>
+                Análisis predictivo y recomendaciones inteligentes basadas en 
+                los datos históricos de tus recorridos. Disponible próximamente.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA: LÍNEA DE TIEMPO -->
+        <div class="tab-content-recorridos" id="tab-timeline">
+          {% if recorridos %}
+          <div class="recorridos-timeline">
+            {% for recorrido in recorridos[:10] %}
+            <div class="recorridos-timeline-item">
+              <div class="recorridos-timeline-date">
+                {{ recorrido.fecha.strftime('%d de %B de %Y') }}
+              </div>
+              <div class="recorridos-timeline-content">
+                <h6 class="fw-bold">{{ recorrido.potrero_nombre }}</h6>
+                <p class="mb-2">{{ recorrido.observaciones[:150] if recorrido.observaciones else 'Sin observaciones registradas' }}{% if recorrido.observaciones and recorrido.observaciones|length > 150 %}...{% endif %}</p>
+              </div>
+              <div class="recorridos-timeline-metrics">
+                <div class="recorridos-timeline-metric">
+                  <i class="fas fa-ruler-vertical text-success"></i>
+                  <span>{{ recorrido.altura_promedio }} cm</span>
+                </div>
+                <div class="recorridos-timeline-metric">
+                  <i class="fas fa-percentage text-info"></i>
+                  <span>{{ "%.0f"|format(recorrido.cobertura_vegetal) }}%</span>
+                </div>
+                <div class="recorridos-timeline-metric">
+                  <i class="fas fa-star text-warning"></i>
+                  <span>{{ recorrido.estado_general }}</span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-history fa-3x text-muted opacity-50 mb-3"></i>
+            <h5 class="text-muted">Sin historial de recorridos</h5>
+            <p class="text-muted">Realiza tu primer recorrido para ver la línea de tiempo</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- SIDEBAR EDUCATIVO -->
+      <div class="recorridos-sidebar">
+        <div class="recorridos-card">
+          <div class="recorridos-card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-graduation-cap me-2"></i>
+              Guía de Recorridos
+            </h5>
+          </div>
+          <div class="recorridos-card-body">
+            
+            <!-- CONCEPTOS CLAVE -->
+            <div class="recorridos-mb-lg">
+              <h6 class="text-success recorridos-mb-md">🌱 Conceptos Clave</h6>
+              
+              <div class="recorridos-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-ruler-vertical text-success me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Altura del Pasto</strong>
+                    <small class="text-muted">
+                      Medición en cm desde el suelo hasta la punta de las hojas
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="recorridos-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-percentage text-info me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Cobertura Vegetal</strong>
+                    <small class="text-muted">
+                      Porcentaje del suelo cubierto por plantas vivas
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="recorridos-mb-md">
+                <div class="d-flex align-items-start">
+                  <i class="fas fa-chart-line text-warning me-2 mt-1"></i>
+                  <div>
+                    <strong class="d-block">Tasa de Crecimiento</strong>
+                    <small class="text-muted">
+                      Centímetros de crecimiento por semana
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- INDICADORES DE CRECIMIENTO -->
+            <div class="recorridos-mb-lg">
+              <h6 class="text-warning recorridos-mb-md">📊 Indicadores</h6>
+              
+              <div class="recorridos-mb-sm">
+                <span class="me-2">🚀</span>
+                <small>Excelente: >3 cm/semana</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="me-2">📈</span>
+                <small>Bueno: 2-3 cm/semana</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="me-2">📊</span>
+                <small>Regular: 1-2 cm/semana</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="me-2">⚠️</span>
+                <small>Lento: <1 cm/semana</small>
+              </div>
+            </div>
+
+            <!-- RANGOS ÓPTIMOS -->
+            <div class="recorridos-mb-lg">
+              <h6 class="text-info recorridos-mb-md">🎯 Rangos Óptimos</h6>
+              
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-success me-2">Altura</span>
+                <small>15-25 cm</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-primary me-2">Cobertura</span>
+                <small>70-90%</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-warning me-2">Puntos</span>
+                <small>5+ por potrero</small>
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-info me-2">Frecuencia</span>
+                <small>Semanal</small>
+              </div>
+            </div>
+
+            <!-- MEJORES PRÁCTICAS -->
+            <div>
+              <h6 class="text-success recorridos-mb-md">✅ Mejores Prácticas</h6>
+              <ul class="small text-muted ps-3">
+                <li>Realizar recorridos semanalmente</li>
+                <li>Medir en diferentes zonas del potrero</li>
+                <li>Registrar observaciones detalladas</li>
+                <li>Documentar condiciones especiales</li>
+                <li>Analizar tendencias de crecimiento</li>
+                <li>Tomar fotos de referencia</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar el recorrido del potrero <strong id="potrero-nombre"></strong>?</p>
+        <p class="text-danger small">Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form id="form-eliminar" method="POST" style="display: inline;">
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+<script>
+// JavaScript específico para la página de índice
+document.addEventListener('DOMContentLoaded', function() {
+    initializeRecorridosIndex();
+});
+
+function initializeRecorridosIndex() {
+    // Configurar navegación de pestañas
+    setupTabNavigation();
+    
+    // Configurar animaciones
+    initializeAnimations();
+    
+    // Configurar tooltips
+    setupTooltips();
+    
+    console.log('✅ Página de recorridos inicializada');
+}
+
+function setupTabNavigation() {
+    const tabs = document.querySelectorAll('.recorridos-nav-tab');
+    const tabContents = document.querySelectorAll('.tab-content-recorridos');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Actualizar estado de pestañas
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Mostrar contenido correspondiente
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetContent = document.getElementById(`tab-${targetTab}`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+}
+
+function initializeAnimations() {
+    // Intersection Observer para animaciones
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = `${Math.random() * 0.3}s`;
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.recorridos-fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    }
+}
+
+function setupTooltips() {
+    // Inicializar tooltips de Bootstrap si están disponibles
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+
+function confirmarEliminar(recorridoId, potreroNombre) {
+    document.getElementById('potrero-nombre').textContent = potreroNombre;
+    document.getElementById('form-eliminar').action = `/recorridos/${recorridoId}/delete`;
+    
+    const modal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+    modal.show();
+}
+</script>
+{% endblock %}

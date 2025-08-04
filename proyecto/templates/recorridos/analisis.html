@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Crecimiento{% endblock %}
+
+{% block head %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="fas fa-chart-bar me-2"></i>Análisis Avanzado de Crecimiento</h4>
+                <a href="{{ url_for('recorridos.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Configuración -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-filter me-1"></i>Filtros de Análisis</h6>
+                </div>
+                <div class="card-body">
+                    <div class="template-grid">
+                        <div class="col-3">
+                            <label for="potrero_analisis" class="template-form-label">Potrero:</label>
+                            <select class="form-select" id="potrero_analisis" onchange="updateAnalysis()">
+                                <option value="">Todos los potreros</option>
+                                <!-- Se poblará dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label for="periodo_analisis" class="template-form-label">Período:</label>
+                            <select class="form-select" id="periodo_analisis" onchange="updateAnalysis()">
+                                <option value="4">4 semanas</option>
+                                <option value="8">8 semanas</option>
+                                <option value="12" selected>12 semanas</option>
+                                <option value="24">24 semanas</option>
+                                <option value="52">1 año</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label for="metrica_analisis" class="template-form-label">Métrica Principal:</label>
+                            <select class="form-select" id="metrica_analisis" onchange="updateAnalysis()">
+                                <option value="altura">Altura del Pasto</option>
+                                <option value="cobertura">Cobertura Vegetal</option>
+                                <option value="tasa_crecimiento">Tasa de Crecimiento</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn btn-primary w-100 mt-4" onclick="exportarAnalisis()">
+                                <i class="fas fa-download me-1"></i>Exportar Datos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Resumidas -->
+    <div class="row mb-4">
+        <div class="col-3">
+            <div class="template-card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h4 id="stat-promedio">-</h4>
+                    <p class="mb-0">Promedio</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center bg-success text-white">
+                <div class="card-body">
+                    <h4 id="stat-maximo">-</h4>
+                    <p class="mb-0">Máximo</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center bg-warning text-white">
+                <div class="card-body">
+                    <h4 id="stat-minimo">-</h4>
+                    <p class="mb-0">Mínimo</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="template-card text-center bg-info text-white">
+                <div class="card-body">
+                    <h4 id="stat-tendencia">-</h4>
+                    <p class="mb-0">Tendencia</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos de Análisis -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-1"></i>Evolución Temporal</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="evolutionChart" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-area me-1"></i>Distribución de Valores</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="distributionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-scatter me-1"></i>Correlación Altura vs Cobertura</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="correlationChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Datos Detallados -->
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-table me-1"></i>Datos Detallados</h6>
+                </div>
+                <div class="card-body">
+                    <div class="template-table-wrapper">
+                        <table class="table table-sm" id="detailsTable">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Potrero</th>
+                                    <th>Altura Promedio</th>
+                                    <th>Cobertura</th>
+                                    <th>Tasa Crecimiento</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Se poblará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+{% endblock %} 

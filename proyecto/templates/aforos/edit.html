@@ -1,0 +1,468 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Aforo - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/aforos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="aforos-page">
+<div class="aforos-container aforos-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('aforos.index') }}">Aforos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Aforo</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="aforos-header">
+    <div class="aforos-header-content">
+        <div>
+            <h1 class="aforos-title">
+                <i class="fas fa-edit"></i>
+                Editar Aforo
+            </h1>
+            <p class="aforos-subtitle">📊 Modifica los valores de forraje disponible para el potrero seleccionado.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calculator me-1"></i>Cálculo Automático
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-check-circle me-1"></i>Validación en Tiempo Real
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-history me-1"></i>Historial de Cambios
+                </span>
+            </div>
+        </div>
+        <div class="aforos-actions">
+            <a href="{{ url_for('aforos.index') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-arrow-left me-2"></i>
+                Cancelar y Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Información general del formulario -->
+<div class="aforos-card mb-4">
+    <div class="aforos-card-body">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle me-3 fs-4"></i>
+                <div>
+                    <h6 class="alert-heading mb-1">Edición de Aforo Existente</h6>
+                    <small class="mb-0">Los cálculos se actualizarán automáticamente al modificar los valores. Los campos obligatorios están marcados con asterisco (*).</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Layout de dos columnas: formulario y información -->
+<div class="row">
+    <!-- COLUMNA PRINCIPAL: FORMULARIO -->
+    <div class="col-lg-8">
+        <!-- Formulario con validación en tiempo real -->
+        <form method="POST" action="{{ url_for('aforos.editar', aforo_id=aforo.id) }}" id="aforoEditForm" novalidate>
+    
+    <!-- HEURÍSTICA 4: Consistencia y Estándares -->
+    <!-- Sección 1: Identificación del Aforo -->
+    <div class="aforos-card mb-4">
+        <div class="aforos-card-header">
+            <h4 class="aforos-card-title">
+                <i class="fas fa-map-marker-alt"></i>
+                Identificación del Aforo
+                <small class="text-muted">(Información básica)</small>
+            </h4>
+        </div>
+        <div class="aforos-card-body">
+                
+                <!-- HEURÍSTICA 5: Prevención de Errores -->
+                <!-- Campo potrero -->
+                <div class="mb-4">
+                    <label for="potrero_id" class="form-label required">
+                        <i class="fas fa-map text-success me-2"></i>
+                        <strong>¿En qué potrero se realizó este aforo?</strong>
+                    </label>
+                    <select class="form-select form-select-lg" 
+                            id="potrero_id" 
+                            name="potrero_id" 
+                            required
+                            data-bs-title="Selecciona el potrero donde se realizó la medición"
+                            data-bs-toggle="tooltip">
+                        <option value="">Selecciona un potrero...</option>
+                        {% for potrero in potreros %}
+                            <option value="{{ potrero.id }}" 
+                                    {% if aforo.potrero_id == potrero.id %}selected{% endif %}
+                                    data-hectareas="{{ potrero.hectareas }}">
+                                {{ potrero.nombre }} ({{ potrero.hectareas }} ha)
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Potrero seleccionado correctamente
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Por favor selecciona un potrero
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        El área del potrero se usará para calcular la disponibilidad total de forraje
+                    </div>
+                </div>
+
+                <!-- Campo fecha -->
+                <div class="mb-4">
+                    <label for="fecha" class="form-label required">
+                        <i class="fas fa-calendar text-primary me-2"></i>
+                        <strong>¿Cuándo se realizó la medición?</strong>
+                    </label>
+                    <input type="date" 
+                           class="form-control form-control-lg" 
+                           id="fecha" 
+                           name="fecha" 
+                           value="{{ aforo.fecha.strftime('%Y-%m-%d') }}"
+                           required
+                           max="{{ today }}"
+                           data-bs-title="Fecha de realización del aforo">
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Fecha válida
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Ingresa una fecha válida (no puede ser futura)
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        La fecha debe ser igual o anterior a hoy
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <!-- Sección 2: Mediciones de Forraje -->
+    <div class="aforos-card mb-4">
+        <div class="aforos-card-header">
+            <h4 class="aforos-card-title">
+                <i class="fas fa-weight-hanging"></i>
+                Mediciones de Forraje
+                <small class="text-muted">(Datos técnicos)</small>
+            </h4>
+        </div>
+        <div class="aforos-card-body">
+                
+                <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                <!-- Campo materia verde con ayuda visual -->
+                <div class="mb-4">
+                    <label for="materia_verde" class="form-label required">
+                        <i class="fas fa-leaf text-success me-2"></i>
+                        <strong>Materia Verde por Hectárea</strong>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control" 
+                               id="materia_verde" 
+                               name="materia_verde" 
+                               step="0.01" 
+                               min="0"
+                               value="{{ aforo.materia_verde }}"
+                               placeholder="2500.00"
+                               required
+                               data-bs-title="Peso del forraje verde por hectárea">
+                        <span class="input-group-text">kg/ha</span>
+                    </div>
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Valor de materia verde válido
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Ingresa un valor válido mayor a 0
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Rango típico: 1,500 - 8,000 kg/ha dependiendo del tipo de pastura
+                    </div>
+                </div>
+
+                <!-- Campo porcentaje materia seca -->
+                <div class="mb-4">
+                    <label for="porcentaje_ms" class="form-label required">
+                        <i class="fas fa-percentage text-warning me-2"></i>
+                        <strong>Porcentaje de Materia Seca</strong>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control" 
+                               id="porcentaje_ms" 
+                               name="porcentaje_ms" 
+                               step="0.1" 
+                               min="0" 
+                               max="100"
+                               value="{{ aforo.porcentaje_ms }}"
+                               placeholder="18.5"
+                               required
+                               data-bs-title="Porcentaje de materia seca del forraje">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <div class="form-feedback">
+                        <div class="valid-feedback">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Porcentaje de MS válido
+                        </div>
+                        <div class="invalid-feedback">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            Ingresa un porcentaje entre 0 y 100
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        Típico: 15-25% para pastos jóvenes, 25-40% para pastos maduros
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <!-- Sección 3: Cálculos y Datos Adicionales -->
+    <div class="aforos-card mb-4">
+        <div class="aforos-card-header">
+            <h4 class="aforos-card-title">
+                <i class="fas fa-calculator"></i>
+                Cálculos y Datos Adicionales
+                <small class="text-muted">(Información complementaria)</small>
+            </h4>
+        </div>
+        <div class="aforos-card-body">
+                
+                <!-- Campo materia seca (calculado) -->
+                <div class="mb-4">
+                    <label for="materia_seca" class="form-label">
+                        <i class="fas fa-calculator text-info me-2"></i>
+                        <strong>Materia Seca Calculada</strong> <span class="text-muted">(automático)</span>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control bg-light" 
+                               id="materia_seca" 
+                               name="materia_seca" 
+                               step="0.01" 
+                               min="0"
+                               value="{{ aforo.materia_seca }}"
+                               readonly
+                               data-bs-title="Se calcula automáticamente: MV × %MS ÷ 100">
+                        <span class="input-group-text">kg/ha</span>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-magic text-success me-1"></i>
+                        Fórmula: Materia Verde × Porcentaje MS ÷ 100
+                    </div>
+                </div>
+
+                <!-- Campo días de rotación -->
+                <div class="mb-4">
+                    <label for="dias_rotacion" class="form-label">
+                        <i class="fas fa-clock text-primary me-2"></i>
+                        <strong>Días de Rotación Estimados</strong> <span class="text-muted">(opcional)</span>
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <input type="number" 
+                               class="form-control" 
+                               id="dias_rotacion" 
+                               name="dias_rotacion" 
+                               min="0"
+                               value="{{ aforo.dias_rotacion or '' }}"
+                               placeholder="21"
+                               data-bs-title="Tiempo estimado que durará el forraje disponible">
+                        <span class="input-group-text">días</span>
+                    </div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tiempo estimado de ocupación del potrero según el forraje disponible
+                    </div>
+                </div>
+
+                <!-- Campo observaciones -->
+                <div class="mb-4">
+                    <label for="observaciones" class="form-label">
+                        <i class="fas fa-sticky-note text-muted me-2"></i>
+                        Observaciones adicionales <span class="text-muted">(opcional)</span>
+                    </label>
+                    <textarea class="form-control" 
+                              id="observaciones" 
+                              name="observaciones" 
+                              rows="3" 
+                              placeholder="Calidad del pasto, condiciones climáticas, recomendaciones, etc.">{{ aforo.observaciones or '' }}</textarea>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Información adicional sobre condiciones del potrero, calidad del pasto, etc.
+                    </div>
+                </div>
+
+        </div>
+    </div>
+
+    <!-- Sección 4: Botones de Acción -->
+    <div class="aforos-card">
+        <div class="aforos-card-body">
+            <!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+            <!-- Botones finales con confirmación -->
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('aforos.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-times me-2"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+                    <i class="fas fa-save me-2"></i>
+                    Actualizar Aforo
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+        <!-- Espacio reservado para mensajes de error -->
+        <div id="errorMessages" style="display: none;"></div>
+    </div>
+    
+    <!-- COLUMNA LATERAL: INFORMACIÓN Y AYUDA -->
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 20px;">
+            
+            <!-- Información del Aforo Actual -->
+            <div class="aforos-card mb-4">
+                <div class="aforos-card-header">
+                    <h5 class="aforos-card-title">
+                        <i class="fas fa-info-circle"></i>
+                        Información del Aforo
+                    </h5>
+                </div>
+                <div class="aforos-card-body">
+                    <h6>Datos actuales</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>ID:</strong> {{ aforo.id }}</li>
+                        <li><strong>Creado:</strong> {{ aforo.fecha_creacion.strftime('%d/%m/%Y %H:%M') if aforo.fecha_creacion else 'N/A' }}</li>
+                        <li><strong>Modificado:</strong> {{ aforo.fecha_modificacion.strftime('%d/%m/%Y %H:%M') if aforo.fecha_modificacion else 'N/A' }}</li>
+                    </ul>
+                    
+                    <h6>Cálculos actuales</h6>
+                    <ul class="list-unstyled small">
+                        <li><strong>Materia Seca:</strong> <span id="display-materia-seca">{{ '{:,.2f}'.format(aforo.materia_seca) }}</span> kg/ha</li>
+                        {% if aforo.hectareas %}
+                        <li><strong>Total MV:</strong> <span id="display-total-mv">{{ '{:,.0f}'.format(aforo.materia_verde * aforo.hectareas) }}</span> kg</li>
+                        <li><strong>Total MS:</strong> <span id="display-total-ms">{{ '{:,.0f}'.format(aforo.materia_seca * aforo.hectareas) }}</span> kg</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Panel de Ayuda -->
+            <div class="aforos-card mb-4">
+                <div class="aforos-card-header">
+                    <h6 class="aforos-card-subtitle">
+                        <i class="fas fa-question-circle"></i>
+                        Ayuda y Consejos
+                    </h6>
+                </div>
+                <div class="aforos-card-body">
+                    <div class="help-section">
+                        <h6><i class="fas fa-leaf text-success me-1"></i>Materia Verde</h6>
+                        <p class="small text-muted">
+                            Peso total del forraje fresco por hectárea. Incluye hojas, tallos y material vegetal vivo.
+                        </p>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h6><i class="fas fa-percentage text-warning me-1"></i>% Materia Seca</h6>
+                        <p class="small text-muted">
+                            Porcentaje de materia seca del forraje. Varía según la edad del pasto y condiciones climáticas.
+                        </p>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h6><i class="fas fa-calculator text-info me-1"></i>Cálculo Automático</h6>
+                        <p class="small text-muted">
+                            La materia seca se calcula automáticamente: MV × %MS ÷ 100
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas importantes -->
+            <div class="alert alert-warning small">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Importante:</strong> Los cálculos se actualizarán automáticamente al modificar los valores. Verifica que los datos sean correctos antes de guardar.
+            </div>
+            
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/aforos.js') }}"></script>
+<script>
+// Funcionalidad específica del formulario de edición
+console.log('Formulario de edición de aforo cargado');
+
+// Actualizar cálculos en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const materiaVerdeInput = document.getElementById('materia_verde');
+    const porcentajeMsInput = document.getElementById('porcentaje_ms');
+    const materiaSecaInput = document.getElementById('materia_seca');
+    const potreroSelect = document.getElementById('potrero_id');
+    
+    function actualizarCalculos() {
+        const materiaVerde = parseFloat(materiaVerdeInput.value) || 0;
+        const porcentajeMs = parseFloat(porcentajeMsInput.value) || 0;
+        const materiaSeca = (materiaVerde * porcentajeMs) / 100;
+        
+        materiaSecaInput.value = materiaSeca.toFixed(2);
+        
+        // Actualizar displays en el sidebar
+        document.getElementById('display-materia-seca').textContent = materiaSeca.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        // Calcular totales si hay potrero seleccionado
+        const selectedOption = potreroSelect.options[potreroSelect.selectedIndex];
+        if (selectedOption && selectedOption.dataset.hectareas) {
+            const hectareas = parseFloat(selectedOption.dataset.hectareas);
+            const totalMv = materiaVerde * hectareas;
+            const totalMs = materiaSeca * hectareas;
+            
+            const displayTotalMv = document.getElementById('display-total-mv');
+            const displayTotalMs = document.getElementById('display-total-ms');
+            
+            if (displayTotalMv) displayTotalMv.textContent = totalMv.toLocaleString('es-ES', {maximumFractionDigits: 0});
+            if (displayTotalMs) displayTotalMs.textContent = totalMs.toLocaleString('es-ES', {maximumFractionDigits: 0});
+        }
+    }
+    
+    materiaVerdeInput.addEventListener('input', actualizarCalculos);
+    porcentajeMsInput.addEventListener('input', actualizarCalculos);
+    potreroSelect.addEventListener('change', actualizarCalculos);
+    
+    // Calcular al cargar
+    actualizarCalculos();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,792 @@
+/**
+ * MÓDULO AFOROS - Sistema de Diseño Completo y Responsivo
+ * Gestión de pastoreo con interfaz lógica y organizada
+ */
+
+/* =============================================================================
+   1. VARIABLES Y FUNDAMENTOS
+   ============================================================================= */
+
+:root {
+  /* Colores específicos de aforos */
+  --aforo-primary: #28a745;
+  --aforo-secondary: #6c757d;
+  --aforo-success: #20c997;
+  --aforo-info: #17a2b8;
+  --aforo-warning: #ffc107;
+  --aforo-danger: #dc3545;
+  --aforo-light: #f8f9fa;
+  --aforo-dark: #343a40;
+  
+  /* Espaciado sistemático */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+  
+  /* Tipografía */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-xxl: 1.5rem;
+  
+  /* Sombras y efectos */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.2);
+  
+  /* Transiciones */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+}
+
+/* =============================================================================
+   2. LAYOUT BASE Y CONTENEDORES
+   ============================================================================= */
+
+.aforos-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.aforos-container {
+  max-width: var(--breakpoint-xxl);
+  margin: 0 auto;
+  padding: var(--space-md);
+  position: relative;
+}
+
+.aforos-grid {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: 1fr;
+}
+
+/* =============================================================================
+   3. SISTEMA DE GRID RESPONSIVO
+   ============================================================================= */
+
+/* Grid principal - 2 columnas en desktop */
+.aforos-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* Grid de cards - auto-fit responsivo */
+.aforos-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+/* Grid de métricas - siempre 3 columnas */
+.aforos-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin: var(--space-md) 0;
+}
+
+/* Grid de filtros - responsive */
+.aforos-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-md);
+  align-items: end;
+}
+
+/* =============================================================================
+   4. COMPONENTES BASE
+   ============================================================================= */
+
+/* Card base */
+.aforo-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+.aforo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.aforo-card-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.aforo-card-body {
+  padding: var(--space-lg);
+}
+
+.aforo-card-footer {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  background: #f8f9fa;
+}
+
+/* =============================================================================
+   5. HEADER Y NAVEGACIÓN
+   ============================================================================= */
+
+.aforos-header {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.aforos-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+
+.aforos-title {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  color: var(--aforo-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.aforos-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--aforo-secondary);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.aforos-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+/* =============================================================================
+   6. DASHBOARD DE ESTADÍSTICAS
+   ============================================================================= */
+
+.aforos-stats-dashboard {
+  background: linear-gradient(135deg, var(--aforo-primary) 0%, var(--aforo-success) 100%);
+  color: white;
+  border-radius: 16px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.aforos-stats-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  transform: translate(30px, -30px);
+}
+
+.aforos-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.aforos-stat-item {
+  text-align: center;
+  padding: var(--space-lg);
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-normal);
+}
+
+.aforos-stat-item:hover {
+  background: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+
+.aforos-stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: var(--space-xs);
+  display: block;
+}
+
+.aforos-stat-label {
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* =============================================================================
+   7. FILTROS Y BÚSQUEDA
+   ============================================================================= */
+
+.aforos-search-section {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.aforos-search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.aforos-search-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--aforo-dark);
+  margin: 0;
+}
+
+.aforos-search-toggle {
+  background: var(--aforo-light);
+  border: none;
+  border-radius: 8px;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--aforo-secondary);
+  transition: var(--transition-fast);
+}
+
+.aforos-search-toggle:hover {
+  background: var(--aforo-secondary);
+  color: white;
+}
+
+.aforos-search-input {
+  position: relative;
+}
+
+.aforos-search-input input {
+  width: 100%;
+  padding: var(--space-md) var(--space-md) var(--space-md) 3rem;
+  border: 2px solid var(--aforo-light);
+  border-radius: 25px;
+  font-size: var(--font-size-base);
+  transition: var(--transition-fast);
+}
+
+.aforos-search-input input:focus {
+  outline: none;
+  border-color: var(--aforo-primary);
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.aforos-search-icon {
+  position: absolute;
+  left: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--aforo-secondary);
+}
+
+/* =============================================================================
+   8. CARDS DE AFOROS
+   ============================================================================= */
+
+.aforo-item-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: var(--transition-normal);
+  border: 1px solid rgba(0,0,0,0.05);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.aforo-item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.aforo-item-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.aforo-item-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--aforo-dark);
+  margin: 0;
+}
+
+.aforo-item-date {
+  font-size: var(--font-size-sm);
+  color: var(--aforo-secondary);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.aforo-quality-badge {
+  padding: var(--space-xs) var(--space-md);
+  border-radius: 20px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.aforo-quality-excellent {
+  background: #d4edda;
+  color: #155724;
+}
+
+.aforo-quality-good {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.aforo-quality-regular {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.aforo-quality-poor {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.aforo-item-body {
+  padding: var(--space-lg);
+  flex-grow: 1;
+}
+
+.aforo-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.aforo-metric {
+  text-align: center;
+  padding: var(--space-md);
+  background: var(--aforo-light);
+  border-radius: 8px;
+}
+
+.aforo-metric-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.aforo-metric-label {
+  font-size: var(--font-size-xs);
+  color: var(--aforo-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.aforo-metric-mv .aforo-metric-value { color: var(--aforo-success); }
+.aforo-metric-ms .aforo-metric-value { color: var(--aforo-info); }
+.aforo-metric-percent .aforo-metric-value { color: var(--aforo-warning); }
+
+.aforo-item-actions {
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  background: #f8f9fa;
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.aforo-action-btn {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--aforo-light);
+  border-radius: 8px;
+  background: white;
+  color: var(--aforo-secondary);
+  text-decoration: none;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.aforo-action-btn:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.aforo-action-btn-primary {
+  background: var(--aforo-primary);
+  color: white;
+  border-color: var(--aforo-primary);
+}
+
+.aforo-action-btn-primary:hover {
+  background: #218838;
+  border-color: #1e7e34;
+  color: white;
+}
+
+.aforo-action-btn-danger {
+  color: var(--aforo-danger);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.aforo-action-btn-danger:hover {
+  background: var(--aforo-danger);
+  color: white;
+  border-color: var(--aforo-danger);
+}
+
+/* =============================================================================
+   9. SIDEBAR Y COMPONENTES SECUNDARIOS
+   ============================================================================= */
+
+.aforos-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.aforos-quick-stats {
+  background: white;
+  border-radius: 12px;
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.aforos-quick-stats-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--aforo-dark);
+  margin: 0 0 var(--space-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.aforos-quick-stat-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md);
+  border-radius: 8px;
+  margin-bottom: var(--space-sm);
+  transition: var(--transition-fast);
+}
+
+.aforos-quick-stat-item:hover {
+  background: var(--aforo-light);
+}
+
+.aforos-quick-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-md);
+  font-size: var(--font-size-lg);
+}
+
+.aforos-quick-stat-content {
+  flex-grow: 1;
+}
+
+.aforos-quick-stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--aforo-dark);
+  margin: 0;
+}
+
+.aforos-quick-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--aforo-secondary);
+  margin: 0;
+}
+
+/* =============================================================================
+   10. ESTADO VACÍO
+   ============================================================================= */
+
+.aforos-empty-state {
+  text-align: center;
+  padding: var(--space-xxl);
+  background: white;
+  border-radius: 16px;
+  border: 2px dashed var(--aforo-light);
+  margin: var(--space-xl) 0;
+}
+
+.aforos-empty-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-lg);
+  background: var(--aforo-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--aforo-secondary);
+}
+
+.aforos-empty-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--aforo-dark);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.aforos-empty-description {
+  font-size: var(--font-size-base);
+  color: var(--aforo-secondary);
+  margin: 0 0 var(--space-xl) 0;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.aforos-empty-action {
+  background: var(--aforo-primary);
+  color: white;
+  border: none;
+  padding: var(--space-md) var(--space-xl);
+  border-radius: 25px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: var(--transition-normal);
+}
+
+.aforos-empty-action:hover {
+  background: #218838;
+  text-decoration: none;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =============================================================================
+   11. RESPONSIVIDAD
+   ============================================================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+  .aforos-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+  
+  .aforos-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .aforos-header-content {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .aforos-actions {
+    justify-content: center;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .aforos-container {
+    padding: var(--space-sm);
+  }
+  
+  .aforos-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aforos-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+  
+  .aforos-filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aforos-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .aforos-header,
+  .aforos-search-section,
+  .aforos-stats-dashboard {
+    padding: var(--space-lg);
+  }
+  
+  .aforo-metrics {
+    grid-template-columns: 1fr;
+  }
+  
+  .aforo-item-actions {
+    flex-direction: column;
+  }
+  
+  .aforos-title {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .aforos-container {
+    padding: var(--space-xs);
+  }
+  
+  .aforos-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aforos-header,
+  .aforos-search-section,
+  .aforos-stats-dashboard {
+    padding: var(--space-md);
+  }
+  
+  .aforo-card-body,
+  .aforo-card-header {
+    padding: var(--space-md);
+  }
+  
+  .aforos-empty-state {
+    padding: var(--space-xl);
+  }
+  
+  .aforos-empty-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+}
+
+/* =============================================================================
+   12. ANIMACIONES Y EFECTOS
+   ============================================================================= */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.aforos-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.aforos-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* =============================================================================
+   13. UTILIDADES
+   ============================================================================= */
+
+.aforos-text-center { text-align: center; }
+.aforos-text-left { text-align: left; }
+.aforos-text-right { text-align: right; }
+
+.aforos-mb-0 { margin-bottom: 0; }
+.aforos-mb-sm { margin-bottom: var(--space-sm); }
+.aforos-mb-md { margin-bottom: var(--space-md); }
+.aforos-mb-lg { margin-bottom: var(--space-lg); }
+.aforos-mb-xl { margin-bottom: var(--space-xl); }
+
+.aforos-mt-0 { margin-top: 0; }
+.aforos-mt-sm { margin-top: var(--space-sm); }
+.aforos-mt-md { margin-top: var(--space-md); }
+.aforos-mt-lg { margin-top: var(--space-lg); }
+.aforos-mt-xl { margin-top: var(--space-xl); }
+
+.aforos-hidden { display: none; }
+.aforos-visible { display: block; }
+
+/* =============================================================================
+   14. MODO OSCURO (Futuro)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .aforos-page {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+  
+  .aforo-card {
+    background: #2d2d2d;
+    border-color: rgba(255,255,255,0.1);
+  }
+  
+  .aforos-title,
+  .aforo-item-title {
+    color: #ffffff;
+  }
+  
+  .aforos-subtitle,
+  .aforo-item-date {
+    color: #adb5bd;
+  }
+}

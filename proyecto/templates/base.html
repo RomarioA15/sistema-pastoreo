@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+    <!-- Metadatos esenciales -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="{% block meta_description %}Sistema de Gestión de Pastoreo - Plataforma integral para el manejo eficiente de operaciones ganaderas{% endblock %}">
+    <meta name="theme-color" content="#28a745">
+    
+    <!-- Título dinámico -->
+    <title>{% block title %}Inicio{% endblock %} - Sistema de Gestión de Pastoreo v2.0</title>
+    
+    <!-- CSS externos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+          rel="stylesheet" 
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+          crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          rel="stylesheet" 
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
+          crossorigin="anonymous">
+    
+    <!-- Sistema de Diseño Unificado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}?v=2.3">
+    
+    <!-- CSS específico por módulo -->
+    {% if request.endpoint and 'potreros' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/potreros.css') }}?v=2.1">
+    {% elif request.endpoint and 'aforos' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/aforos.css') }}?v=2.1">
+    {% elif request.endpoint and 'actividades' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/actividades.css') }}?v=2.1">
+    {% elif request.endpoint and 'ganado' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ganado.css') }}?v=2.1">
+    {% elif request.endpoint and 'clima' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/clima.css') }}?v=2.1">
+    {% elif request.endpoint and 'ph' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ph.css') }}?v=2.1">
+    {% elif request.endpoint and 'recorridos' in request.endpoint %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules/recorridos.css') }}?v=2.1">
+    {% endif %}
+    
+    <!-- CSS específico por página -->
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Skip Links para accesibilidad -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <a href="#sidebar-nav" class="skip-link">Ir al menú de navegación</a>
+    
+    <!-- Indicador de carga global -->
+    <div id="global-loading" class="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none" 
+         style="z-index: 9998;" role="status" aria-label="Cargando contenido">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenedor principal de la aplicación -->
+    <div class="app-container">
+        <!-- Overlay para móvil -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Header móvil -->
+        <header class="mobile-header d-md-none">
+            <button class="btn btn-outline-primary btn-sm" onclick="toggleSidebar()" aria-label="Abrir menú">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1><i class="fas fa-leaf me-2"></i>Pastoreo</h1>
+            <div class="d-flex gap-2">
+                <!-- Notificaciones -->
+                <button class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <!-- Usuario -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if current_user.is_authenticated %}
+                            <li><h6 class="dropdown-header">{{ current_user.nombre }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión
+                            </a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar sesión
+                            </a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor de contenido -->
+        <div class="content-wrapper">
+            <!-- Sidebar -->
+            <nav class="sidebar" id="sidebar">
+                <!-- Header del sidebar -->
+                <div class="sidebar-header">
+                    <h1><i class="fas fa-leaf me-2"></i>Sistema Pastoreo</h1>
+                    {% if current_user.is_authenticated %}
+                        <div class="mt-3 pt-3 border-top border-light border-opacity-25">
+                            <div class="d-flex align-items-center text-white">
+                                <div class="avatar bg-light bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold small">{{ current_user.nombre }}</div>
+                                    {% if current_user.finca_actual_nombre %}
+                                        <div class="text-light text-opacity-75 small">
+                                            <i class="fas fa-map-marker-alt me-1"></i>{{ current_user.finca_actual_nombre }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Navegación -->
+                <div class="sidebar-nav" id="sidebar-nav">
+                    <div class="list-group list-group-flush">
+                        <!-- Dashboard -->
+                        <a href="{{ url_for('dashboard_simple.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint == 'dashboard_simple.index' else '' }}">
+                            <i class="fas fa-tachometer-alt me-3"></i>Dashboard
+                        </a>
+                        
+                        <!-- Potreros -->
+                        <a href="{{ url_for('potreros.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'potreros' in request.endpoint else '' }}">
+                            <i class="fas fa-map-marked-alt me-3"></i>Potreros
+                        </a>
+                        
+                        <!-- Aforos -->
+                        <a href="{{ url_for('aforos.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'aforos' in request.endpoint else '' }}">
+                            <i class="fas fa-chart-bar me-3"></i>Aforos
+                        </a>
+                        
+                        <!-- Actividades -->
+                        <a href="{{ url_for('actividades.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'actividades' in request.endpoint else '' }}">
+                            <i class="fas fa-tasks me-3"></i>Actividades
+                        </a>
+                        
+                        <!-- Ganado -->
+                        <a href="{{ url_for('ganado.lotes') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'ganado' in request.endpoint else '' }}">
+                            <i class="fas fa-cow me-3"></i>Ganado
+                        </a>
+                        
+                        <!-- Clima -->
+                        <a href="{{ url_for('clima.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'clima' in request.endpoint else '' }}">
+                            <i class="fas fa-cloud-sun me-3"></i>Clima
+                        </a>
+                        
+                        <!-- Recorridos -->
+                        <a href="{{ url_for('recorridos.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'recorridos' in request.endpoint else '' }}">
+                            <i class="fas fa-route me-3"></i>Recorridos
+                        </a>
+                        
+                        <!-- pH del Suelo -->
+                        <a href="{{ url_for('ph.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'ph' in request.endpoint else '' }}">
+                            <i class="fas fa-vial me-3"></i>pH Suelo
+                        </a>
+                        
+                        <!-- Administración -->
+                        <div class="sidebar-divider">
+                            <hr class="border-light border-opacity-25 my-3">
+                            <small class="text-muted text-uppercase fw-bold ps-3">Administración</small>
+                        </div>
+                        
+                        <a href="{{ url_for('admin.index') }}" 
+                           class="list-group-item {{ 'active' if request.endpoint and 'admin' in request.endpoint else '' }}">
+                            <i class="fas fa-cog me-3"></i>Configuración
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Footer del sidebar -->
+                <div class="sidebar-footer">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <div class="small text-muted">Sistema Pastoreo v2.0</div>
+                            <div class="small text-muted">© 2025</div>
+                        </div>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Contenido principal -->
+            <main class="main-content" id="main-content">
+                <!-- Breadcrumb -->
+                {% if show_breadcrumb %}
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Inicio</a></li>
+                        {% if breadcrumb_items %}
+                            {% for item in breadcrumb_items %}
+                                {% if loop.last %}
+                                    <li class="breadcrumb-item active" aria-current="page">{{ item.name }}</li>
+                                {% else %}
+                                    <li class="breadcrumb-item"><a href="{{ item.url }}">{{ item.name }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </ol>
+                </nav>
+                {% endif %}
+
+                <!-- Contenido de la página -->
+                {% block content %}
+                <div class="container-responsive">
+                    <div class="page-header">
+                        <h1 class="heading-responsive">Bienvenido al Sistema de Pastoreo</h1>
+                        <p class="text-responsive text-muted">Selecciona una opción del menú para comenzar</p>
+                    </div>
+                </div>
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Sistema de notificaciones -->
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+            crossorigin="anonymous"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Funciones del sidebar -->
+    <script>
+        // Toggle del sidebar para móvil
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+        
+        // Cerrar sidebar al hacer clic en overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+        
+        // Cerrar sidebar al presionar Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar.classList.contains('show')) {
+                    toggleSidebar();
+                }
+            }
+        });
+        
+        // Función para mostrar próximamente
+        function showComingSoon(modulo) {
+            alert(`Módulo de ${modulo} próximamente`);
+        }
+        
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+    
+    <!-- JavaScript específico por página -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

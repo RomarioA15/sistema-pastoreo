@@ -1,0 +1,1220 @@
+/**
+ * Sistema de Diseño Unificado - Pastoreo v2.0
+ * Sistema completo y consistente para toda la aplicación
+ */
+
+/* =============================================================================
+   1. VARIABLES CSS UNIFICADAS
+   ============================================================================= */
+
+:root {
+  /* Colores principales */
+  --primary-color: #28a745;
+  --primary-hover: #218838;
+  --primary-light: #d4edda;
+  --primary-dark: #155724;
+  
+  --secondary-color: #6c757d;
+  --secondary-hover: #5a6268;
+  --secondary-light: #e2e3e5;
+  
+  --success-color: #28a745;
+  --info-color: #17a2b8;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  
+  /* Colores específicos del pastoreo */
+  --grass-green: #7cb342;
+  --earth-brown: #8d6e63;
+  --sky-blue: #42a5f5;
+  --sun-yellow: #ffeb3b;
+  --soil-dark: #3e2723;
+  
+  /* Espaciado unificado */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  
+  /* Layout principal */
+  --sidebar-width: 280px;
+  --sidebar-collapsed: 60px;
+  --header-height: 70px;
+  --border-radius: 0.5rem;
+  --border-color: #dee2e6;
+  --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --transition: all 0.3s ease;
+  --transition-fast: all 0.15s ease;
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --line-height: 1.5;
+}
+
+/* =============================================================================
+   2. RESET Y BASE STYLES
+   ============================================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  font-family: var(--font-family);
+  line-height: var(--line-height);
+}
+
+/* Mejoras de accesibilidad */
+*:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =============================================================================
+   3. LAYOUT PRINCIPAL Y CONTENEDORES UNIFICADOS
+   ============================================================================= */
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+/* SISTEMA DE CONTENEDORES UNIFICADO */
+.template-container,
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  width: 100%;
+}
+
+.section-container {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+}
+
+.content-container {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+/* SISTEMA DE GRID UNIFICADO */
+.template-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: 1fr;
+}
+
+.template-grid-2 {
+  grid-template-columns: 2fr 1fr;
+}
+
+.template-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.template-grid-main {
+  grid-column: 1;
+}
+
+.template-grid-sidebar {
+  grid-column: 2;
+}
+
+@media (max-width: 768px) {
+  .template-grid-2,
+  .template-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  
+  .template-container,
+  .page-container {
+    padding: var(--spacing-md);
+  }
+}
+
+/* =============================================================================
+   4. SISTEMA DE COMPONENTES UNIFICADO - CARDS
+   ============================================================================= */
+
+.template-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.template-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.template-card-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--primary-light);
+  font-weight: 600;
+}
+
+.template-card-body {
+  padding: var(--spacing-lg);
+}
+
+.template-card-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  background: #f8f9fa;
+}
+
+/* Cards específicas */
+.dashboard-card {
+  @extend .template-card;
+}
+
+.admin-card {
+  @extend .template-card;
+  border-left: 4px solid var(--info-color);
+}
+
+.educational-card {
+  @extend .template-card;
+  border-left: 4px solid var(--warning-color);
+}
+
+.stats-card {
+  @extend .template-card;
+  text-align: center;
+}
+
+/* =============================================================================
+   5. SISTEMA DE COMPONENTES UNIFICADO - BOTONES
+   ============================================================================= */
+
+.template-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  min-height: 40px;
+  gap: var(--spacing-xs);
+}
+
+.template-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.template-btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.template-btn-primary:hover {
+  background: var(--primary-hover);
+  color: white;
+}
+
+.template-btn-secondary {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.template-btn-secondary:hover {
+  background: var(--secondary-hover);
+  color: white;
+}
+
+.template-btn-success {
+  background: var(--success-color);
+  color: white;
+}
+
+.template-btn-danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.template-btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.template-btn-outline:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* =============================================================================
+   6. SISTEMA DE COMPONENTES UNIFICADO - FORMULARIOS
+   ============================================================================= */
+
+.template-form-input,
+.template-form-select,
+.template-form-textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: var(--transition-fast);
+  font-size: var(--font-size-base);
+  background: white;
+}
+
+.template-form-input:focus,
+.template-form-select:focus,
+.template-form-textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.template-form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  color: var(--soil-dark);
+}
+
+.template-form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.template-form-help {
+  font-size: var(--font-size-sm);
+  color: var(--secondary-color);
+  margin-top: var(--spacing-xs);
+}
+
+/* =============================================================================
+   7. SISTEMA DE COMPONENTES UNIFICADO - HEADERS
+   ============================================================================= */
+
+.template-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--grass-green));
+  color: white;
+  padding: var(--spacing-xl);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-lg);
+}
+
+.template-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.template-header-text h1,
+.template-header-text h2,
+.template-header-text h3 {
+  margin: 0;
+  color: white;
+}
+
+.template-header-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.educational-header {
+  background: linear-gradient(135deg, var(--warning-color), #ff9800);
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, var(--info-color), var(--sky-blue));
+}
+
+/* =============================================================================
+   8. SISTEMA DE COMPONENTES UNIFICADO - BADGES Y ETIQUETAS
+   ============================================================================= */
+
+.template-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  gap: var(--spacing-xs);
+}
+
+.template-badges {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
+}
+
+/* =============================================================================
+   9. SIDEBAR UNIFICADO
+   ============================================================================= */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: white;
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(-100%);
+  transition: var(--transition);
+  z-index: 1000;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.show {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--info-color) 100%);
+  color: white;
+  padding: var(--spacing-lg);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h1 {
+  font-size: var(--font-size-lg);
+  margin: 0;
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: var(--spacing-md) 0;
+}
+
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  background: #f8f9fa;
+}
+
+/* Items del sidebar */
+.list-group-item {
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #212529;
+}
+
+.list-group-item:hover {
+  background-color: #f1f3f4;
+  color: var(--primary-color);
+  transform: translateX(4px);
+}
+
+.list-group-item.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--info-color) 100%);
+  color: white;
+  border-left: 4px solid var(--primary-dark);
+}
+
+.list-group-item i {
+  width: 20px;
+  margin-right: var(--spacing-sm);
+}
+
+/* Overlay del sidebar */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* =============================================================================
+   5. HEADER MÓVIL
+   ============================================================================= */
+
+.mobile-header {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-md);
+  position: sticky;
+  top: 0;
+  z-index: 1010;
+  box-shadow: var(--shadow);
+}
+
+.mobile-header h1 {
+  font-size: var(--font-size-lg);
+  margin: 0;
+  color: var(--primary-color);
+}
+
+/* =============================================================================
+   6. CONTENIDO PRINCIPAL
+   ============================================================================= */
+
+.main-content {
+  width: 100%;
+  min-height: calc(100vh - var(--header-height));
+  background: #f8f9fa;
+  transition: var(--transition);
+  padding: var(--spacing-lg);
+}
+
+/* Responsive para desktop */
+@media (min-width: 768px) {
+  .sidebar {
+    position: static;
+    transform: translateX(0);
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    padding: var(--spacing-xl);
+  }
+  
+  .mobile-header {
+    display: none;
+  }
+  
+  .sidebar-overlay {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   7. COMPONENTES RESPONSIVOS DEL DASHBOARD
+   ============================================================================= */
+
+.container-responsive {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.page-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: var(--spacing-sm);
+}
+
+.spacing-responsive {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Grid del dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Tarjetas de estadísticas */
+.stat-card-responsive {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.stat-card-responsive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stat-content h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.stat-content p {
+  margin: 0;
+  color: #6c757d;
+  font-size: var(--font-size-sm);
+}
+
+/* =============================================================================
+   8. SECCIONES DE ACCIONES
+   ============================================================================= */
+
+.actions-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.actions-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+  color: #212529;
+}
+
+.actions-grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .actions-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .actions-grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tarjetas de acción */
+.action-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border: 1px solid var(--border-color);
+}
+
+.action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+  color: inherit;
+  border-color: var(--primary-color);
+}
+
+.action-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-card.disabled:hover {
+  transform: none;
+  box-shadow: var(--shadow);
+  border-color: var(--border-color);
+}
+
+.action-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+  display: block;
+}
+
+.action-card h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--primary-color);
+}
+
+.action-card p {
+  margin: 0;
+  color: #6c757d;
+  font-size: var(--font-size-sm);
+}
+
+/* =============================================================================
+   9. INFORMACIÓN DEL SISTEMA
+   ============================================================================= */
+
+.system-info {
+  margin-bottom: var(--spacing-xl);
+}
+
+.system-info h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+  color: #212529;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .info-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.info-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--primary-color);
+}
+
+.info-card h4 {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  color: #6c757d;
+  text-transform: uppercase;
+}
+
+.info-card p {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: #212529;
+}
+
+/* =============================================================================
+   10. COMPONENTES GENERALES
+   ============================================================================= */
+
+/* Botones mejorados */
+.btn {
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  transition: var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+/* Cards generales */
+.card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Formularios */
+.form-control {
+  border-radius: var(--border-radius);
+  transition: var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Tablas */
+.table {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+}
+
+/* =============================================================================
+   11. UTILIDADES RESPONSIVAS
+   ============================================================================= */
+
+.text-responsive {
+  font-size: var(--font-size-base);
+}
+
+.heading-responsive {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .text-responsive {
+    font-size: var(--font-size-lg);
+  }
+  
+  .heading-responsive {
+    font-size: 2.5rem;
+  }
+}
+
+/* Skip links para accesibilidad */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 9999;
+}
+
+.skip-link:focus {
+  top: 6px;
+  color: white;
+  text-decoration: none;
+}
+
+/* Estados de carga */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Notificaciones */
+.toast-modern {
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--spacing-sm);
+  opacity: 0;
+  transform: translateX(100%);
+  transition: var(--transition);
+}
+
+.toast-modern.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-modern.hiding {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+/* =============================================================================
+   CLASES FALTANTES DE TEMPLATES
+   ============================================================================= */
+
+/* Contenedores responsivos faltantes */
+.container-responsive {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .container-responsive {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Header de página */
+.page-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.page-header h1 {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Skip links para accesibilidad */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Sidebar mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile header */
+.mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mobile-header h1 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--primary-color);
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: var(--sidebar-width);
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: var(--transition);
+}
+
+.sidebar.show {
+  transform: translateX(0);
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    position: sticky;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-header {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h1 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md) 0;
+}
+
+.sidebar-nav .list-group-item {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 0;
+  text-decoration: none;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-nav .list-group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sidebar-nav .list-group-item.active {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+.sidebar-divider {
+  margin: var(--spacing-md) 0;
+}
+
+.sidebar-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  padding: var(--spacing-xl);
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Content wrapper */
+.content-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Avatar styles */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive heading */
+.heading-responsive {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+@media (min-width: 768px) {
+  .heading-responsive {
+    font-size: 2.25rem;
+  }
+}
+
+/* App container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Spacing responsive */
+.spacing-responsive {
+  margin-bottom: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .spacing-responsive {
+    margin-bottom: var(--spacing-xl);
+  }
+}
+
+/* Dashboard grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* =============================================================================
+   OVERRIDES PARA RESOLVER CONFLICTOS CON BOOTSTRAP
+   ============================================================================= */
+
+/* Asegurar que nuestros componentes tengan prioridad */
+.template-container,
+.template-container * {
+  box-sizing: border-box;
+}
+
+/* Override de Bootstrap para nuestros botones */
+.template-btn.template-btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.template-btn.template-btn-primary:hover,
+.template-btn.template-btn-primary:focus {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: white !important;
+}
+
+/* Override de Bootstrap para nuestras cards */
+.template-card {
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+/* Override de Bootstrap list-group para sidebar */
+.sidebar-nav .list-group-item {
+  background-color: transparent !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.sidebar-nav .list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.sidebar-nav .list-group-item.active {
+  background-color: var(--primary-light) !important;
+  color: var(--primary-dark) !important;
+}
+
+/* Override de Bootstrap para formularios */
+.template-form-input.form-control {
+  border-color: var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.template-form-input.form-control:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+/* Corrección de z-index para evitar superposiciones */
+.sidebar {
+  z-index: 1030 !important;
+}
+
+.sidebar-overlay {
+  z-index: 1025 !important;
+}
+
+.mobile-header {
+  z-index: 1020 !important;
+}
+
+.potrero-info {
+  z-index: 1040 !important;
+}
+
+#notification-container {
+  z-index: 1080 !important;
+}
+
+/* Prevenir conflictos de margin y padding */
+.template-container > .row {
+  margin: 0 !important;
+}
+
+.template-container > .row > [class*="col-"] {
+  padding: 0 !important;
+} 

@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Movimiento - Sistema de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<!-- Estilos específicos cargados automáticamente en base.html -->
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+    <div class="ganado-container ganado-fade-in">
+        
+        <!-- BREADCRUMB DE NAVEGACIÓN -->
+        <nav aria-label="breadcrumb" class="ganado-mb-lg">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                        <i class="fas fa-home me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('ganado.movimientos') }}" class="text-decoration-none">
+                        <i class="fas fa-exchange-alt me-1"></i>Movimientos
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-plus-circle me-1"></i>Nuevo Movimiento
+                </li>
+            </ol>
+        </nav>
+
+        <!-- HEADER PRINCIPAL -->
+        <div class="ganado-header">
+            <div class="ganado-header-content">
+                <div>
+                    <h1 class="ganado-title">
+                        <i class="fas fa-truck text-success"></i>
+                        Nuevo Movimiento de Ganado
+                    </h1>
+                    <p class="ganado-subtitle ganado-mb-0">
+                        🚚 Registra el movimiento de un lote hacia un nuevo potrero para optimizar el pastoreo rotacional. 
+                        Una planificación correcta maximiza el aprovechamiento del forraje.
+                    </p>
+                </div>
+                <div class="ganado-actions">
+                    <a href="{{ url_for('ganado.movimientos') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver a Movimientos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMACIÓN EDUCATIVA -->
+        <div class="ganado-card ganado-mb-xl">
+            <div class="ganado-card-header">
+                <h5 class="ganado-mb-0">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    Importancia del Pastoreo Rotacional
+                </h5>
+            </div>
+            <div class="ganado-card-body">
+                <div class="ganado-stats-grid">
+                    <div class="text-center">
+                        <i class="fas fa-leaf fa-2x text-success ganado-mb-sm"></i>
+                        <h6>Recuperación del Pasto</h6>
+                        <small class="text-muted">Permite que las plantas se regeneren y desarrollen raíces fuertes</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-chart-line fa-2x text-primary ganado-mb-sm"></i>
+                        <h6>Mayor Productividad</h6>
+                        <small class="text-muted">Incrementa la producción de forraje hasta un 30% por hectárea</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-shield-alt fa-2x text-warning ganado-mb-sm"></i>
+                        <h6>Control de Parásitos</h6>
+                        <small class="text-muted">Rompe el ciclo de vida de parásitos internos del ganado</small>
+                    </div>
+                    <div class="text-center">
+                        <i class="fas fa-seedling fa-2x text-info ganado-mb-sm"></i>
+                        <h6>Salud del Suelo</h6>
+                        <small class="text-muted">Mejora la estructura y fertilidad natural del terreno</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYOUT PRINCIPAL: FORMULARIO + SIDEBAR -->
+        <div class="ganado-grid-main">
+            
+            <!-- FORMULARIO PRINCIPAL -->
+            <div class="ganado-main-content">
+                
+                <form method="POST" action="{{ url_for('ganado.nuevo_movimiento') }}" id="nuevoMovimientoForm" class="ganado-fade-in">
+                    
+                    <!-- Selección de Potrero y Lote -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                                Selección de Destino y Ganado
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="potrero_id" class="form-label fw-semibold">
+                                        🌱 Potrero Destino
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="potrero_id" name="potrero_id" required onchange="calcularCargaAnimal()">
+                                        <option value="">Seleccionar potrero de destino...</option>
+                                        {% for potrero in potreros %}
+                                        <option value="{{ potrero.id }}" 
+                                                data-hectareas="{{ potrero.hectareas }}"
+                                                data-nombre="{{ potrero.nombre }}">
+                                            {{ potrero.nombre }} ({{ potrero.hectareas }} ha)
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-info me-1"></i>
+                                        Potrero donde ingresará el lote de ganado
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lote_id" class="form-label fw-semibold">
+                                        🐄 Lote de Ganado
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="lote_id" name="lote_id" required onchange="actualizarDatosLote()">
+                                        <option value="">Seleccionar lote de ganado...</option>
+                                        {% for lote in lotes %}
+                                        <option value="{{ lote.id }}" 
+                                                data-numero-animales="{{ lote.numero_animales }}"
+                                                data-peso-promedio="{{ lote.peso_promedio }}"
+                                                data-nombre="{{ lote.nombre }}">
+                                            {{ lote.nombre }} - {{ lote.numero_animales }} animales
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-info me-1"></i>
+                                        Lote que se moverá al nuevo potrero
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos del Movimiento -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-calendar-alt text-success"></i>
+                                Datos del Movimiento
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="fecha_ingreso" class="form-label fw-semibold">
+                                        📅 Fecha de Ingreso
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control form-control-lg" id="fecha_ingreso" 
+                                           name="fecha_ingreso" value="{{ moment().strftime('%Y-%m-%d') if moment else '' }}" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-clock text-warning me-1"></i>
+                                        Fecha en que el ganado ingresará al potrero
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="motivo" class="form-label fw-semibold">
+                                        🎯 Motivo del Movimiento
+                                    </label>
+                                    <select class="form-select form-select-lg" id="motivo" name="motivo">
+                                        <option value="Pastoreo rotacional">Pastoreo rotacional</option>
+                                        <option value="Cambio de potrero">Cambio de potrero</option>
+                                        <option value="Manejo sanitario">Manejo sanitario</option>
+                                        <option value="Aprovechamiento de forraje">Aprovechamiento de forraje</option>
+                                        <option value="Descanso de potrero">Descanso de potrero anterior</option>
+                                        <option value="Otro">Otro motivo</option>
+                                    </select>
+                                    <div class="form-text">
+                                        <i class="fas fa-question-circle text-info me-1"></i>
+                                        Razón principal del movimiento
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="ganado-card ganado-mb-lg">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-sticky-note text-warning"></i>
+                                Observaciones del Movimiento
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <label for="observaciones" class="form-label fw-semibold">
+                                📝 Notas Adicionales
+                            </label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="4"
+                                     placeholder="Registra información relevante: condición del potrero, estado del ganado, clima, disponibilidad de agua, etc."></textarea>
+                            <div class="form-text">
+                                <i class="fas fa-lightbulb text-info me-1"></i>
+                                Incluye detalles que puedan ser útiles para futuros movimientos
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Cálculos Automáticos -->
+                    <div class="ganado-card ganado-mb-lg" id="calculosPanel" style="display: none;">
+                        <div class="ganado-card-header">
+                            <h5 class="ganado-mb-0">
+                                <i class="fas fa-calculator text-info"></i>
+                                Análisis de Carga Animal
+                            </h5>
+                        </div>
+                        <div class="ganado-card-body">
+                            <div class="ganado-stats-grid">
+                                <div class="ganado-stat-item ganado-stat-primary">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="numeroAnimales">0</div>
+                                        <div class="ganado-stat-label">Animales</div>
+                                        <div class="ganado-stat-description">En el lote</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-success">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="pesoPromedio">0</div>
+                                        <div class="ganado-stat-label">Peso Promedio</div>
+                                        <div class="ganado-stat-description">kg por animal</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-warning">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="ugmTotal">0</div>
+                                        <div class="ganado-stat-label">UGM Total</div>
+                                        <div class="ganado-stat-description">Unidades Ganaderas</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ganado-stat-item ganado-stat-info">
+                                    <div class="ganado-stat-content">
+                                        <div class="ganado-stat-value" id="cargaAnimal">0</div>
+                                        <div class="ganado-stat-label">Carga Animal</div>
+                                        <div class="ganado-stat-description">UGM/ha</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="alertaCarga" class="alert" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="ganado-card">
+                        <div class="ganado-card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('ganado.movimientos') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn">
+                                    <i class="fas fa-truck me-2"></i>Registrar Movimiento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            
+            <!-- SIDEBAR EDUCATIVO -->
+            <div class="ganado-sidebar">
+                
+                <!-- Guía de Movimientos -->
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-graduation-cap text-primary"></i>
+                            Guía de Movimientos
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-primary ganado-mb-sm">📊 Planificación del Movimiento</h6>
+                            <div class="ganado-mb-md">
+                                <strong>Tiempo Óptimo</strong><br>
+                                <small class="text-muted">Cuando el pasto alcance 20-25 cm de altura en el potrero destino</small>
+                            </div>
+                            <div class="ganado-mb-md">
+                                <strong>Carga Animal</strong><br>
+                                <small class="text-muted">No exceder 2-3 UGM por hectárea para pastoreo sostenible</small>
+                            </div>
+                            <div class="ganado-mb-0">
+                                <strong>Duración</strong><br>
+                                <small class="text-muted">Planificar estadía de 3-7 días máximo por potrero</small>
+                            </div>
+                        </div>
+
+                        <div class="ganado-mb-lg">
+                            <h6 class="text-success ganado-mb-sm">🎯 Factores a Considerar</h6>
+                            <ul class="text-muted small ganado-mb-0">
+                                <li><i class="fas fa-check text-success me-1"></i> Disponibilidad de agua en el potrero</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Condición del cercado y portones</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Altura y calidad del forraje</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Condiciones climáticas</li>
+                                <li><i class="fas fa-check text-success me-1"></i> Estado sanitario del lote</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cálculos de Referencia -->
+                <div class="ganado-card ganado-mb-lg">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-calculator text-warning"></i>
+                            Cálculos de Referencia
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <div class="alert alert-info border-0 ganado-mb-lg">
+                            <small><i class="fas fa-info-circle me-1"></i>
+                            <strong>UGM (Unidad Ganadera Mayor):</strong> Equivale a 450 kg de peso vivo.</small>
+                        </div>
+                        
+                        <div class="ganado-mb-md">
+                            <strong>Carga Animal Óptima:</strong><br>
+                            <small class="text-muted">1.5 - 2.5 UGM/ha para pastoreo sostenible</small>
+                        </div>
+                        <div class="ganado-mb-md">
+                            <strong>Consumo Diario:</strong><br>
+                            <small class="text-muted">2.5% del peso vivo en materia seca</small>
+                        </div>
+                        <div class="ganado-mb-0">
+                            <strong>Tiempo de Ocupación:</strong><br>
+                            <small class="text-muted">3-7 días máximo por potrero</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mejores Prácticas -->
+                <div class="ganado-card">
+                    <div class="ganado-card-header">
+                        <h5 class="ganado-mb-0">
+                            <i class="fas fa-star text-gold"></i>
+                            Mejores Prácticas
+                        </h5>
+                    </div>
+                    <div class="ganado-card-body">
+                        <ul class="text-muted small ganado-mb-0">
+                            <li><strong>Registro detallado:</strong> Anota fecha, condiciones y observaciones</li>
+                            <li><strong>Monitoreo continuo:</strong> Revisa el estado del ganado diariamente</li>
+                            <li><strong>Flexibilidad:</strong> Ajusta tiempos según condiciones del pasto</li>
+                            <li><strong>Planificación:</strong> Prepara el siguiente potrero con anticipación</li>
+                            <li><strong>Evaluación:</strong> Analiza resultados para mejorar futuras rotaciones</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+<script>
+// JavaScript específico para nuevo movimiento
+function actualizarDatosLote() {
+    const loteSelect = document.getElementById('lote_id');
+    if (loteSelect.value) {
+        const option = loteSelect.selectedOptions[0];
+        const numeroAnimales = parseInt(option.dataset.numeroAnimales) || 0;
+        const pesoPromedio = parseFloat(option.dataset.pesoPromedio) || 0;
+        
+        document.getElementById('numeroAnimales').textContent = numeroAnimales;
+        document.getElementById('pesoPromedio').textContent = pesoPromedio.toFixed(0);
+        
+        calcularCargaAnimal();
+    }
+}
+
+function calcularCargaAnimal() {
+    const loteSelect = document.getElementById('lote_id');
+    const potreroSelect = document.getElementById('potrero_id');
+    const calculosPanel = document.getElementById('calculosPanel');
+    const alertaCarga = document.getElementById('alertaCarga');
+    
+    if (loteSelect.value && potreroSelect.value) {
+        const loteOption = loteSelect.selectedOptions[0];
+        const potreroOption = potreroSelect.selectedOptions[0];
+        
+        const numeroAnimales = parseInt(loteOption.dataset.numeroAnimales) || 0;
+        const pesoPromedio = parseFloat(loteOption.dataset.pesoPromedio) || 0;
+        const hectareas = parseFloat(potreroOption.dataset.hectareas) || 1;
+        
+        // Cálculos
+        const pesoTotal = numeroAnimales * pesoPromedio;
+        const ugmTotal = pesoTotal / 450;
+        const cargaAnimal = ugmTotal / hectareas;
+        
+        // Actualizar displays
+        document.getElementById('ugmTotal').textContent = ugmTotal.toFixed(1);
+        document.getElementById('cargaAnimal').textContent = cargaAnimal.toFixed(2);
+        
+        // Mostrar panel
+        calculosPanel.style.display = 'block';
+        
+        // Evaluar carga animal
+        if (cargaAnimal > 3) {
+            alertaCarga.className = 'alert alert-danger';
+            alertaCarga.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i><strong>Carga muy alta:</strong> ' + cargaAnimal.toFixed(2) + ' UGM/ha. Considera reducir el número de animales o usar un potrero más grande.';
+            alertaCarga.style.display = 'block';
+        } else if (cargaAnimal > 2.5) {
+            alertaCarga.className = 'alert alert-warning';
+            alertaCarga.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i><strong>Carga moderada-alta:</strong> ' + cargaAnimal.toFixed(2) + ' UGM/ha. Monitorea el pasto de cerca.';
+            alertaCarga.style.display = 'block';
+        } else if (cargaAnimal > 1.5) {
+            alertaCarga.className = 'alert alert-success';
+            alertaCarga.innerHTML = '<i class="fas fa-check-circle me-2"></i><strong>Carga óptima:</strong> ' + cargaAnimal.toFixed(2) + ' UGM/ha. Excelente para pastoreo sostenible.';
+            alertaCarga.style.display = 'block';
+        } else {
+            alertaCarga.className = 'alert alert-info';
+            alertaCarga.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Carga baja:</strong> ' + cargaAnimal.toFixed(2) + ' UGM/ha. Puedes aprovechar mejor el potrero.';
+            alertaCarga.style.display = 'block';
+        }
+    } else {
+        calculosPanel.style.display = 'none';
+    }
+}
+
+// Configurar fecha mínima como hoy
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaInput = document.getElementById('fecha_ingreso');
+    if (fechaInput) {
+        const today = new Date().toISOString().split('T')[0];
+        fechaInput.min = today;
+    }
+});
+
+// Validación del formulario
+document.getElementById('nuevoMovimientoForm').addEventListener('submit', function(e) {
+    const loteId = document.getElementById('lote_id').value;
+    const potreroId = document.getElementById('potrero_id').value;
+    const fechaIngreso = document.getElementById('fecha_ingreso').value;
+    
+    if (!loteId) {
+        e.preventDefault();
+        alert('Por favor selecciona un lote de ganado.');
+        return;
+    }
+    
+    if (!potreroId) {
+        e.preventDefault();
+        alert('Por favor selecciona un potrero destino.');
+        return;
+    }
+    
+    if (!fechaIngreso) {
+        e.preventDefault();
+        alert('Por favor selecciona una fecha de ingreso.');
+        return;
+    }
+});
+</script>
+{% endblock %} 

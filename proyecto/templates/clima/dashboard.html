@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Climático - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/clima.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="breadcrumb-custom">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('clima.index') }}" class="text-decoration-none">
+                <i class="fas fa-cloud-sun me-1"></i>Clima
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-chart-line me-1"></i>Dashboard Climático
+        </li>
+    </ol>
+</nav>
+
+<!-- Educational Header -->
+<div class="template-header educational-header">
+    <div class="row align-items-center position-relative">
+        <div class="col-lg-8 col-md-12">
+            <h1 class="mb-3">
+                <i class="fas fa-chart-line me-3"></i>
+                Dashboard Meteorológico Inteligente
+            </h1>
+            <p class="fs-5 mb-3 opacity-90 text-responsive-wrap">
+                🌤️ Panel integral que combina datos climáticos actuales, pronósticos y recomendaciones agropecuarias para optimizar la gestión del pastoreo.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-eye me-1"></i>Monitoreo en tiempo real
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-brain me-1"></i>Análisis inteligente
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-lightbulb me-1"></i>Recomendaciones automáticas
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 text-lg-end text-center mt-3 mt-lg-0">
+            <div class="text-white">
+                <div class="fs-6 opacity-75">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {% if current_weather %}{{ current_weather.city }}, {{ current_weather.country }}{% endif %}
+                </div>
+                <div class="fs-6 opacity-75 mt-1">
+                    <i class="fas fa-clock me-1"></i>
+                    Actualizado ahora
+                </div>
+                <button class="btn btn-light btn-lg shadow-lg mt-2" onclick="location.reload()">
+                    <i class="fas fa-sync-alt me-2"></i>
+                    <span>Actualizar Datos</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="template-grid">
+    <!-- Main Content -->
+    <div class="col-8">
+        {% if current_weather %}
+        <!-- Current Weather Display -->
+        <div class="current-weather-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    <img class="img-responsive" src="https://openweathermap.org/img/wn/{{ current_weather.icon }}@2x.png" 
+                         class="weather-icon-large mb-2" alt="{{ current_weather.description }}">
+                    <div class="fw-bold fs-5">{{ current_weather.description }}</div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="temp-display">{{ current_weather.temperature }}°C</div>
+                    <div class="fs-5 opacity-75">Sensación: {{ current_weather.feels_like }}°C</div>
+                </div>
+                <div class="col-4">
+                    <div class="row text-center">
+                        <div class="col-6 mb-2">
+                            <i class="fas fa-thermometer-half fs-4 mb-1"></i>
+                            <div class="small">Rango</div>
+                            <div class="fw-bold">{{ current_weather.temp_min }}° / {{ current_weather.temp_max }}°</div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <i class="fas fa-tint fs-4 mb-1"></i>
+                            <div class="small">Humedad</div>
+                            <div class="fw-bold">{{ current_weather.humidity }}%</div>
+                        </div>
+                        <div class="col-6">
+                            <i class="fas fa-wind fs-4 mb-1"></i>
+                            <div class="small">Viento</div>
+                            <div class="fw-bold">{{ current_weather.wind_speed }} m/s</div>
+                        </div>
+                        <div class="col-6">
+                            <i class="fas fa-eye fs-4 mb-1"></i>
+                            <div class="small">Presión</div>
+                            <div class="fw-bold">{{ current_weather.pressure }} hPa</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Metrics -->
+        <div class="row mb-4">
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-icon">
+                        <i class="fas fa-sun text-warning"></i>
+                    </div>
+                    <div class="metric-value text-warning">{{ current_weather.sunshine_hours|default((12-current_weather.clouds//10)|round(1)) }}h</div>
+                    <div class="metric-label">Heliofanía Diaria</div>
+                    <div class="metric-explanation">
+                        Horas de sol directo para fotosíntesis del pasto
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-icon">
+                        <i class="fas fa-cloud-rain text-info"></i>
+                    </div>
+                    <div class="metric-value text-info">{{ current_weather.rain_mm|default('0.0') }}mm</div>
+                    <div class="metric-label">Precipitación</div>
+                    <div class="metric-explanation">
+                        Agua disponible para el crecimiento del forraje
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-icon">
+                        <i class="fas fa-leaf text-success"></i>
+                    </div>
+                    <div class="metric-value text-success">
+                        {% if current_weather.temperature >= 25 and current_weather.temperature <= 30 %}
+                            Óptimo
+                        {% elif current_weather.temperature > 30 %}
+                            Alto
+                        {% else %}
+                            Bajo
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Índice de Crecimiento</div>
+                    <div class="metric-explanation">
+                        Potencial de crecimiento del pasto según temperatura
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Comparison -->
+        {% if yesterday_weather %}
+        <div class="comparison-card mb-4">
+            <h5 class="text-primary mb-3">
+                <i class="fas fa-balance-scale me-2"></i>
+                📊 Comparación con Ayer
+            </h5>
+            <div class="template-grid">
+                <div class="col-6">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="text-center me-3">
+                            <div class="fw-bold">Hoy</div>
+                            <div class="fs-4 text-primary">{{ current_weather.temperature }}°C</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">Ayer</div>
+                            <div class="fs-4 text-secondary">{{ yesterday_weather.temperature }}°C</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center">
+                        {% set temp_diff = current_weather.temperature - yesterday_weather.temperature %}
+                        {% if temp_diff > 2 %}
+                            <span class="comparison-badge badge-warmer">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                +{{ temp_diff }}°C más caluroso
+                            </span>
+                        {% elif temp_diff < -2 %}
+                            <span class="comparison-badge badge-cooler">
+                                <i class="fas fa-arrow-down me-1"></i>
+                                {{ temp_diff }}°C más fresco
+                            </span>
+                        {% else %}
+                            <span class="comparison-badge badge-similar">
+                                <i class="fas fa-equals me-1"></i>
+                                Temperatura similar
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Educational Tips -->
+        <div class="educational-tip">
+            <h6 class="text-success fw-bold mb-2">🌱 Recomendaciones Agropecuarias Actuales</h6>
+            <div class="template-grid">
+                <div class="col-6">
+                    <p class="mb-2">
+                        {% if current_weather.temperature >= 25 and current_weather.temperature <= 30 %}
+                            🌡️ <strong>Temperatura ideal</strong> para pastos tropicales. Excelente momento para pastoreo intensivo.
+                        {% elif current_weather.temperature > 30 %}
+                            🔥 <strong>Calor intenso</strong> - Proporciona sombra adicional y agua fresca al ganado.
+                        {% else %}
+                            ❄️ <strong>Temperatura baja</strong> - El crecimiento será más lento. Considera suplementación.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-6">
+                    <p class="mb-2">
+                        {% if current_weather.humidity > 70 %}
+                            💧 <strong>Alta humedad</strong> - Vigila enfermedades fúngicas en el pasto.
+                        {% elif current_weather.humidity < 40 %}
+                            🏜️ <strong>Baja humedad</strong> - Considera riego si es posible.
+                        {% else %}
+                            ✅ <strong>Humedad óptima</strong> - Condiciones favorables para el crecimiento.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Recomendaciones basadas en condiciones climáticas actuales
+            </small>
+        </div>
+
+        <!-- Hourly Forecast -->
+        {% if hourly_forecast %}
+        <div class="forecast-container mb-4">
+            <h5 class="text-info mb-3">
+                <i class="fas fa-clock me-2"></i>
+                ⏰ Pronóstico por Horas
+            </h5>
+            <div class="d-flex overflow-auto pb-2" style="gap: 0.5rem;">
+                {% for hour in hourly_forecast[:6] %}
+                <div class="hourly-item flex-shrink-0">
+                    <div class="fw-bold text-primary">{{ hour.time }}</div>
+                    <img class="img-responsive" src="https://openweathermap.org/img/wn/{{ hour.icon }}.png" 
+                         alt="{{ hour.description }}" class="my-2" style="width: min(40px, 100%);">
+                    <div class="fw-bold">{{ hour.temp }}°C</div>
+                    <small class="text-muted">{{ hour.humidity }}%</small>
+                    {% if hour.rain_mm > 0 %}
+                        <small class="text-info d-block">{{ hour.rain_mm }}mm</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Daily Forecast -->
+        {% if daily_forecast %}
+        <div class="forecast-container">
+            <h5 class="text-success mb-3">
+                <i class="fas fa-calendar-week me-2"></i>
+                📅 Pronóstico Semanal
+            </h5>
+            <div class="template-grid">
+                {% for day in daily_forecast[:5] %}
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="daily-item">
+                        <div class="fw-bold text-primary">{{ day.day }}</div>
+                        <small class="text-muted">{{ day.date }}</small>
+                        <div class="my-2">
+                            <img class="img-responsive" src="https://openweathermap.org/img/wn/{{ day.icon }}.png" 
+                                 alt="{{ day.description }}" style="width: min(50px, 100%);">
+                        </div>
+                        <div class="fw-bold">
+                            <span class="text-danger">{{ day.temp_max }}°</span> / 
+                            <span class="text-primary">{{ day.temp_min }}°</span>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-info">
+                                <i class="fas fa-cloud-rain me-1"></i>{{ day.precipitation_prob }}%
+                            </small>
+                            <small class="text-warning ms-2">
+                                <i class="fas fa-sun me-1"></i>{{ day.sunshine_hours }}h
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Smart Recommendations -->
+        <div class="row mt-4">
+            <div class="col-6">
+                <div class="recommendation-card">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Recomendación Inteligente
+                    </h6>
+                    <p class="mb-0">
+                        {% if current_weather.temperature >= 25 and current_weather.humidity >= 50 and current_weather.humidity <= 70 %}
+                            Condiciones ideales para rotación de potreros. El ganado tendrá buen apetito y el pasto crecerá adecuadamente.
+                        {% elif current_weather.temperature > 30 %}
+                            Evita movimientos de ganado durante las horas más calurosas (11:00-15:00). Asegura acceso a sombra y agua.
+                        {% else %}
+                            Considera suplementación nutricional ya que el crecimiento del pasto será limitado por la temperatura.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-6">
+                {% if current_weather.rain_mm > 5 or (daily_forecast and daily_forecast[0].precipitation_prob > 70) %}
+                <div class="alert-card">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Alerta Climática
+                    </h6>
+                    <p class="mb-0 text-responsive-wrap">
+                        Lluvia intensa esperada. Revisa drenajes en potreros y considera refugio para el ganado.
+                    </p>
+                </div>
+                {% else %}
+                <div class="recommendation-card">
+                    <h6 class="fw-bold mb-2">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Condiciones Favorables
+                    </h6>
+                    <p class="mb-0 text-responsive-wrap">
+                        Clima estable para actividades normales de pastoreo. Buen momento para mantenimiento de infraestructura.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-cloud-sun fa-5x text-muted opacity-50"></i>
+            </div>
+            <h3 class="text-muted mb-3">Sin Datos Climáticos</h3>
+            <p class="lead text-muted mb-4 text-responsive-wrap">
+                No se pudieron obtener los datos climáticos actuales.
+            </p>
+            <button class="btn btn-primary btn-lg" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i>Reintentar
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Educational Sidebar -->
+    <div class="col-4">
+        <div class="help-panel-main">
+            <h5 class="text-primary mb-4">
+                <i class="fas fa-graduation-cap me-2"></i>
+                Guía del Dashboard Climático
+            </h5>
+            
+            <!-- Key metrics explanation -->
+            <div class="mb-4">
+                <h6 class="text-success mb-3">📊 Métricas Clave</h6>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-sun text-warning me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Heliofanía</strong>
+                            <small class="text-muted">
+                                Horas de sol directo. Esencial para la fotosíntesis del pasto
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-leaf text-success me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Índice de Crecimiento</strong>
+                            <small class="text-muted">
+                                Evaluación del potencial de crecimiento según temperatura
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weather interpretation -->
+            <div class="mb-4">
+                <h6 class="text-warning mb-3">🌤️ Interpretación Climática</h6>
+                <div class="mb-2">
+                    <span class="badge bg-success me-2">Óptimo</span>
+                    <small>25-30°C, 50-70% humedad</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-warning me-2">Precaución</span>
+                    <small>>30°C o <20°C</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-info me-2">Lluvia</span>
+                    <small>>5mm requiere atención</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-primary me-2">Viento</span>
+                    <small>>15 m/s afecta ganado</small>
+                </div>
+            </div>
+            
+            <!-- Dashboard features -->
+            <div class="mb-4">
+                <h6 class="text-info mb-3">🎯 Características del Dashboard</h6>
+                <ul class="small text-muted ps-3">
+                    <li><strong>Tiempo real:</strong> Datos actualizados constantemente</li>
+                    <li><strong>Comparación:</strong> Tendencias vs. día anterior</li>
+                    <li><strong>Pronósticos:</strong> Planificación a corto plazo</li>
+                    <li><strong>Recomendaciones:</strong> Consejos automáticos</li>
+                    <li><strong>Alertas:</strong> Notificaciones de condiciones extremas</li>
+                </ul>
+            </div>
+            
+            <!-- Best practices -->
+            <div class="mb-4">
+                <h6 class="text-success mb-3">✅ Uso Óptimo</h6>
+                <ul class="small text-muted ps-3">
+                    <li>Consulta el dashboard al inicio del día</li>
+                    <li>Revisa las recomendaciones antes de actividades</li>
+                    <li>Monitorea alertas climáticas</li>
+                    <li>Planifica con base en pronósticos</li>
+                    <li>Actualiza datos regularmente</li>
+                </ul>
+            </div>
+            
+            <!-- Quick actions -->
+            <div class="mb-4">
+                <h6 class="text-primary mb-3">⚡ Acciones Rápidas</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('clima.historico') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-history me-1"></i>Ver Histórico
+                    </a>
+                    <a href="{{ url_for('clima.index') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-cloud-sun me-1"></i>Vista Detallada
+                    </a>
+                    <button class="btn btn-outline-success btn-sm" onclick="location.reload()">
+                        <i class="fas fa-sync-alt me-1"></i>Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/clima.js') }}"></script>
+{% endblock %}

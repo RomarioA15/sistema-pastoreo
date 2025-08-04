@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-labelledby="undo-title undo-desc" role="img">
+    <title id="undo-title">Deshacer Cambio</title>
+    <desc id="undo-desc">Icono de flecha curvada que representa la acción de deshacer o revertir el último cambio realizado en el mapa</desc>
+    
+    <!-- Flecha deshacer -->
+    <path d="M1 4v6h6"/>
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+    
+    <!-- Indicador de acción -->
+    <circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.3"/>
+    
+    <!-- Flecha rehacer (opcional, para botón combinado) -->
+    <g opacity="0.5" transform="translate(12, 0)">
+        <path d="M11 4v6h6" stroke-width="1"/>
+        <path d="M20.49 15a9 9 0 1 1-2.13-9.36L23 10" stroke-width="1"/>
+    </g>
+</svg> 

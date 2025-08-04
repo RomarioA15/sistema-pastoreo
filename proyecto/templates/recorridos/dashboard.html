@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Educativo de Recorridos{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recorridos.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="breadcrumb-custom">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('recorridos.index') }}" class="text-decoration-none">
+                <i class="fas fa-route me-1"></i>Recorridos
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-chart-area me-1"></i>Dashboard Educativo
+        </li>
+    </ol>
+</nav>
+
+<div class="template-container">
+    <!-- Educational Header -->
+    <div class="template-header educational-header">
+        <div class="row align-items-center position-relative">
+            <div class="col-lg-8 col-md-12">
+                <h1 class="mb-3">
+                    <i class="fas fa-route me-3"></i>
+                    Dashboard Educativo de Recorridos
+                </h1>
+                <p class="fs-5 mb-3 opacity-90 text-responsive-wrap">
+                    🚶‍♂️ Centro de análisis inteligente para monitorear el crecimiento y salud de tus pasturas a través de inspecciones sistemáticas.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-eye me-1"></i>Monitoreo visual
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-chart-line me-1"></i>Análisis de tendencias
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Alertas tempranas
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12 text-lg-end text-center mt-3 mt-lg-0">
+                <div class="text-white">
+                    <div class="fs-6 opacity-75">
+                        <i class="fas fa-clock me-1"></i>
+                        Última actualización: <span id="last-update-time">Ahora</span>
+                    </div>
+                    <div class="fs-6 opacity-75 mt-1">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        Monitoreando {{ ultimos_recorridos|length }} potreros
+                    </div>
+                    <button class="btn btn-light btn-lg shadow-lg mt-2" id="refresh-dashboard">
+                        <i class="fas fa-sync-alt me-2"></i>
+                        <span>Actualizar Dashboard</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="template-grid">
+        <!-- Main Content -->
+        <div class="col-8">
+            <!-- Filtros Inteligentes -->
+            <div class="filter-panel mb-4">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-filter me-2"></i>
+                    🎛️ Panel de Filtros de Análisis
+                </h5>
+                <form id="recorridos-filters" class="row align-items-end">
+                    <div class="col-md-4 mb-3">
+                        <label for="potrero-filter" class="form-label fw-bold">
+                            <i class="fas fa-map-marker-alt me-1"></i>Potrero
+                        </label>
+                        <select id="potrero-filter" class="form-select">
+                            <option value="">🌍 Todos los potreros</option>
+                            {% for recorrido in ultimos_recorridos %}
+                            <option value="{{ recorrido.potrero_id }}">
+                                {{ recorrido.potrero_nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Analiza un potrero específico</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="periodo-filter" class="form-label fw-bold">
+                            <i class="fas fa-calendar-alt me-1"></i>Período
+                        </label>
+                        <select id="periodo-filter" class="form-select">
+                            <option value="4">📅 4 semanas</option>
+                            <option value="8">📊 8 semanas</option>
+                            <option value="12" selected>📈 12 semanas</option>
+                            <option value="24">📉 24 semanas</option>
+                            <option value="52">🗓️ 1 año</option>
+                        </select>
+                        <small class="text-muted">Rango temporal del análisis</small>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-cogs me-1"></i>Acción
+                        </label>
+                        <button type="submit" class="btn btn-primary w-100 d-block">
+                            <i class="fas fa-chart-line me-2"></i>Aplicar Filtros
+                        </button>
+                        <small class="text-muted">Actualizar métricas y gráficos</small>
+                    </div>
+                </form>
+            </div>
+
+            <!-- KPIs Consolidados -->
+            <div class="kpi-container mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    📊 Indicadores de Salud de Pasturas
+                </h5>
+                <div class="template-grid">
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Altura Promedio:</span>
+                            <span class="fs-5" id="kpi-altura">{{ (resumen_semanal.promedio_altura or 0)|round(1) }} cm</span>
+                        </div>
+                        <div class="performance-indicator">
+                            <div class="performance-bar bg-success" style="width: {{ ((resumen_semanal.promedio_altura or 0) / 30 * 100)|round(0) }}%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Cobertura Vegetal:</span>
+                            <span class="fs-5" id="kpi-cobertura">{{ (resumen_semanal.promedio_cobertura or 0)|round(1) }}%</span>
+                        </div>
+                        <div class="performance-indicator">
+                            <div class="performance-bar bg-info" style="width: {{ (resumen_semanal.promedio_cobertura or 0) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-grid">
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Potreros Monitoreados:</span>
+                            <span class="fs-5" id="kpi-potreros">{{ ultimos_recorridos|length }}</span>
+                        </div>
+                        <div class="performance-indicator">
+                            <div class="performance-bar bg-warning" style="width: {{ (ultimos_recorridos|length * 20)|round(0) }}%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Índice de Salud:</span>
+                            <span class="fs-5" id="kpi-salud">85%</span>
+                        </div>
+                        <div class="performance-indicator">
+                            <div class="performance-bar bg-primary" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Métricas Educativas -->
+            <div class="row mb-4">
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="educational-metric" style="--metric-color: #28a745;">
+                        <div class="metric-trend bg-success text-white">
+                            <i class="fas fa-arrow-up"></i> +8%
+                        </div>
+                        <div class="metric-value">{{ (resumen_semanal.promedio_altura or 15)|round(1) }}</div>
+                        <div class="metric-label">Altura Promedio (cm)</div>
+                        <div class="metric-explanation">
+                            Altura ideal del pasto: 15-25 cm para pastoreo óptimo
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="educational-metric" style="--metric-color: #007bff;">
+                        <div class="metric-trend bg-primary text-white">
+                            <i class="fas fa-arrow-up"></i> +5%
+                        </div>
+                        <div class="metric-value">{{ (resumen_semanal.promedio_cobertura or 75)|round(1) }}</div>
+                        <div class="metric-label">Cobertura Vegetal (%)</div>
+                        <div class="metric-explanation">
+                            Cobertura óptima: >70% para máxima productividad
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="educational-metric" style="--metric-color: #17a2b8;">
+                        <div class="metric-trend bg-info text-white">
+                            <i class="fas fa-arrow-up"></i> +12%
+                        </div>
+                        <div class="metric-value">2.3</div>
+                        <div class="metric-label">Tasa de Crecimiento (cm/sem)</div>
+                        <div class="metric-explanation">
+                            Crecimiento saludable: 1.5-3 cm por semana
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos Comparativos -->
+            <div class="comparison-container">
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    📊 Análisis Comparativo de Crecimiento
+                </h5>
+                <div class="template-grid">
+                    <div class="col-6">
+                        <div class="chart-responsive>
+                            <h6 class="text-center mb-3">🏆 Evolución de Altura del Pasto</h6>
+                            <canvas id="altura-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="chart-responsive>
+                            <h6 class="text-center mb-3">🌱 Estado General de Potreros</h6>
+                            <canvas id="estado-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evolución Temporal -->
+            <div class="chart-responsive>
+                <h5 class="text-primary mb-3">
+                    <i class="fas fa-chart-line me-2"></i>
+                    📈 Evolución de Cobertura Vegetal
+                </h5>
+                <canvas id="cobertura-chart"></canvas>
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Tendencia de las últimas <span id="chart-period">12</span> semanas
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Sidebar -->
+        <div class="col-4">
+            <div class="help-panel-main">
+                <h5 class="text-primary mb-4">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Guía de Recorridos Inteligentes
+                </h5>
+                
+                <!-- Performance indicators -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">🎯 Parámetros de Evaluación</h6>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-ruler-vertical text-success me-2 mt-1"></i>
+                            <div>
+                                <strong class="d-block">Altura del Pasto</strong>
+                                <small class="text-muted">
+                                    15-25 cm es ideal para pastoreo. <20 cm requiere descanso
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-seedling text-primary me-2 mt-1"></i>
+                            <div>
+                                <strong class="d-block">Cobertura Vegetal</strong>
+                                <small class="text-muted">
+                                    >70% indica pasto saludable y productivo
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-chart-line text-info me-2 mt-1"></i>
+                            <div>
+                                <strong class="d-block">Tasa de Crecimiento</strong>
+                                <small class="text-muted">
+                                    1.5-3 cm/semana es el rango normal de crecimiento
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estado guide -->
+                <div class="mb-4">
+                    <h6 class="text-warning mb-3">🚦 Estados de Evaluación</h6>
+                    <div class="mb-2">
+                        <span class="status-badge status-excelente me-2">Excelente</span>
+                        <small>Altura >20cm, Cobertura >80%</small>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-badge status-bueno me-2">Bueno</span>
+                        <small>Altura 15-20cm, Cobertura 70-80%</small>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-badge status-regular me-2">Regular</span>
+                        <small>Altura 10-15cm, Cobertura 50-70%</small>
+                    </div>
+                    <div class="mb-2">
+                        <span class="status-badge status-malo me-2">Malo</span>
+                        <small>Altura <10cm, Cobertura <50%</small>
+                    </div>
+                </div>
+                
+                <!-- Quick insights -->
+                <div class="mb-4">
+                    <h6 class="text-info mb-3">💡 Recomendaciones Inteligentes</h6>
+                    <div class="alert alert-responsive alert-smart alert-info" style="border-left-color: #17a2b8;">
+                        <strong>Sugerencia:</strong><br>
+                        <small id="smart-recommendation">
+                            Los recorridos semanales permiten detectar problemas tempranamente
+                        </small>
+                    </div>
+                </div>
+                
+                <!-- Quick actions -->
+                <div class="mb-4">
+                    <h6 class="text-primary mb-3">⚡ Acciones Rápidas</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('recorridos.nuevo') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Nuevo Recorrido
+                        </a>
+                        <a href="{{ url_for('recorridos.analisis') }}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-1"></i>Análisis Detallado
+                        </a>
+                        <a href="{{ url_for('recorridos.index') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-list me-1"></i>Ver Todos
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Últimos Recorridos -->
+                <div class="mb-4">
+                    <h6 class="text-success mb-3">🕒 Últimos Recorridos</h6>
+                    {% for recorrido in ultimos_recorridos[:3] %}
+                    <div class="recorrido-card" style="--recorrido-status: {% if recorrido.estado_general == 'Excelente' %}#28a745{% elif recorrido.estado_general == 'Bueno' %}#007bff{% elif recorrido.estado_general == 'Regular' %}#ffc107{% else %}#dc3545{% endif %};">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ recorrido.potrero_nombre }}</strong>
+                                <br><small class="text-muted">{{ recorrido.fecha.strftime('%d/%m/%Y') if recorrido.fecha else '-' }}</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold">{{ recorrido.altura_promedio|round(1) }} cm</div>
+                                <span class="status-badge {% if recorrido.estado_general == 'Excelente' %}status-excelente{% elif recorrido.estado_general == 'Bueno' %}status-bueno{% elif recorrido.estado_general == 'Regular' %}status-regular{% else %}status-malo{% endif %}">
+                                    {{ recorrido.estado_general }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Alertas -->
+                {% if alertas %}
+                <div class="mb-4">
+                    <h6 class="text-danger mb-3">🚨 Alertas Activas</h6>
+                    {% for alerta in alertas[:2] %}
+                    <div class="alert alert-responsive alert-smart alert-{% if alerta.tipo == 'crecimiento_lento' %}warning{% elif alerta.tipo == 'requiere_atencion' %}danger{% else %}info{% endif %}" style="border-left-color: {% if alerta.tipo == 'crecimiento_lento' %}#ffc107{% elif alerta.tipo == 'requiere_atencion' %}#dc3545{% else %}#17a2b8{% endif %};">
+                        <strong>{{ alerta.potrero_nombre }}</strong><br>
+                        <small>{{ alerta.mensaje }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+{% endblock %} 

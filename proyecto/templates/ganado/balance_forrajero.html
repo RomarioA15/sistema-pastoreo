@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Balance Forrajero - Sistema de Pastoreo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ganado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+<div class="ganado-container ganado-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('ganado.lotes') }}">Gestión de Lotes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Balance Forrajero</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="ganado-header">
+    <div class="ganado-header-content">
+        <div>
+            <h1 class="ganado-title">
+                <i class="fas fa-balance-scale"></i>
+                Balance Forrajero Integral
+            </h1>
+            <p class="ganado-subtitle">📊 Dashboard completo para evaluar la disponibilidad de forraje vs. demanda del ganado. Optimiza la carga animal y planifica rotaciones sostenibles.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-chart-bar me-1"></i>Análisis en Tiempo Real
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-leaf me-1"></i>Oferta vs Demanda
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar me-1"></i>Proyección de Días
+                </span>
+            </div>
+        </div>
+        <div class="ganado-actions">
+            <a href="{{ url_for('ganado.movimientos') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-exchange-alt me-2"></i>
+                Ver Movimientos
+            </a>
+            <a href="{{ url_for('ganado.lotes') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-cow me-2"></i>
+                Gestionar Lotes
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Dashboard de KPIs Principales -->
+<div class="ganado-card mb-4">
+    <div class="ganado-card-header">
+        <h4 class="ganado-card-title">
+            <i class="fas fa-chart-bar"></i>
+            Indicadores Clave de Desempeño (KPIs)
+        </h4>
+    </div>
+    <div class="ganado-card-body">
+        <div class="row text-center" id="kpis-container">
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-weight text-primary"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ "%.1f"|format(kpis.carga_animal_ugm_ha if kpis else 0) }}</div>
+                        <div class="stat-label">Carga Animal</div>
+                        <div class="stat-description">UGM por hectárea</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-leaf text-success"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ "%.0f"|format(kpis.consumo_total_diario if kpis else 0) }}</div>
+                        <div class="stat-label">Consumo Total</div>
+                        <div class="stat-description">kg MS por día</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-seedling text-warning"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ "%.0f"|format(kpis.forraje_total_disponible if kpis else 0) }}</div>
+                        <div class="stat-label">Forraje Disponible</div>
+                        <div class="stat-description">kg de materia seca</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt text-info"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ "%.1f"|format(kpis.dias_disponibilidad_promedio if kpis else 0) }}</div>
+                        <div class="stat-label">Días Disponibles</div>
+                        <div class="stat-description">Promedio del sistema</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Alertas del Sistema -->
+{% if alertas %}
+<div class="ganado-card mb-4">
+    <div class="ganado-card-header">
+        <h5 class="ganado-card-title mb-0">
+            <i class="fas fa-bell text-warning"></i>
+            Alertas del Sistema de Balance
+        </h5>
+    </div>
+    <div class="ganado-card-body">
+        {% for alerta in alertas %}
+        <div class="alert alert-{% if alerta.nivel == 'critico' %}danger{% elif alerta.nivel == 'advertencia' %}warning{% else %}info{% endif %} border-0 mb-3">
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    {% if alerta.nivel == 'critico' %}
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                    {% elif alerta.nivel == 'advertencia' %}
+                    <i class="fas fa-exclamation-circle fa-2x text-warning"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle fa-2x text-info"></i>
+                    {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">
+                        {% if alerta.nivel == 'critico' %}
+                        ⚠️ ALERTA CRÍTICA
+                        {% elif alerta.nivel == 'advertencia' %}
+                        🟡 ADVERTENCIA
+                        {% else %}
+                        🔵 INFORMACIÓN
+                        {% endif %}
+                    </h6>
+                    <p class="mb-0">{{ alerta.mensaje }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- HEURÍSTICA 4: Consistencia y Estándares -->
+<!-- Balance Forrajero por Potrero -->
+<div class="ganado-card mb-4">
+    <div class="ganado-card-header">
+        <h4 class="ganado-card-title">
+            <i class="fas fa-table text-success"></i>
+            Balance Forrajero Detallado por Potrero
+        </h4>
+    </div>
+    <div class="ganado-card-body">
+        {% if balances %}
+        <div class="row">
+            {% for item in balances %}
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="ganado-card ganado-lote-card ganado-slide-in">
+                    <!-- HEURÍSTICA 5: Prevención de Errores -->
+                    <!-- Header con estado visual claro -->
+                    <div class="ganado-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="ganado-card-title mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {{ item.potrero_nombre }}
+                        </h5>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge bg-light text-dark">{{ item.hectareas }} ha</span>
+                            {% if item.estado_potrero == 'Libre' %}
+                                <span class="badge bg-secondary">Libre</span>
+                            {% elif item.estado_potrero == 'Listo para pastoreo' %}
+                                <span class="badge bg-success">Listo</span>
+                            {% elif item.estado_potrero == 'En descanso' %}
+                                <span class="badge bg-warning">Descanso</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">Sin datos</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="ganado-card-body">
+                        <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                        <!-- Métricas principales con iconos descriptivos -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="info-item text-center">
+                                    <i class="fas fa-cow text-primary me-1"></i>
+                                    <small class="text-muted d-block">Animales:</small>
+                                    <div class="fw-bold text-primary h5">{{ item.cantidad_animales or 0 }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-item text-center">
+                                    <i class="fas fa-seedling text-success me-1"></i>
+                                    <small class="text-muted d-block">Forraje (kg MS):</small>
+                                    <div class="fw-bold text-success h5">{{ "%.0f"|format(item.forraje_total_disponible or 0) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="info-item text-center">
+                                    <i class="fas fa-chart-line text-warning me-1"></i>
+                                    <small class="text-muted d-block">Consumo/día:</small>
+                                    <div class="fw-bold text-warning h6">{{ "%.1f"|format(item.demanda_ms_diaria or 0) }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="info-item text-center">
+                                    <i class="fas fa-calendar text-info me-1"></i>
+                                    <small class="text-muted d-block">Días Disp.:</small>
+                                    <div class="fw-bold h6 {% if item.dias_disponibilidad %}{% if item.dias_disponibilidad < 7 %}text-danger{% elif item.dias_disponibilidad < 14 %}text-warning{% else %}text-success{% endif %}{% endif %}">
+                                        {{ "%.1f"|format(item.dias_disponibilidad or 0) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- HEURÍSTICA 7: Flexibilidad y Eficiencia de Uso -->
+                        <!-- Indicador de Balance Central -->
+                        <div class="alert {% if item.balance_forraje %}{% if item.balance_forraje > 0 %}alert-success{% else %}alert-danger{% endif %}{% else %}alert-light{% endif %} text-center mb-3">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <i class="fas fa-balance-scale me-2 fs-4"></i>
+                                <div>
+                                    <div class="fw-bold fs-4">{{ "%.0f"|format(item.balance_forraje or 0) }}</div>
+                                    <small>Balance Forrajero (kg MS)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if item.dias_pastoreo %}
+                        <div class="mb-3">
+                            <div class="alert alert-{% if item.dias_pastoreo > 7 %}warning{% else %}info{% endif %} py-2">
+                                <small class="mb-0">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Pastoreando por {{ item.dias_pastoreo }} días
+                                    {% if item.dias_pastoreo > 7 %}
+                                        <span class="fw-bold">(Tiempo excedido - considerar rotación)</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+                        <!-- Acciones principales -->
+                        <div class="d-grid gap-2">
+                            {% if item.movimiento_id %}
+                                <a href="{{ url_for('ganado.nuevo_movimiento') }}?lote_id={{ item.lote_id }}" 
+                                   class="btn btn-warning">
+                                    <i class="fas fa-exchange-alt me-2"></i>Mover Ganado
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('aforos.nuevo') }}?potrero_id={{ item.potrero_id }}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-seedling me-2"></i>Registrar Aforo
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <!-- HEURÍSTICA 9: Ayuda a los usuarios a reconocer, diagnosticar y recuperarse de errores -->
+            <!-- Estado vacío con orientación clara -->
+            <div class="text-center py-5">
+                <div class="ganado-empty-icon mb-4" style="font-size: 4rem; opacity: 0.3; color: var(--ganado-brown);">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h4 class="mb-3">No hay datos de balance disponibles</h4>
+                <p class="mb-4 text-muted">
+                    Para ver el balance forrajero necesitas tener potreros con aforos registrados 
+                    y ganado asignado. El sistema calculará automáticamente la oferta vs. demanda.
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('ganado.lotes') }}" class="btn btn-success btn-lg">
+                        <i class="fas fa-cow me-2"></i>Gestionar Ganado
+                    </a>
+                    <a href="{{ url_for('aforos.index') }}" class="btn btn-outline-success btn-lg">
+                        <i class="fas fa-seedling me-2"></i>Registrar Aforos
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- HEURÍSTICA 10: Ayuda y Documentación -->
+<!-- Resumen del Sistema -->
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h5 class="ganado-card-title">
+                    <i class="fas fa-chart-pie text-primary"></i>
+                    Ocupación de Potreros
+                </h5>
+            </div>
+            <div class="ganado-card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-semibold">Potreros Ocupados</span>
+                    <strong class="text-primary">{{ kpis.potreros_ocupados if kpis else 0 }}/{{ kpis.total_potreros if kpis else 0 }}</strong>
+                </div>
+                <div class="progress mb-3" style="height: 12px;">
+                    <div class="progress-bar bg-primary" role="progressbar" 
+                         style="width: {{ kpis.porcentaje_ocupacion if kpis else 0 }}%"
+                         aria-valuenow="{{ kpis.porcentaje_ocupacion if kpis else 0 }}" 
+                         aria-valuemin="0" aria-valuemax="100">
+                        {{ "%.1f"|format(kpis.porcentaje_ocupacion if kpis else 0) }}%
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Porcentaje de ocupación actual del sistema
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h5 class="ganado-card-title">
+                    <i class="fas fa-chart-bar text-success"></i>
+                    Resumen de Eficiencia
+                </h5>
+            </div>
+            <div class="ganado-card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <h4 class="text-primary mb-1">{{ kpis.total_potreros if kpis else 0 }}</h4>
+                        <small class="text-muted">Total Potreros</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-1">{{ kpis.potreros_ocupados if kpis else 0 }}</h4>
+                        <small class="text-muted">En Pastoreo</small>
+                    </div>
+                </div>
+                <hr class="mb-3">
+                <div class="text-center">
+                    <h5 class="mb-1 {% if kpis and kpis.carga_animal_ugm_ha > 3 %}text-danger{% elif kpis and kpis.carga_animal_ugm_ha > 2 %}text-warning{% else %}text-success{% endif %}">
+                        {{ "%.2f"|format(kpis.carga_animal_ugm_ha if kpis else 0) }} UGM/ha
+                    </h5>
+                    <small class="text-muted">Carga Animal Promedio del Sistema</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+<script>
+// Funcionalidad específica del balance forrajero
+console.log('Sistema de balance forrajero cargado');
+
+// Inicializar sistema al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeBalanceSystem();
+    updateKPIVisualization();
+});
+
+// Función principal de inicialización
+function initializeBalanceSystem() {
+    console.log('Balance forrajero inicializado');
+    
+    // Actualizar visualización cada 30 segundos
+    setInterval(updateKPIVisualization, 30000);
+    
+    // Inicializar tooltips si están disponibles
+    initializeTooltips();
+}
+
+// Función para actualizar visualización de KPIs
+function updateKPIVisualization() {
+    // Aquí se pueden agregar animaciones o actualizaciones dinámicas
+    // Por ejemplo, cambiar colores según umbrales críticos
+    
+    const cargaAnimalElements = document.querySelectorAll('[data-carga-animal]');
+    cargaAnimalElements.forEach(element => {
+        const valor = parseFloat(element.textContent);
+        if (valor > 3) {
+            element.classList.add('text-danger');
+            element.classList.remove('text-warning', 'text-success');
+        } else if (valor > 2) {
+            element.classList.add('text-warning');
+            element.classList.remove('text-danger', 'text-success');
+        } else {
+            element.classList.add('text-success');
+            element.classList.remove('text-danger', 'text-warning');
+        }
+    });
+}
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar tooltips
+function initializeTooltips() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+
+// Función para exportar datos (futuro)
+function exportBalanceData() {
+    showNotification('Función de exportación disponible próximamente', 'info');
+}
+</script>
+{% endblock %} 

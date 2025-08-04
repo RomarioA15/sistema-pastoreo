@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+<div class="dashboard-container dashboard-fade-in">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="dashboard-header-content">
+            <div>
+                <h1 class="dashboard-title">
+                    📊 Dashboard de Gestión
+                </h1>
+                <p class="dashboard-subtitle">Bienvenido al Sistema de Gestión de Pastoreo</p>
+            </div>
+            <div class="dashboard-welcome-info">
+                <p class="mb-1">👋 Hola, {{ current_user.nombre }}</p>
+                <small>{{ fecha_actual }}</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas del Sistema -->
+    <div class="dashboard-stats">
+        <div class="dashboard-stat-card fincas">
+            <div class="dashboard-stat-icon">🏠</div>
+            <div class="dashboard-stat-content">
+                <div>
+                    <h3 class="dashboard-stat-number">{{ stats.total_fincas or 0 }}</h3>
+                    <p class="dashboard-stat-label">Fincas Activas</p>
+                    <p class="dashboard-stat-description">Propiedades registradas en el sistema</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-stat-card potreros">
+            <div class="dashboard-stat-icon">🌱</div>
+            <div class="dashboard-stat-content">
+                <div>
+                    <h3 class="dashboard-stat-number">{{ stats.total_potreros or 0 }}</h3>
+                    <p class="dashboard-stat-label">Potreros</p>
+                    <p class="dashboard-stat-description">Divisiones de pastoreo configuradas</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-stat-card aforos">
+            <div class="dashboard-stat-icon">📏</div>
+            <div class="dashboard-stat-content">
+                <div>
+                    <h3 class="dashboard-stat-number">{{ stats.total_aforos or 0 }}</h3>
+                    <p class="dashboard-stat-label">Aforos</p>
+                    <p class="dashboard-stat-description">Mediciones de disponibilidad forrajera</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-stat-card actividades">
+            <div class="dashboard-stat-icon">⚡</div>
+            <div class="dashboard-stat-content">
+                <div>
+                    <h3 class="dashboard-stat-number">{{ stats.total_actividades or 0 }}</h3>
+                    <p class="dashboard-stat-label">Actividades</p>
+                    <p class="dashboard-stat-description">Tareas y eventos registrados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="dashboard-actions-section">
+        <h2 class="dashboard-section-title">🚀 Acciones Rápidas</h2>
+        <div class="dashboard-actions-grid">
+            <a href="{{ url_for('potreros.index') }}" class="dashboard-action-card potreros">
+                <div class="dashboard-action-icon">🌱</div>
+                <h3 class="dashboard-action-title">Gestionar Potreros</h3>
+                <p class="dashboard-action-description">Crear y administrar divisiones de pastoreo</p>
+            </a>
+            
+            <a href="{{ url_for('aforos.index') }}" class="dashboard-action-card aforos">
+                <div class="dashboard-action-icon">📏</div>
+                <h3 class="dashboard-action-title">Realizar Aforos</h3>
+                <p class="dashboard-action-description">Medir disponibilidad forrajera y biomasa</p>
+            </a>
+            
+            <a href="{{ url_for('actividades.index') }}" class="dashboard-action-card actividades">
+                <div class="dashboard-action-icon">⚡</div>
+                <h3 class="dashboard-action-title">Registrar Actividades</h3>
+                <p class="dashboard-action-description">Documentar actividades y tareas diarias</p>
+            </a>
+            
+            <a href="{{ url_for('ganado.lotes') }}" class="dashboard-action-card ganado">
+                <div class="dashboard-action-icon">🐄</div>
+                <h3 class="dashboard-action-title">
+                    Gestión de Ganado 
+                    <span class="dashboard-badge available">Disponible</span>
+                </h3>
+                <p class="dashboard-action-description">Administrar lotes y movimientos de ganado</p>
+            </a>
+            
+            <a href="{{ url_for('clima.index') }}" class="dashboard-action-card clima">
+                <div class="dashboard-action-icon">🌤️</div>
+                <h3 class="dashboard-action-title">
+                    Datos Climáticos 
+                    <span class="dashboard-badge available">Disponible</span>
+                </h3>
+                <p class="dashboard-action-description">Monitorear condiciones climáticas y meteorología</p>
+            </a>
+            
+            <a href="{{ url_for('recorridos.index') }}" class="dashboard-action-card recorridos">
+                <div class="dashboard-action-icon">🚶</div>
+                <h3 class="dashboard-action-title">
+                    Recorridos 
+                    <span class="dashboard-badge available">Disponible</span>
+                </h3>
+                <p class="dashboard-action-description">Planificar y registrar recorridos de inspección</p>
+            </a>
+            
+            <a href="{{ url_for('ph.index') }}" class="dashboard-action-card ph">
+                <div class="dashboard-action-icon">🧪</div>
+                <h3 class="dashboard-action-title">
+                    Análisis de pH 
+                    <span class="dashboard-badge available">Disponible</span>
+                </h3>
+                <p class="dashboard-action-description">Monitorear el pH del suelo y salud química</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Información del Sistema -->
+    <div class="dashboard-system-info">
+        <h2 class="dashboard-section-title">ℹ️ Información del Sistema</h2>
+        <div class="dashboard-info-grid">
+            <div class="dashboard-info-card">
+                <h4 class="dashboard-info-title">Usuario Actual</h4>
+                <p class="dashboard-info-value">{{ current_user.nombre }}</p>
+            </div>
+            
+            <div class="dashboard-info-card">
+                <h4 class="dashboard-info-title">Finca Activa</h4>
+                <p class="dashboard-info-value">{{ finca_actual.nombre if finca_actual else 'No seleccionada' }}</p>
+            </div>
+            
+            <div class="dashboard-info-card">
+                <h4 class="dashboard-info-title">Rol</h4>
+                <p class="dashboard-info-value">{{ rol_usuario or 'No asignado' }}</p>
+            </div>
+            
+            <div class="dashboard-info-card">
+                <h4 class="dashboard-info-title">Última Conexión</h4>
+                <p class="dashboard-info-value">{{ fecha_actual }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %} 

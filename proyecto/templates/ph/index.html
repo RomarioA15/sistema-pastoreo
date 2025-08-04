@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+
+{% block title %}pH - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ph.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="ph-page">
+<div class="ph-container ph-fade-in">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="breadcrumb-custom">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-flask me-1"></i>pH
+        </li>
+    </ol>
+</nav>
+
+<!-- Header del Módulo -->
+<div class="ph-header">
+    <div class="ph-header-content">
+        <div>
+            <h1 class="ph-title">
+                <i class="fas fa-flask"></i>
+                Centro de Análisis de pH del Suelo
+            </h1>
+            <p class="ph-subtitle">
+                🧪 El pH del suelo es fundamental para la absorción de nutrientes y el crecimiento óptimo del pasto. Mantén un control preciso para maximizar la productividad.
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-chart-line me-1"></i>Análisis científico
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-seedling me-1"></i>Nutrición optimizada
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-microscope me-1"></i>Monitoreo preciso
+                </span>
+            </div>
+        </div>
+        <div class="ph-actions">
+            {% if usuario_puede('ph', 'crear') %}
+            <button class="btn btn-light btn-lg shadow-lg" onclick="showComingSoon()">
+                <i class="fas fa-plus-circle me-2"></i>
+                Nueva Medición
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="ph-grid-main">
+    <!-- Contenido Principal -->
+    <div class="ph-main-content">
+        <!-- Estadísticas de pH -->
+        <div class="ph-stats">
+            <div class="ph-stat">
+                <div class="ph-stat-icon">🧪</div>
+                <div class="ph-stat-value">{{ total }}</div>
+                <div class="ph-stat-label">Mediciones Registradas</div>
+                <div class="ph-stat-description">
+                    Cada medición ayuda a evaluar la salud química del suelo
+                </div>
+            </div>
+            <div class="ph-stat">
+                <div class="ph-stat-icon">⚖️</div>
+                <div class="ph-stat-value">
+                    {% if ph_records %}
+                        {% set total_ph = ph_records | map(attribute='valor') | sum %}
+                        {{ "%.2f"|format(total_ph / ph_records|length) }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </div>
+                <div class="ph-stat-label">pH Promedio</div>
+                <div class="ph-stat-description">
+                    Valor promedio del pH en todos los potreros (óptimo: 6.0-7.0)
+                </div>
+            </div>
+        </div>
+
+        <!-- Consejos Educativos -->
+        {% if total < 5 %}
+        <div class="ph-alert ph-acido">
+            <div class="ph-alert-icon">⚠️</div>
+            <div class="ph-alert-content">
+                <div class="ph-alert-title">Importancia del Monitoreo de pH</div>
+                <div class="ph-alert-description">
+                    El pH del suelo controla la disponibilidad de nutrientes para el pasto. Un pH inadecuado puede 
+                    reducir la absorción de fósforo, potasio y micronutrientes esenciales, afectando la productividad.
+                    <br><br>
+                    <i class="fas fa-info-circle me-1"></i>
+                    Frecuencia recomendada: medir pH cada 3-6 meses por potrero
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Grid de Mediciones de pH -->
+        <div class="ph-card">
+            <div class="ph-card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            <i class="fas fa-flask me-2"></i>
+                            🧪 Tus Mediciones de pH en Detalle
+                        </h5>
+                        <small class="opacity-75">Análisis químico del suelo para optimizar la nutrición</small>
+                    </div>
+                    <span class="badge bg-light text-dark">{{ total }} registros</span>
+                </div>
+            </div>
+            <div class="ph-card-body">
+                {% if ph_records %}
+                <div class="ph-measurements-grid">
+                    {% for record in ph_records %}
+                    <div class="ph-card-educational">
+                            <!-- pH indicator -->
+                            {% set estado_ph = 'neutro' %}
+                            {% if record.valor < 6.0 %}
+                                {% set estado_ph = 'acido' %}
+                            {% elif record.valor > 7.5 %}
+                                {% set estado_ph = 'alcalino' %}
+                            {% endif %}
+                            
+                            {% if estado_ph == 'acido' %}
+                                <div class="ph-indicator acido" title="Suelo ácido">🔴</div>
+                            {% elif estado_ph == 'alcalino' %}
+                                <div class="ph-indicator alcalino" title="Suelo alcalino">🔵</div>
+                            {% else %}
+                                <div class="ph-indicator neutro" title="pH óptimo">🟢</div>
+                            {% endif %}
+                            
+                            <div class="ph-card-body">
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h6 class="fw-bold mb-1">{{ record.potrero_nombre }}</h6>
+                                    <span class="badge bg-info text-white">{{ record.fecha.strftime('%d/%m/%Y') }}</span>
+                                </div>
+                                
+                                <!-- pH Value Display -->
+                                <div class="text-center mb-3">
+                                    <div class="display-4 fw-bold 
+                                        {% if record.valor < 6.0 %}text-danger
+                                        {% elif record.valor > 7.5 %}text-primary
+                                        {% else %}text-success{% endif %}">
+                                        {{ "%.2f"|format(record.valor) }}
+                                    </div>
+                                    <small class="text-muted">Valor de pH</small>
+                                </div>
+                                
+                                <!-- pH Scale Visual -->
+                                <div class="mb-3">
+                                    <div class="ph-scale-container">
+                                        <div class="ph-marker" style="left: {{ (record.valor / 14 * 100) }}%;">
+                                            <span>{{ "%.1f"|format(record.valor) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span>0 (Ácido)</span>
+                                        <span>7 (Neutro)</span>
+                                        <span>14 (Alcalino)</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Interpretación -->
+                                <div class="mb-3">
+                                    {% if record.valor < 5.5 %}
+                                    <div class="ph-alert ph-muy-acido ph-mb-0">
+                                        <div class="ph-alert-icon">⚠️</div>
+                                        <div class="ph-alert-content">
+                                            <div class="ph-alert-title">Muy Ácido</div>
+                                            <div class="ph-alert-description">Puede limitar absorción de nutrientes</div>
+                                        </div>
+                                    </div>
+                                    {% elif record.valor < 6.0 %}
+                                    <div class="ph-alert ph-acido ph-mb-0">
+                                        <div class="ph-alert-icon">ℹ️</div>
+                                        <div class="ph-alert-content">
+                                            <div class="ph-alert-title">Ácido</div>
+                                            <div class="ph-alert-description">Considerar encalado para mejorar pH</div>
+                                        </div>
+                                    </div>
+                                    {% elif record.valor <= 7.0 %}
+                                    <div class="ph-alert ph-neutro ph-mb-0">
+                                        <div class="ph-alert-icon">✅</div>
+                                        <div class="ph-alert-content">
+                                            <div class="ph-alert-title">Óptimo</div>
+                                            <div class="ph-alert-description">Excelente para absorción de nutrientes</div>
+                                        </div>
+                                    </div>
+                                    {% elif record.valor <= 7.5 %}
+                                    <div class="ph-alert ph-neutro ph-mb-0">
+                                        <div class="ph-alert-icon">👍</div>
+                                        <div class="ph-alert-content">
+                                            <div class="ph-alert-title">Bueno</div>
+                                            <div class="ph-alert-description">Rango aceptable para pasturas</div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="ph-alert ph-alcalino ph-mb-0">
+                                        <div class="ph-alert-icon">⚠️</div>
+                                        <div class="ph-alert-content">
+                                            <div class="ph-alert-title">Alcalino</div>
+                                            <div class="ph-alert-description">Puede reducir disponibilidad de hierro</div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Observations -->
+                                {% if record.observaciones %}
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-sticky-note me-1"></i>
+                                        {{ record.observaciones }}
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-flask fa-5x text-warning opacity-50"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">¡Comienza a Monitorear el pH!</h3>
+                    <p class="lead text-muted mb-4 text-responsive-wrap">
+                        El análisis de pH es esencial para la salud del suelo y el crecimiento del pasto.
+                    </p>
+                    <button class="btn btn-warning btn-lg px-5" onclick="showComingSoon()">
+                        <i class="fas fa-plus-circle me-2"></i>Realizar Mi Primera Medición
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Educativo -->
+    <div class="ph-sidebar">
+        <div class="ph-card">
+            <div class="ph-card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Guía de pH del Suelo
+                </h5>
+            </div>
+            <div class="ph-card-body">
+            
+            <!-- Key concepts -->
+            <div class="mb-4">
+                <h6 class="text-success mb-3">🧪 Conceptos Clave</h6>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-flask text-warning me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">pH del Suelo</strong>
+                            <small class="text-muted">
+                                Medida de acidez/alcalinidad en escala de 0-14
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-seedling text-success me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Absorción de Nutrientes</strong>
+                            <small class="text-muted">
+                                El pH controla la disponibilidad de nutrientes para las plantas
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rangos de pH -->
+            <div class="ph-interpretation-container">
+                <h6 class="ph-interpretation-title">📊 Rangos de pH</h6>
+                <div class="mb-2">
+                    <span class="badge bg-danger me-2">Muy Ácido</span>
+                    <small><5.5 - Limita nutrientes</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-warning me-2">Ácido</span>
+                    <small>5.5-6.0 - Necesita corrección</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-success me-2">Óptimo</span>
+                    <small>6.0-7.0 - Ideal para pasturas</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-info me-2">Bueno</span>
+                    <small>7.0-7.5 - Aceptable</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-primary me-2">Alcalino</span>
+                    <small>>7.5 - Puede ser problemático</small>
+                </div>
+            </div>
+            
+            <!-- Métodos de Corrección -->
+            <div class="ph-recommendations">
+                <h6 class="ph-interpretation-title">⚡ Métodos de Corrección</h6>
+                <div class="mb-3">
+                    <strong class="text-danger">Suelos Ácidos:</strong>
+                    <ul class="small text-muted ps-3 mt-1">
+                        <li>Aplicar cal agrícola</li>
+                        <li>Usar ceniza de madera</li>
+                        <li>Incorporar materia orgánica</li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <strong class="text-primary">Suelos Alcalinos:</strong>
+                    <ul class="small text-muted ps-3 mt-1">
+                        <li>Aplicar azufre elemental</li>
+                        <li>Usar compost ácido</li>
+                        <li>Mejorar drenaje</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Mejores Prácticas -->
+            <div class="ph-recommendations">
+                <h6 class="ph-interpretation-title">✅ Mejores Prácticas</h6>
+                <ul>
+                    <li><i class="fas fa-clock text-primary me-2"></i>Medir pH cada 3-6 meses</li>
+                    <li><i class="fas fa-map-marker-alt text-success me-2"></i>Tomar muestras en varios puntos</li>
+                    <li><i class="fas fa-cloud-rain text-info me-2"></i>Evitar medición después de lluvia</li>
+                    <li><i class="fas fa-cogs text-warning me-2"></i>Calibrar equipos regularmente</li>
+                    <li><i class="fas fa-clipboard-list text-secondary me-2"></i>Registrar condiciones climáticas</li>
+                </ul>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ph.js') }}"></script>
+{% endblock %} 

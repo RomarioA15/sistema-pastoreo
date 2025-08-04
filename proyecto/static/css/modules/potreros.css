@@ -1,0 +1,1199 @@
+/**
+ * Estilos específicos para el módulo de Potreros
+ * Complementa design-system.css y sigue las heurísticas de Nielsen
+ */
+
+/* =============================================================================
+   VARIABLES CSS ESPECÍFICAS DEL MÓDULO POTREROS
+   ============================================================================= */
+
+:root {
+  /* Colores específicos del módulo de potreros */
+  --potreros-primary: #2ecc71;
+  --potreros-primary-dark: #27ae60;
+  --potreros-primary-light: #d5f4e6;
+  --potreros-secondary: #34495e;
+  --potreros-accent: #f39c12;
+  
+  /* Colores del mapa */
+  --grass-green: #2ecc71;
+  --sky-blue: #3498db;
+  --earth-brown: #8b4513;
+  
+  /* Gradientes temáticos */
+  --potreros-gradient-primary: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  --potreros-gradient-secondary: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  
+  /* Sombras específicas */
+  --potreros-shadow: 0 4px 15px rgba(46, 204, 113, 0.15);
+  --potreros-shadow-lg: 0 8px 30px rgba(46, 204, 113, 0.25);
+}
+
+/* =============================================================================
+   LAYOUT PRINCIPAL Y CONTENEDORES
+   ============================================================================= */
+
+.potreros-page {
+  background: var(--potreros-primary-light);
+  min-height: 100vh;
+}
+
+.potreros-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.potreros-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Header del módulo */
+.potreros-header {
+  background: var(--potreros-gradient-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  color: white;
+  box-shadow: var(--potreros-shadow-lg);
+}
+
+.potreros-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.potreros-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.potreros-subtitle {
+  font-size: 1.2rem;
+  margin: var(--spacing-sm) 0 0;
+  opacity: 0.9;
+}
+
+.potreros-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+/* Grid principal */
+.potreros-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+.potreros-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.potreros-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.potreros-grid {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.potreros-grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* =============================================================================
+   COMPONENTES DE TARJETAS
+   ============================================================================= */
+
+.potreros-card {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--potreros-shadow);
+  border: 1px solid rgba(46, 204, 113, 0.1);
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.potreros-card:hover {
+  box-shadow: var(--potreros-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.potreros-card-header {
+  background: var(--potreros-gradient-primary);
+  color: white;
+  padding: var(--spacing-lg);
+  border-bottom: none;
+}
+
+.potreros-card-body {
+  padding: var(--spacing-lg);
+}
+
+.potreros-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.potreros-card-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--spacing-md);
+  color: var(--potreros-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* =============================================================================
+   BARRA DE HERRAMIENTAS
+   ============================================================================= */
+
+.potreros-toolbar {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--potreros-shadow);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.potreros-tool-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--spacing-xs);
+  max-width: 100%;
+  overflow-x: auto;
+  padding: var(--spacing-xs);
+}
+
+.potreros-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  background: white;
+  text-align: center;
+  min-height: 70px;
+  justify-content: center;
+}
+
+.potreros-tool:hover {
+  border-color: var(--potreros-primary);
+  box-shadow: var(--potreros-shadow);
+  transform: translateY(-2px);
+}
+
+.potreros-tool.active {
+  border-color: var(--potreros-primary);
+  background: var(--potreros-primary-light);
+  color: var(--potreros-primary-dark);
+}
+
+.potreros-tool-icon {
+  font-size: 1.25rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.potreros-tool-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* =============================================================================
+   MAPA INTERACTIVO
+   ============================================================================= */
+
+.potreros-map-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  min-height: 400px;
+  max-height: 400px;
+  background: var(--potreros-primary-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* Grid del mapa - compatible con JavaScript */
+.map-grid {
+  width: 100%;
+  height: 400px;
+  max-height: 400px;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
+  background: linear-gradient(45deg, #f0f8f0 25%, transparent 25%),
+              linear-gradient(-45deg, #f0f8f0 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #f0f8f0 75%),
+              linear-gradient(-45deg, transparent 75%, #f0f8f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.map-grid-cell {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+  position: relative;
+}
+
+.map-grid-cell:hover {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+/* Elementos del mapa */
+.map-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.map-element:hover {
+  transform: scale(1.1);
+}
+
+.map-element.bebedero {
+  background: var(--info-color);
+}
+
+.map-element.cerca {
+  background: var(--secondary-color);
+  border-radius: var(--border-radius);
+}
+
+.map-element.rio {
+  background: var(--sky-blue);
+}
+
+.map-element.camino {
+  background: var(--earth-brown);
+  border-radius: var(--border-radius);
+}
+
+.map-element.arbol {
+  background: #228b22;
+  border-radius: 50%;
+}
+
+.map-element.casa {
+  background: #8b4513;
+  border-radius: var(--border-radius);
+}
+
+/* Potreros en el mapa */
+.map-potrero {
+  background: var(--grass-green);
+  border: 2px solid var(--potreros-primary);
+  border-radius: var(--border-radius);
+  color: white;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.map-potrero:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+}
+
+.potreros-info-panel {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--potreros-shadow-lg);
+  padding: var(--spacing-md);
+  min-width: 250px;
+  max-width: 350px;
+  z-index: 10;
+  border: 1px solid var(--potreros-primary);
+}
+
+.potreros-info-title {
+  font-weight: 600;
+  color: var(--potreros-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.potreros-info-details {
+  margin-bottom: var(--spacing-md);
+}
+
+/* =============================================================================
+   BADGES Y ELEMENTOS VISUALES
+   ============================================================================= */
+
+.potreros-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--potreros-primary);
+  color: white;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-family: monospace;
+  min-width: 32px;
+  height: 24px;
+}
+
+.potrero-card {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  transition: var(--transition);
+}
+
+.potrero-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.potrero-estado {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.potrero-estado.bueno {
+  background: var(--success-color);
+  color: white;
+}
+
+.potrero-estado.regular {
+  background: var(--warning-color);
+  color: white;
+}
+
+.potrero-estado.malo {
+  background: var(--danger-color);
+  color: white;
+}
+
+.potrero-estado.descanso {
+  background: var(--info-color);
+  color: white;
+}
+
+.potrero-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.potrero-info-item {
+  text-align: center;
+  padding: var(--spacing-sm);
+  background: var(--primary-light);
+  border-radius: var(--border-radius);
+}
+
+.potrero-info-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.potrero-info-label {
+  color: var(--secondary-color);
+  font-size: var(--font-size-sm);
+}
+
+.potreros-mapa {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  min-height: 400px;
+}
+
+.potrero-form-section {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.potrero-form-section h3 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.pastura-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+}
+
+.pastura-option {
+  padding: var(--spacing-md);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.pastura-option:hover,
+.pastura-option.selected {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.potrero-capacidad-calculator {
+  background: var(--info-color);
+  color: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-md);
+}
+
+.capacidad-result {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: var(--spacing-sm);
+}
+
+/* =============================================================================
+   COMPONENTES DEL MAPA INTERACTIVO
+   ============================================================================= */
+
+/* Elementos del mapa interactivo */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: linear-gradient(45deg, #f0f8f0 25%, transparent 25%),
+              linear-gradient(-45deg, #f0f8f0 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #f0f8f0 75%),
+              linear-gradient(-45deg, transparent 75%, #f0f8f0 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* Paleta de elementos */
+.element-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  background: white;
+  text-align: center;
+}
+
+.palette-item:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow);
+}
+
+.palette-item.active {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.palette-item span {
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+  font-weight: 500;
+}
+
+/* Elementos del mapa */
+.map-element {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+}
+
+.map-element.bebedero {
+  background: var(--info-color);
+}
+
+.map-element.cerca {
+  background: var(--secondary-color);
+  border-radius: var(--border-radius);
+}
+
+.map-element.rio {
+  background: var(--sky-blue);
+}
+
+.map-element.camino {
+  background: var(--earth-brown);
+  border-radius: var(--border-radius);
+}
+
+.map-element.arbol {
+  background: #228b22;
+  border-radius: 50%;
+}
+
+.map-element.casa {
+  background: #8b4513;
+  border-radius: var(--border-radius);
+}
+
+/* Grid del mapa */
+.map-grid {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  grid-template-rows: repeat(20, 1fr);
+}
+
+.map-grid-cell {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+}
+
+.map-grid-cell:hover {
+  background: rgba(40, 167, 69, 0.1);
+}
+
+/* Panel de información del potrero - redefino para evitar conflictos */
+.potrero-info {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-md);
+  min-width: 200px;
+  max-width: 300px;
+  display: none;
+  z-index: 10;
+  border: 1px solid var(--border-color);
+}
+
+.potrero-info.visible {
+  display: block;
+}
+
+.potrero-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+}
+
+/* Lista de estadísticas */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background: var(--primary-light);
+  border-radius: var(--border-radius);
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: white;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--secondary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+/* Lista de potreros */
+.potrero-list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-xs);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.potrero-list-item:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+}
+
+.potrero-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.potrero-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.potrero-item-info strong {
+  color: var(--primary-color);
+}
+
+.potrero-item-info small {
+  color: var(--secondary-color);
+  font-size: var(--font-size-sm);
+}
+
+/* Elementos 3D del mapa */
+.potrero-cube {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-15deg) rotateY(30deg);
+}
+
+.cube-face {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  background: var(--grass-green);
+  border: 1px solid var(--primary-color);
+}
+
+.cube-front {
+  transform: translateZ(15px);
+}
+
+.cube-shadow {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.2);
+  transform: rotateX(90deg) translateZ(-15px);
+  border-radius: 2px;
+}
+
+/* Lista de instrucciones */
+.instruction-list {
+  list-style: none;
+  padding: 0;
+}
+
+.instruction-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.instruction-list li:before {
+  content: "▶";
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Atajos de teclado */
+.keyboard-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.keyboard-shortcuts .template-badge {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* =============================================================================
+   ESTILOS PARA FORMULARIO CON HEURÍSTICAS DE NIELSEN
+   ============================================================================= */
+
+/* Indicador de progreso paso a paso */
+.progress-container {
+  padding: var(--spacing-lg) 0;
+}
+
+.step-indicator {
+  text-align: center;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  position: relative;
+}
+
+.step-indicator.active {
+  background: var(--primary-light);
+  border: 2px solid var(--primary-color);
+}
+
+.step-indicator.completed {
+  background: var(--success-color);
+  color: white;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  background: #e9ecef;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-sm);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.step-indicator.active .step-number {
+  background: var(--primary-color);
+  color: white;
+}
+
+.step-indicator.completed .step-number {
+  background: var(--success-color);
+  color: white;
+}
+
+.step-label {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.step-description {
+  font-size: var(--font-size-sm);
+  color: var(--secondary-color);
+}
+
+/* Pasos del formulario */
+.form-step {
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-step.active {
+  display: block;
+}
+
+/* Labels requeridos */
+.form-label.required::after {
+  content: " *";
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+/* Feedback de formulario */
+.form-feedback {
+  margin-top: var(--spacing-xs);
+}
+
+.valid-feedback {
+  display: none;
+  color: var(--success-color);
+  font-size: var(--font-size-sm);
+}
+
+.invalid-feedback {
+  display: none;
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+}
+
+.is-valid ~ .form-feedback .valid-feedback {
+  display: block;
+}
+
+.is-invalid ~ .form-feedback .invalid-feedback {
+  display: block;
+}
+
+/* Calculadora de área */
+.area-calculator {
+  background: var(--info-color);
+  border: 1px solid rgba(23, 162, 184, 0.2);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+}
+
+.area-feedback {
+  background: var(--primary-light);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Selector de tipo de pastura */
+.pasture-selector .btn-check:checked + .btn {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.pasture-selector .btn {
+  min-height: 80px;
+  padding: var(--spacing-md);
+  text-align: center;
+  transition: var(--transition);
+}
+
+.pasture-selector .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* Selector de estado */
+.estado-selector .btn-check:checked + .btn-outline-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.estado-selector .btn-check:checked + .btn-outline-warning {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+  color: white;
+}
+
+.estado-selector .btn-check:checked + .btn-outline-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
+}
+
+.estado-selector .btn-check:checked + .btn-outline-info {
+  background-color: var(--info-color);
+  border-color: var(--info-color);
+  color: white;
+}
+
+.estado-selector .btn {
+  min-height: 70px;
+  padding: var(--spacing-sm);
+  text-align: center;
+  transition: var(--transition);
+}
+
+/* Resumen de confirmación */
+.summary-card {
+  background: var(--primary-light);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+}
+
+.summary-item {
+  margin-bottom: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+/* Animaciones suaves */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.4);
+  }
+}
+
+.form-step.active {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Layout de dos columnas para formulario */
+.form-layout-container {
+  display: flex;
+  gap: var(--spacing-xl);
+  align-items: flex-start;
+}
+
+.form-main-column {
+  flex: 2;
+  min-width: 0; /* Permite que la columna se contraiga */
+}
+
+.form-sidebar-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Sticky sidebar para consejos */
+.help-panel-sticky {
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+/* =============================================================================
+   DISEÑO RESPONSIVO - HEURÍSTICA 9: FLEXIBILIDAD Y EFICIENCIA
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+  .potreros-grid-main {
+    grid-template-columns: 1fr 280px;
+  }
+  
+  .potreros-tool-palette {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .potreros-container {
+    padding: var(--spacing-md);
+  }
+  
+  .potreros-header {
+    padding: var(--spacing-lg);
+  }
+  
+  .potreros-title {
+    font-size: 2rem;
+  }
+  
+  .potreros-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+  
+  .potreros-sidebar {
+    order: 2;
+  }
+  
+  .potreros-grid-2 {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .potreros-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-md);
+  }
+  
+  .potreros-title {
+    font-size: 1.75rem;
+  }
+  
+  .potreros-tool-palette {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-xs);
+  }
+  
+  .potreros-tool {
+    padding: var(--spacing-sm);
+  }
+  
+  .potreros-tool-icon {
+    font-size: 1.2rem;
+  }
+  
+  .potreros-tool-name {
+    font-size: 0.75rem;
+  }
+  
+  .potreros-info-panel {
+    position: static;
+    margin-top: var(--spacing-md);
+    max-width: none;
+  }
+  
+  .progress-container .col {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .step-indicator {
+    padding: var(--spacing-sm);
+  }
+  
+  .pasture-selector .row > div {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .estado-selector .row > div {
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .summary-card .row > div {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  /* En móviles, convertir a layout vertical */
+  .form-layout-container {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+  
+  .form-sidebar-column {
+    min-width: unset;
+    order: 2; /* Colocar consejos después del formulario en móviles */
+  }
+  
+  .help-panel-sticky {
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .potreros-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .potreros-header {
+    padding: var(--spacing-md);
+  }
+  
+  .potreros-title {
+    font-size: 1.5rem;
+  }
+  
+  .potreros-subtitle {
+    font-size: 1rem;
+  }
+  
+  .potreros-tool-palette {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .potreros-map-container,
+  .map-grid {
+    height: 300px;
+    min-height: 300px;
+    max-height: 300px;
+  }
+}
+
+/* Ajustes para pantallas medianas */
+@media (max-width: 992px) {
+  .potreros-map-container,
+  .map-grid {
+    height: 350px;
+    min-height: 350px;
+    max-height: 350px;
+  }
+}
+
+/* Estados de accesibilidad */
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+  border-color: var(--primary-color);
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Tooltips personalizados */
+[data-bs-toggle="tooltip"] {
+  cursor: help;
+}

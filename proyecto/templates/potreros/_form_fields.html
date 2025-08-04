@@ -1,0 +1,122 @@
+<!-- Campos de formulario reutilizables para potreros -->
+<!-- Campo nombre -->
+<div class="mb-3">
+    <label for="nombre" class="form-label">
+        <i class="fas fa-tag text-muted me-2"></i>
+        Nombre del Potrero <span class="text-danger">*</span>
+    </label>
+    <input type="text" 
+           class="form-control form-control-lg" 
+           id="nombre" 
+           name="nombre" 
+           value="{{ request.form.get('nombre', potrero.nombre if potrero else '') }}" 
+           placeholder="Ej: Potrero Norte, Campo Alto..."
+           required>
+    <div class="form-text">
+        <i class="fas fa-info-circle me-1"></i>
+        Nombre descriptivo que identifique la ubicación o características del potrero
+    </div>
+</div>
+
+<!-- Campo hectáreas -->
+<div class="mb-3">
+    <label for="hectareas" class="form-label">
+        <i class="fas fa-expand-arrows-alt text-muted me-2"></i>
+        Área <span class="text-danger">*</span>
+    </label>
+    <div class="input-group input-group-lg">
+        <input type="number" 
+               class="form-control" 
+               id="hectareas" 
+               name="hectareas" 
+               min="0.01" 
+               step="0.01"
+               value="{{ request.form.get('hectareas', potrero.hectareas if potrero else '') }}" 
+               placeholder="0.00"
+               required>
+        <span class="input-group-text">hectáreas</span>
+    </div>
+    <div class="form-text">
+        <i class="fas fa-calculator me-1"></i>
+        Área total del potrero en hectáreas (1 hectárea = 10,000 m²)
+    </div>
+</div>
+
+<!-- Campo capacidad -->
+<div class="mb-3">
+    <label for="capacidad_animal" class="form-label">
+        <i class="fas fa-cow text-muted me-2"></i>
+        Capacidad Animal
+    </label>
+    <div class="input-group input-group-lg">
+        <input type="number" 
+               class="form-control" 
+               id="capacidad_animal" 
+               name="capacidad_animal" 
+               min="0"
+               value="{{ request.form.get('capacidad_animal', potrero.capacidad_animal if potrero else '') }}" 
+               placeholder="0">
+        <span class="input-group-text">cabezas</span>
+    </div>
+    <div class="form-text">
+        <i class="fas fa-info-circle me-1"></i>
+        Número máximo de animales que puede soportar el potrero
+    </div>
+</div>
+
+<!-- Campo tipo pastura -->
+<div class="mb-3">
+    <label for="tipo_pastura" class="form-label">
+        <i class="fas fa-seedling text-muted me-2"></i>
+        Tipo de Pastura
+    </label>
+    <select class="form-control form-control-lg" id="tipo_pastura" name="tipo_pastura">
+        <option value="">Seleccionar tipo de pastura...</option>
+        <option value="brachiaria" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'brachiaria' }}>Brachiaria</option>
+        <option value="guinea" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'guinea' }}>Guinea</option>
+        <option value="estrella" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'estrella' }}>Estrella Africana</option>
+        <option value="kikuyo" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'kikuyo' }}>Kikuyo</option>
+        <option value="natural" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'natural' }}>Pastura Natural</option>
+        <option value="mixta" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'mixta' }}>Mixta</option>
+        <option value="otro" {{ 'selected' if request.form.get('tipo_pastura', potrero.tipo_pastura if potrero else '') == 'otro' }}>Otro</option>
+    </select>
+    <div class="form-text">
+        <i class="fas fa-leaf me-1"></i>
+        Selecciona el tipo predominante de pastura en el potrero
+    </div>
+</div>
+
+<!-- Campo estado -->
+<div class="mb-3">
+    <label for="estado" class="form-label">
+        <i class="fas fa-thermometer-half text-muted me-2"></i>
+        Estado del Potrero
+    </label>
+    <select class="form-control form-control-lg" id="estado" name="estado">
+        <option value="bueno" {{ 'selected' if request.form.get('estado', potrero.estado if potrero else 'bueno') == 'bueno' }}>Bueno</option>
+        <option value="regular" {{ 'selected' if request.form.get('estado', potrero.estado if potrero else '') == 'regular' }}>Regular</option>
+        <option value="malo" {{ 'selected' if request.form.get('estado', potrero.estado if potrero else '') == 'malo' }}>Malo</option>
+        <option value="descanso" {{ 'selected' if request.form.get('estado', potrero.estado if potrero else '') == 'descanso' }}>En Descanso</option>
+    </select>
+    <div class="form-text">
+        <i class="fas fa-chart-line me-1"></i>
+        Estado actual de la pastura y capacidad de pastoreo
+    </div>
+</div>
+
+<!-- Campo observaciones -->
+<div class="mb-3">
+    <label for="observaciones" class="form-label">
+        <i class="fas fa-sticky-note text-muted me-2"></i>
+        Observaciones
+    </label>
+    <textarea class="form-control" 
+              id="observaciones" 
+              name="observaciones" 
+              rows="3" 
+              placeholder="Características especiales, mejoras necesarias, etc.">{{ request.form.get('observaciones', potrero.observaciones if potrero else '') }}</textarea>
+    <div class="form-text">
+        <i class="fas fa-info-circle me-1"></i>
+        Notas adicionales sobre el potrero, características especiales o recordatorios
+    </div>
+</div>

@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Medición de pH - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ph.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="ph-page">
+<div class="ph-container ph-fade-in">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="breadcrumb-custom">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('ph.index') }}" class="text-decoration-none">
+                <i class="fas fa-flask me-1"></i>Mediciones pH
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-plus-circle me-1"></i>Nueva Medición
+        </li>
+    </ol>
+</nav>
+
+<div class="ph-grid-main">
+    <!-- Formulario Principal -->
+    <div class="ph-main-content">
+        <!-- Header Educativo -->
+        <div class="ph-header">
+            <div class="ph-header-content">
+                <div>
+                    <h1 class="ph-title">
+                        <i class="fas fa-flask"></i>
+                        🧪 Nueva Medición de pH del Suelo
+                    </h1>
+                    <p class="ph-subtitle">
+                        El pH del suelo es fundamental para la absorción de nutrientes por las plantas. 
+                        Un pH adecuado mejora la productividad del pasto y la salud del ganado.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Proceso paso a paso -->
+        <div class="ph-card ph-mb-lg">
+            <div class="ph-card-body">
+                <h6 class="text-muted mb-3">📋 Proceso de Medición de pH:</h6>
+                <div class="row text-center">
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                        </div>
+                        <small>1. Ubicar Punto</small>
+                    </div>
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-shovel fa-2x"></i>
+                        </div>
+                        <small>2. Tomar Muestra</small>
+                    </div>
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-vial fa-2x"></i>
+                        </div>
+                        <small>3. Preparar Test</small>
+                    </div>
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-thermometer-half fa-2x"></i>
+                        </div>
+                        <small>4. Medir pH</small>
+                    </div>
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-clipboard-check fa-2x"></i>
+                        </div>
+                        <small>5. Registrar</small>
+                    </div>
+                    <div class="col-md-2 col-4 mb-2">
+                        <div class="text-primary mb-1">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <small>6. Analizar</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST" action="#" id="phForm" onsubmit="showComingSoon(); return false;">
+            <!-- Sección 1: Información Básica -->
+            <div class="ph-form-section">
+                <div class="ph-form-section-header">
+                    <div class="d-flex align-items-center">
+                        <div class="progress-step bg-primary me-3">1</div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Información Básica
+                        </h5>
+                    </div>
+                </div>
+                <div class="ph-form-section-body">
+                    <div class="row">
+                        <div class="col-md-6 ph-form-group">
+                            <label for="potrero_id" class="ph-form-label">
+                                🌱 ¿En qué potrero vas a medir el pH?
+                            </label>
+                            <select class="ph-form-input" id="potrero_id" name="potrero_id" required>
+                                <option value="" selected disabled>Selecciona el potrero...</option>
+                                {% for potrero in potreros %}
+                                    <option value="{{ potrero.id }}" 
+                                            data-hectareas="{{ potrero.hectareas }}"
+                                            data-tipo-pasto="{{ potrero.tipo_pasto }}"
+                                            {% if request.form.get('potrero_id')|int == potrero.id %}selected{% endif %}>
+                                        {{ potrero.nombre }} ({{ potrero.hectareas }} ha - {{ potrero.tipo_pasto }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="ph-form-help">
+                                <i class="fas fa-lightbulb text-warning me-1"></i>
+                                Cada potrero puede tener diferentes niveles de pH según su manejo
+                            </div>
+                        </div>
+                        <div class="col-md-6 ph-form-group">
+                            <label for="fecha" class="ph-form-label">
+                                📅 ¿Cuándo tomaste la medición?
+                            </label>
+                            <input type="date" class="ph-form-input" id="fecha" name="fecha" 
+                                  value="{{ request.form.get('fecha', '') or now().strftime('%Y-%m-%d') }}" required>
+                            <div class="ph-form-help">
+                                <i class="fas fa-calendar-alt text-info me-1"></i>
+                                Es importante registrar la fecha exacta para el seguimiento temporal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 2: Medición del pH -->
+            <div class="ph-form-section">
+                <div class="ph-form-section-header">
+                    <div class="d-flex align-items-center">
+                        <div class="progress-step bg-success me-3">2</div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-flask me-2"></i>
+                            Medición del pH
+                        </h5>
+                    </div>
+                </div>
+                <div class="ph-form-section-body">
+                    <div class="row">
+                        <div class="col-md-8 ph-form-group">
+                            <label for="valor" class="ph-form-label">
+                                🧪 ¿Qué valor de pH obtuviste?
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-success text-white">
+                                    <i class="fas fa-vial"></i>
+                                </span>
+                                <input type="number" class="ph-form-input" id="valor" name="valor" 
+                                      min="0" max="14" step="0.1" placeholder="7.0" 
+                                      value="{{ request.form.get('valor', '') }}" required>
+                                <span class="input-group-text">pH</span>
+                            </div>
+                            <div class="ph-form-help">
+                                <i class="fas fa-info-circle text-primary me-1"></i>
+                                Rango válido: 0.0 - 14.0 (ideal para pastos: 6.0 - 7.5)
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                            <div id="ph-status-indicator" class="text-center">
+                                <div class="display-4 mb-2" id="ph-emoji">🤔</div>
+                                <div class="h6" id="ph-status-text">Ingresa un valor</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Escala visual de pH -->
+                    <div class="ph-mt-lg">
+                        <label class="ph-form-label">📊 Escala Visual de pH</label>
+                        <div class="ph-scale-container">
+                            <div class="ph-marker" id="phMarker" style="left: 50%;">
+                                <span id="phValue">7.0</span>
+                            </div>
+                        </div>
+                        <div class="row text-center small">
+                            <div class="col-3 text-danger">
+                                <strong>Ácido</strong><br>
+                                0.0 - 5.5
+                            </div>
+                            <div class="col-3 text-warning">
+                                <strong>Lig. Ácido</strong><br>
+                                5.5 - 6.5
+                            </div>
+                            <div class="col-3 text-success">
+                                <strong>Neutro</strong><br>
+                                6.5 - 7.5
+                            </div>
+                            <div class="col-3 text-primary">
+                                <strong>Alcalino</strong><br>
+                                7.5 - 14.0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 3: Observaciones -->
+            <div class="ph-form-section">
+                <div class="ph-form-section-header">
+                    <div class="d-flex align-items-center">
+                        <div class="progress-step bg-warning me-3">3</div>
+                        <h5 class="mb-0">
+                            <i class="fas fa-comment-alt me-2"></i>
+                            Observaciones Adicionales
+                        </h5>
+                    </div>
+                </div>
+                <div class="ph-form-section-body">
+                    <div class="ph-form-group">
+                        <label for="observaciones" class="ph-form-label">
+                            📝 ¿Hay algo especial que observaste durante la medición?
+                        </label>
+                        <textarea class="ph-form-input" id="observaciones" name="observaciones" rows="4" 
+                                 placeholder="Describe las condiciones del suelo, humedad, color, textura, presencia de materia orgánica, etc.">{{ request.form.get('observaciones', '') }}</textarea>
+                        <div class="ph-form-help">
+                            <i class="fas fa-eye text-info me-1"></i>
+                            Las observaciones ayudan a interpretar mejor los resultados del pH
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="ph-form-section">
+                <div class="ph-form-section-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('ph.index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>Guardar Medición de pH
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Panel de Ayuda -->
+    <div class="ph-sidebar">
+        <div class="ph-card">
+            <div class="ph-card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Guía de Medición de pH
+                </h5>
+            </div>
+            <div class="ph-card-body">
+            
+            <!-- Información sobre pH -->
+            <div class="ph-interpretation-container">
+                <h6 class="ph-interpretation-title">🧪 ¿Qué es el pH del suelo?</h6>
+                <p class="small text-muted">
+                    El pH mide la acidez o alcalinidad del suelo en una escala de 0-14. 
+                    Afecta directamente la disponibilidad de nutrientes para las plantas.
+                </p>
+            </div>
+
+            <!-- Rangos de pH -->
+            <div class="ph-interpretation-container">
+                <h6 class="ph-interpretation-title">📊 Rangos de pH:</h6>
+                <div class="small">
+                    <div class="d-flex justify-content-between border-bottom py-1">
+                        <span class="text-danger">🔴 Muy Ácido:</span>
+                        <span>0.0 - 5.5</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom py-1">
+                        <span class="text-warning">🟡 Lig. Ácido:</span>
+                        <span>5.5 - 6.5</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom py-1">
+                        <span class="text-success">🟢 Neutro (Ideal):</span>
+                        <span>6.5 - 7.5</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-primary">🔵 Alcalino:</span>
+                        <span>7.5 - 14.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejos de medición -->
+            <div class="ph-recommendations">
+                <h6 class="ph-interpretation-title">💡 Consejos para Medir:</h6>
+                <ul>
+                    <li><i class="fas fa-arrows-alt-v text-primary me-2"></i>Toma la muestra a 10-15 cm de profundidad</li>
+                    <li><i class="fas fa-tint text-info me-2"></i>Evita áreas muy húmedas o secas</li>
+                    <li><i class="fas fa-map-marker-alt text-success me-2"></i>Mide en diferentes puntos del potrero</li>
+                    <li><i class="fas fa-cogs text-warning me-2"></i>Calibra el medidor antes de usar</li>
+                    <li><i class="fas fa-clipboard-list text-secondary me-2"></i>Registra las condiciones ambientales</li>
+                </ul>
+            </div>
+
+            <!-- Feedback dinámico -->
+            <div id="dynamic-feedback" class="ph-alert ph-neutro" style="display: none;">
+                <div class="ph-alert-icon">📈</div>
+                <div class="ph-alert-content">
+                    <div class="ph-alert-title">Análisis en Tiempo Real:</div>
+                    <div class="ph-alert-description" id="feedback-content"></div>
+                </div>
+            </div>
+
+            <!-- Información del potrero seleccionado -->
+            <div id="potrero-info" class="ph-alert ph-neutro" style="display: none;">
+                <div class="ph-alert-icon">🌱</div>
+                <div class="ph-alert-content">
+                    <div class="ph-alert-title">Información del Potrero:</div>
+                    <div class="ph-alert-description" id="potrero-details"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ph.js') }}"></script>
+{% endblock %} 

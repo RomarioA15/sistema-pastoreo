@@ -1,0 +1,183 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Editar Finca - Administración{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header admin-header text-center">
+        <div class="template-container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-edit me-3"></i>
+                Editar Finca
+            </h1>
+            <p class="lead mb-0">Actualiza la información de {{ finca['nombre'] }}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="admin-card">
+                <div class="card-body p-5">
+                    <form method="POST" action="{{ url_for('admin.editar_finca', finca_id=finca['id']) }}">
+                        <!-- Información Básica -->
+                        <div class="form-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                Información Básica
+                            </h5>
+                            
+                            <div class="template-grid">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label required">Nombre de la Finca</label>
+                                    <input type="text" 
+                                           class="template-form-input" 
+                                           id="nombre" 
+                                           name="nombre" 
+                                           required
+                                           value="{{ finca['nombre'] }}"
+                                           placeholder="Ej: Finca La Esperanza">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="area_total" class="form-label required">Área Total (Hectáreas)</label>
+                                    <input type="number" 
+                                           class="template-form-input" 
+                                           id="area_total" 
+                                           name="area_total" 
+                                           step="0.1" 
+                                           min="0"
+                                           required
+                                           value="{{ finca['area_total'] or 0 }}"
+                                           placeholder="0.0">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="descripcion" class="template-form-label">Descripción</label>
+                                <textarea class="template-form-input" 
+                                          id="descripcion" 
+                                          name="descripcion" 
+                                          rows="3"
+                                          placeholder="Descripción opcional de la finca">{{ finca['descripcion'] or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Información de Contacto -->
+                        <div class="form-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-address-book text-info me-2"></i>
+                                Información de Contacto
+                            </h5>
+                            
+                            <div class="template-grid">
+                                <div class="col-md-6 mb-3">
+                                    <label for="propietario" class="template-form-label">Propietario</label>
+                                    <input type="text" 
+                                           class="template-form-input" 
+                                           id="propietario" 
+                                           name="propietario"
+                                           value="{{ finca['propietario'] or '' }}"
+                                           placeholder="Nombre del propietario">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefono" class="template-form-label">Teléfono</label>
+                                    <input type="tel" 
+                                           class="template-form-input" 
+                                           id="telefono" 
+                                           name="telefono"
+                                           value="{{ finca['telefono'] or '' }}"
+                                           placeholder="Ej: +57 300 123 4567">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="template-form-label">Email</label>
+                                <input type="email" 
+                                       class="template-form-input" 
+                                       id="email" 
+                                       name="email"
+                                       value="{{ finca['email'] or '' }}"
+                                       placeholder="email@ejemplo.com">
+                            </div>
+                        </div>
+
+                        <!-- Ubicación -->
+                        <div class="form-section">
+                            <h5 class="mb-3">
+                                <i class="fas fa-map-marker-alt text-warning me-2"></i>
+                                Ubicación
+                            </h5>
+                            
+                            <div class="mb-3">
+                                <label for="direccion" class="template-form-label">Dirección</label>
+                                <textarea class="template-form-input" 
+                                          id="direccion" 
+                                          name="direccion" 
+                                          rows="2"
+                                          placeholder="Dirección completa de la finca">{{ finca['direccion'] or '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{{ url_for('admin.fincas') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Cancelar
+                            </a>
+                            
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-save me-2"></i>
+                                Actualizar Finca
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información de la Finca -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-8">
+            <div class="admin-card">
+                <div class="card-body p-4">
+                    <h6 class="card-title mb-3">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        Información de la Finca
+                    </h6>
+                    <div class="template-grid">
+                        <div class="col-6">
+                            <p class="mb-2">
+                                <strong>ID:</strong> {{ finca['id'] }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Fecha de creación:</strong> 
+                                {{ finca['fecha_creacion'].strftime('%d/%m/%Y') if finca['fecha_creacion'] else 'No disponible' }}
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-2">
+                                <strong>Estado:</strong> 
+                                {% if finca['activa'] %}
+                                    <span class="badge bg-success">Activa</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactiva</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+{% endblock %} 

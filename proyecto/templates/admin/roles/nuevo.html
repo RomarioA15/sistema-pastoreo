@@ -1,0 +1,648 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Crear Nuevo Rol - Sistema de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+.permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.module-card {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    background: var(--bg-surface);
+    transition: all var(--transition-base);
+}
+
+.module-card:hover {
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-md);
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.module-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--primary-green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-green);
+    font-size: 1.2rem;
+}
+
+.permissions-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    background: var(--bg-muted);
+    transition: all var(--transition-base);
+}
+
+.permission-item:hover {
+    background: var(--primary-green-light);
+}
+
+.permission-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-green);
+}
+
+.permission-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.select-all-module {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.select-all-module:hover {
+    background: var(--accent-dark);
+}
+
+.role-preview {
+    background: linear-gradient(135deg, var(--primary-green-light), var(--success-light));
+    border: 2px solid var(--primary-green);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.admin-toggle {
+    background: var(--warning-light);
+    border: 2px solid var(--warning);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.admin-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--warning);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <!-- Header -->
+    <div class="template-header">
+        <div class="template-header-content">
+            <div class="template-header-text">
+                <h1>
+                    <i class="fas fa-user-plus"></i>
+                    Crear Nuevo Rol
+                </h1>
+                <p>Define un nuevo rol con permisos específicos para los usuarios del sistema</p>
+            </div>
+            <div class="template-header-actions">
+                <a href="{{ url_for('admin.roles') }}" class="template-btn template-btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver a Roles
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="template-breadcrumb">
+        <ol>
+            <li><a href="{{ url_for('admin.index') }}"><i class="fas fa-home"></i> Administración</a></li>
+            <li><a href="{{ url_for('admin.roles') }}">Roles</a></li>
+            <li class="active">Nuevo Rol</li>
+        </ol>
+    </nav>
+
+    <form method="POST" id="roleForm">
+        <div class="template-grid">
+            <!-- Información básica del rol -->
+            <div class="template-grid-main">
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-info-circle"></i> Información del Rol</h3>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="form-group">
+                            <label for="nombre" class="form-label">
+                                <i class="fas fa-tag"></i> Nombre del Rol
+                            </label>
+                            <input type="text" 
+                                   id="nombre" 
+                                   name="nombre" 
+                                   class="form-control" 
+                                   placeholder="Ej: Supervisor de Campo"
+                                   required>
+                            <small class="form-help">Nombre descriptivo del rol</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcion" class="form-label">
+                                <i class="fas fa-align-left"></i> Descripción
+                            </label>
+                            <textarea id="descripcion" 
+                                      name="descripcion" 
+                                      class="form-control" 
+                                      rows="3"
+                                      placeholder="Describe las responsabilidades y alcance de este rol..."></textarea>
+                            <small class="form-help">Descripción detallada del rol y sus responsabilidades</small>
+                        </div>
+
+                        <!-- Toggle Administrador -->
+                        <div class="admin-toggle">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" 
+                                           id="es_admin" 
+                                           name="es_admin" 
+                                           class="admin-checkbox"
+                                           onchange="toggleAdminMode()">
+                                    <label for="es_admin" class="form-check-label">
+                                        <strong><i class="fas fa-crown"></i> Rol de Administrador</strong>
+                                        <br><small>Los administradores tienen acceso completo a todos los módulos</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permisos por módulo -->
+                <div class="template-card" id="permissionsCard">
+                    <div class="template-card-header">
+                        <h3><i class="fas fa-key"></i> Permisos por Módulo</h3>
+                        <div class="template-card-actions">
+                            <button type="button" class="template-btn template-btn-sm template-btn-outline" onclick="selectAllPermissions()">
+                                <i class="fas fa-check-double"></i> Seleccionar Todo
+                            </button>
+                            <button type="button" class="template-btn template-btn-sm template-btn-outline" onclick="clearAllPermissions()">
+                                <i class="fas fa-times"></i> Limpiar Todo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="template-card-body">
+                        <div class="permissions-grid">
+                            <!-- Dashboard -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Dashboard</h4>
+                                        <small>Panel principal y estadísticas</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('dashboard')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="dashboard_leer" name="dashboard_leer" class="permission-checkbox">
+                                        <label for="dashboard_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="dashboard_crear" name="dashboard_crear" class="permission-checkbox">
+                                        <label for="dashboard_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="dashboard_actualizar" name="dashboard_actualizar" class="permission-checkbox">
+                                        <label for="dashboard_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="dashboard_eliminar" name="dashboard_eliminar" class="permission-checkbox">
+                                        <label for="dashboard_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Potreros -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Potreros</h4>
+                                        <small>Gestión de potreros y mapas</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('potreros')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="potreros_leer" name="potreros_leer" class="permission-checkbox">
+                                        <label for="potreros_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="potreros_crear" name="potreros_crear" class="permission-checkbox">
+                                        <label for="potreros_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="potreros_actualizar" name="potreros_actualizar" class="permission-checkbox">
+                                        <label for="potreros_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="potreros_eliminar" name="potreros_eliminar" class="permission-checkbox">
+                                        <label for="potreros_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aforos -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-ruler"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Aforos</h4>
+                                        <small>Medición de forraje</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('aforos')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="aforos_leer" name="aforos_leer" class="permission-checkbox">
+                                        <label for="aforos_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="aforos_crear" name="aforos_crear" class="permission-checkbox">
+                                        <label for="aforos_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="aforos_actualizar" name="aforos_actualizar" class="permission-checkbox">
+                                        <label for="aforos_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="aforos_eliminar" name="aforos_eliminar" class="permission-checkbox">
+                                        <label for="aforos_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actividades -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-tasks"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Actividades</h4>
+                                        <small>Registro de actividades</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('actividades')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="actividades_leer" name="actividades_leer" class="permission-checkbox">
+                                        <label for="actividades_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="actividades_crear" name="actividades_crear" class="permission-checkbox">
+                                        <label for="actividades_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="actividades_actualizar" name="actividades_actualizar" class="permission-checkbox">
+                                        <label for="actividades_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="actividades_eliminar" name="actividades_eliminar" class="permission-checkbox">
+                                        <label for="actividades_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ganado -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-cow"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Ganado</h4>
+                                        <small>Gestión de ganado y lotes</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('ganado')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="ganado_leer" name="ganado_leer" class="permission-checkbox">
+                                        <label for="ganado_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="ganado_crear" name="ganado_crear" class="permission-checkbox">
+                                        <label for="ganado_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="ganado_actualizar" name="ganado_actualizar" class="permission-checkbox">
+                                        <label for="ganado_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="ganado_eliminar" name="ganado_eliminar" class="permission-checkbox">
+                                        <label for="ganado_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recorridos -->
+                            <div class="module-card">
+                                <div class="module-header">
+                                    <div class="module-icon">
+                                        <i class="fas fa-walking"></i>
+                                    </div>
+                                    <div>
+                                        <h4>Recorridos</h4>
+                                        <small>Recorridos y evaluaciones</small>
+                                    </div>
+                                    <button type="button" class="select-all-module" onclick="selectModuleAll('recorridos')">
+                                        Todo
+                                    </button>
+                                </div>
+                                <div class="permissions-list">
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="recorridos_leer" name="recorridos_leer" class="permission-checkbox">
+                                        <label for="recorridos_leer" class="permission-label">Leer</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="recorridos_crear" name="recorridos_crear" class="permission-checkbox">
+                                        <label for="recorridos_crear" class="permission-label">Crear</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="recorridos_actualizar" name="recorridos_actualizar" class="permission-checkbox">
+                                        <label for="recorridos_actualizar" class="permission-label">Actualizar</label>
+                                    </div>
+                                    <div class="permission-item">
+                                        <input type="checkbox" id="recorridos_eliminar" name="recorridos_eliminar" class="permission-checkbox">
+                                        <label for="recorridos_eliminar" class="permission-label">Eliminar</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar con preview -->
+            <div class="template-grid-sidebar">
+                <!-- Preview del rol -->
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-eye"></i> Vista Previa</h4>
+                    </div>
+                    <div class="template-card-body">
+                        <div id="rolePreview">
+                            <div class="role-preview-item">
+                                <strong>Nombre:</strong>
+                                <span id="previewNombre">Sin nombre</span>
+                            </div>
+                            <div class="role-preview-item">
+                                <strong>Tipo:</strong>
+                                <span id="previewTipo">Usuario normal</span>
+                            </div>
+                            <div class="role-preview-item">
+                                <strong>Permisos:</strong>
+                                <div id="previewPermisos">Sin permisos seleccionados</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="template-card">
+                    <div class="template-card-body">
+                        <button type="submit" class="template-btn template-btn-primary template-btn-block">
+                            <i class="fas fa-save"></i>
+                            Crear Rol
+                        </button>
+                        
+                        <button type="button" class="template-btn template-btn-outline template-btn-block" onclick="resetForm()">
+                            <i class="fas fa-undo"></i>
+                            Limpiar Formulario
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plantillas de roles -->
+                <div class="template-card">
+                    <div class="template-card-header">
+                        <h4><i class="fas fa-magic"></i> Plantillas</h4>
+                    </div>
+                    <div class="template-card-body">
+                        <button type="button" class="template-btn template-btn-sm template-btn-outline template-btn-block" onclick="loadTemplate('operador')">
+                            <i class="fas fa-user-cog"></i> Operador de Campo
+                        </button>
+                        <button type="button" class="template-btn template-btn-sm template-btn-outline template-btn-block" onclick="loadTemplate('consultor')">
+                            <i class="fas fa-user-tie"></i> Consultor
+                        </button>
+                        <button type="button" class="template-btn template-btn-sm template-btn-outline template-btn-block" onclick="loadTemplate('lectura')">
+                            <i class="fas fa-eye"></i> Solo Lectura
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables globales
+const modules = ['dashboard', 'potreros', 'aforos', 'actividades', 'ganado', 'recorridos'];
+const actions = ['leer', 'crear', 'actualizar', 'eliminar'];
+
+// Actualizar preview en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    // Actualizar nombre
+    document.getElementById('nombre').addEventListener('input', updatePreview);
+    
+    // Actualizar tipo admin
+    document.getElementById('es_admin').addEventListener('change', updatePreview);
+    
+    // Actualizar permisos
+    document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', updatePreview);
+    });
+    
+    updatePreview();
+});
+
+function updatePreview() {
+    const nombre = document.getElementById('nombre').value || 'Sin nombre';
+    const esAdmin = document.getElementById('es_admin').checked;
+    
+    document.getElementById('previewNombre').textContent = nombre;
+    document.getElementById('previewTipo').textContent = esAdmin ? 'Administrador' : 'Usuario normal';
+    
+    // Contar permisos seleccionados
+    const permisosSeleccionados = [];
+    modules.forEach(module => {
+        const modulePermisos = [];
+        actions.forEach(action => {
+            const checkbox = document.getElementById(`${module}_${action}`);
+            if (checkbox && checkbox.checked) {
+                modulePermisos.push(action);
+            }
+        });
+        if (modulePermisos.length > 0) {
+            permisosSeleccionados.push(`${module} (${modulePermisos.length})`);
+        }
+    });
+    
+    const previewPermisos = document.getElementById('previewPermisos');
+    if (esAdmin) {
+        previewPermisos.innerHTML = '<span style="color: var(--warning);">Acceso completo (Administrador)</span>';
+    } else if (permisosSeleccionados.length > 0) {
+        previewPermisos.innerHTML = permisosSeleccionados.join('<br>');
+    } else {
+        previewPermisos.textContent = 'Sin permisos seleccionados';
+    }
+}
+
+function toggleAdminMode() {
+    const isAdmin = document.getElementById('es_admin').checked;
+    const permissionsCard = document.getElementById('permissionsCard');
+    
+    if (isAdmin) {
+        permissionsCard.style.opacity = '0.5';
+        permissionsCard.style.pointerEvents = 'none';
+    } else {
+        permissionsCard.style.opacity = '1';
+        permissionsCard.style.pointerEvents = 'auto';
+    }
+    
+    updatePreview();
+}
+
+function selectModuleAll(module) {
+    actions.forEach(action => {
+        const checkbox = document.getElementById(`${module}_${action}`);
+        if (checkbox) {
+            checkbox.checked = true;
+        }
+    });
+    updatePreview();
+}
+
+function selectAllPermissions() {
+    document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+        checkbox.checked = true;
+    });
+    updatePreview();
+}
+
+function clearAllPermissions() {
+    document.querySelectorAll('.permission-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    document.getElementById('es_admin').checked = false;
+    toggleAdminMode();
+    updatePreview();
+}
+
+function resetForm() {
+    document.getElementById('roleForm').reset();
+    toggleAdminMode();
+    updatePreview();
+}
+
+function loadTemplate(tipo) {
+    clearAllPermissions();
+    
+    const templates = {
+        operador: {
+            nombre: 'Operador de Campo',
+            descripcion: 'Operador con permisos para registrar y actualizar información de campo',
+            permisos: {
+                dashboard: ['leer'],
+                potreros: ['leer'],
+                aforos: ['leer', 'crear', 'actualizar'],
+                actividades: ['leer', 'crear', 'actualizar'],
+                ganado: ['leer', 'actualizar'],
+                recorridos: ['leer', 'crear', 'actualizar']
+            }
+        },
+        consultor: {
+            nombre: 'Consultor',
+            descripcion: 'Consultor con acceso de solo lectura para análisis y reportes',
+            permisos: {
+                dashboard: ['leer'],
+                potreros: ['leer'],
+                aforos: ['leer'],
+                actividades: ['leer'],
+                ganado: ['leer'],
+                recorridos: ['leer']
+            }
+        },
+        lectura: {
+            nombre: 'Usuario de Solo Lectura',
+            descripcion: 'Usuario con permisos básicos de solo lectura',
+            permisos: {
+                dashboard: ['leer'],
+                potreros: ['leer'],
+                aforos: ['leer']
+            }
+        }
+    };
+    
+    const template = templates[tipo];
+    if (template) {
+        document.getElementById('nombre').value = template.nombre;
+        document.getElementById('descripcion').value = template.descripcion;
+        
+        // Aplicar permisos
+        Object.keys(template.permisos).forEach(module => {
+            template.permisos[module].forEach(action => {
+                const checkbox = document.getElementById(`${module}_${action}`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        });
+        
+        updatePreview();
+    }
+}
+</script>
+{% endblock %} 

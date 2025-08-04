@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Recorrido - {{ recorrido.potrero_nombre }}{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>
+                    <i class="fas fa-eye me-2"></i>
+                    Recorrido - {{ recorrido.potrero_nombre }}
+                </h4>
+                <div>
+                    <a href="{{ url_for('recorridos.editar', id=recorrido.id) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i>Editar
+                    </a>
+                    <a href="{{ url_for('recorridos.index') }}" class="template-btn template-btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="template-grid">
+        <!-- Información Básica -->
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-1"></i>Información Básica</h6>
+                </div>
+                <div class="card-body">
+                    <div class="template-grid">
+                        <div class="col-4"><strong>Potrero:</strong></div>
+                        <div class="col-8">{{ recorrido.potrero_nombre }} ({{ recorrido.hectareas }} ha)</div>
+                    </div>
+                    <hr>
+                    <div class="template-grid">
+                        <div class="col-4"><strong>Fecha:</strong></div>
+                        <div class="col-8">{{ recorrido.fecha.strftime('%d/%m/%Y') if recorrido.fecha else '-' }}</div>
+                    </div>
+                    <hr>
+                    <div class="template-grid">
+                        <div class="col-4"><strong>Semana:</strong></div>
+                        <div class="col-8">Semana {{ recorrido.semana_numero }}</div>
+                    </div>
+                    <hr>
+                    <div class="template-grid">
+                        <div class="col-4"><strong>Responsable:</strong></div>
+                        <div class="col-8">{{ recorrido.responsable or 'No especificado' }}</div>
+                    </div>
+                    <hr>
+                    <div class="template-grid">
+                        <div class="col-4"><strong>Puntos de Medición:</strong></div>
+                        <div class="col-8">{{ recorrido.puntos_medicion }} puntos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mediciones -->
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-ruler-vertical me-1"></i>Mediciones Generales</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h4 class="text-primary">{{ recorrido.altura_promedio|round(1) }} cm</h4>
+                                <small class="text-muted">Altura Promedio</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <h4 class="text-success">{{ recorrido.cobertura_vegetal|round(1) }}%</h4>
+                                <small class="text-muted">Cobertura Vegetal</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Altura Mínima:</strong><br>
+                            <span class="text-muted">{{ recorrido.altura_minima|round(1) }} cm</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Altura Máxima:</strong><br>
+                            <span class="text-muted">{{ recorrido.altura_maxima|round(1) }} cm</span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <strong>Estado General:</strong><br>
+                            <span class="badge bg-{% if recorrido.estado_general == 'Excelente' %}success{% elif recorrido.estado_general == 'Bueno' %}primary{% elif recorrido.estado_general == 'Regular' %}warning{% else %}danger{% endif %} fs-6">
+                                {{ recorrido.estado_general }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if recorrido.humedad_suelo %}
+                    <div class="template-grid">
+                        <div class="col-12">
+                            <strong>Humedad del Suelo:</strong><br>
+                            <span class="text-muted">{{ recorrido.humedad_suelo }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasas de Crecimiento -->
+    {% if recorrido.tasa_crecimiento_diaria or recorrido.tasa_crecimiento_semanal %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-1"></i>Tasas de Crecimiento</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        {% if recorrido.tasa_crecimiento_diaria %}
+                        <div class="col-6">
+                            <h4 class="text-info">{{ recorrido.tasa_crecimiento_diaria|round(2) }} cm/día</h4>
+                            <small class="text-muted">Tasa Diaria</small>
+                        </div>
+                        {% endif %}
+                        {% if recorrido.tasa_crecimiento_semanal %}
+                        <div class="col-6">
+                            <h4 class="text-warning">{{ recorrido.tasa_crecimiento_semanal|round(2) }} cm/semana</h4>
+                            <small class="text-muted">Tasa Semanal</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Condiciones Especiales -->
+    <div class="row mt-4">
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-1"></i>Condiciones Especiales</h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" disabled {{ 'checked' if recorrido.presencia_plagas else '' }}>
+                        <label class="form-check-label">
+                            <i class="fas fa-bug text-danger me-1"></i> Presencia de plagas o enfermedades
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" disabled {{ 'checked' if recorrido.necesita_riego else '' }}>
+                        <label class="form-check-label">
+                            <i class="fas fa-tint text-info me-1"></i> Necesita riego
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" disabled {{ 'checked' if recorrido.necesita_fertilizacion else '' }}>
+                        <label class="form-check-label">
+                            <i class="fas fa-seedling text-warning me-1"></i> Necesita fertilización
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-comments me-1"></i>Observaciones</h6>
+                </div>
+                <div class="card-body">
+                    {% if recorrido.observaciones %}
+                        <p class="mb-0">{{ recorrido.observaciones }}</p>
+                    {% else %}
+                        <p class="text-muted mb-0">No hay observaciones registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Puntos de Medición Detallados -->
+    {% if puntos %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h6 class="mb-0"><i class="fas fa-map-marker-alt me-1"></i>Puntos de Medición Detallados</h6>
+                </div>
+                <div class="card-body">
+                    <div class="template-grid">
+                        {% for punto in puntos %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="template-card border-primary">
+                                <div class="template-header card-header bg-light py-2">
+                                    <h6 class="mb-0">Punto {{ punto.punto_numero }}</h6>
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="mb-2">
+                                        <strong>Altura:</strong> {{ punto.altura_pasto|round(1) }} cm
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Densidad:</strong> 
+                                        <span class="badge bg-{% if punto.densidad == 'Muy alta' %}success{% elif punto.densidad == 'Alta' %}primary{% elif punto.densidad == 'Media' %}warning{% else %}secondary{% endif %}">
+                                            {{ punto.densidad }}
+                                        </span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Calidad:</strong>
+                                        <span class="badge bg-{% if punto.calidad_forraje == 'Excelente' %}success{% elif punto.calidad_forraje == 'Buena' %}primary{% elif punto.calidad_forraje == 'Regular' %}warning{% else %}danger{% endif %}">
+                                            {{ punto.calidad_forraje }}
+                                        </span>
+                                    </div>
+                                    {% if punto.observacion_punto %}
+                                    <div class="mb-0">
+                                        <strong>Observación:</strong><br>
+                                        <small class="text-muted">{{ punto.observacion_punto }}</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %} 

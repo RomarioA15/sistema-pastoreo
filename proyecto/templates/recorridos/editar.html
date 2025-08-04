@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Recorrido - {{ recorrido.potrero_nombre }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recorridos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+    <div class="template-grid">
+        <div class="col-12">
+            <div class="template-card">
+                <div class="template-header card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Editar Recorrido - {{ recorrido.potrero_nombre }}
+                    </h5>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" id="recorridoForm">
+                        <div class="template-grid">
+                            <!-- Información Básica -->
+                            <div class="col-6">
+                                <h6 class="mb-3"><i class="fas fa-info-circle me-1"></i> Información Básica</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="potrero_id" class="template-form-label">Potrero *</label>
+                                    <select class="form-select" id="potrero_id" name="potrero_id" required>
+                                        <option value="">Selecciona un potrero</option>
+                                        {% for potrero in potreros %}
+                                        <option value="{{ potrero.id }}" {{ 'selected' if potrero.id == recorrido.potrero_id else '' }}>
+                                            {{ potrero.nombre }} ({{ potrero.hectareas }} ha - {{ potrero.tipo_pasto }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="fecha" class="template-form-label">Fecha del Recorrido *</label>
+                                    <input type="date" class="template-form-input" id="fecha" name="fecha" 
+                                           value="{{ recorrido.fecha.strftime('%Y-%m-%d') if recorrido.fecha else '' }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="responsable" class="template-form-label">Responsable</label>
+                                    <input type="text" class="template-form-input" id="responsable" name="responsable" 
+                                           value="{{ recorrido.responsable or '' }}"
+                                           placeholder="Nombre del responsable del recorrido">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="puntos_medicion" class="template-form-label">Número de Puntos de Medición</label>
+                                    <select class="form-select" id="puntos_medicion" name="puntos_medicion" onchange="generarPuntosMedicion()">
+                                        <option value="3" {{ 'selected' if recorrido.puntos_medicion == 3 else '' }}>3 puntos</option>
+                                        <option value="5" {{ 'selected' if recorrido.puntos_medicion == 5 else '' }}>5 puntos</option>
+                                        <option value="7" {{ 'selected' if recorrido.puntos_medicion == 7 else '' }}>7 puntos</option>
+                                        <option value="10" {{ 'selected' if recorrido.puntos_medicion == 10 else '' }}>10 puntos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Mediciones Generales -->
+                            <div class="col-6">
+                                <h6 class="mb-3"><i class="fas fa-ruler-vertical me-1"></i> Mediciones Generales</h6>
+                                
+                                <div class="template-grid">
+                                    <div class="col-4">
+                                        <div class="mb-3">
+                                            <label for="altura_minima" class="template-form-label">Altura Mínima (cm) *</label>
+                                            <input type="number" class="template-form-input" id="altura_minima" name="altura_minima" 
+                                                   step="0.1" min="0" value="{{ recorrido.altura_minima }}" required onchange="calcularPromedio()">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="mb-3">
+                                            <label for="altura_maxima" class="template-form-label">Altura Máxima (cm) *</label>
+                                            <input type="number" class="template-form-input" id="altura_maxima" name="altura_maxima" 
+                                                   step="0.1" min="0" value="{{ recorrido.altura_maxima }}" required onchange="calcularPromedio()">
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="mb-3">
+                                            <label for="altura_promedio" class="template-form-label">Altura Promedio (cm) *</label>
+                                            <input type="number" class="template-form-input" id="altura_promedio" name="altura_promedio" 
+                                                   step="0.1" min="0" value="{{ recorrido.altura_promedio }}" required readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="cobertura_vegetal" class="template-form-label">Cobertura Vegetal (%) *</label>
+                                    <input type="number" class="template-form-input" id="cobertura_vegetal" name="cobertura_vegetal" 
+                                           min="0" max="100" value="{{ recorrido.cobertura_vegetal }}" required>
+                                    <div class="form-text">Porcentaje de suelo cubierto por vegetación (0-100)</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="estado_general" class="template-form-label">Estado General *</label>
+                                    <select class="form-select" id="estado_general" name="estado_general" required>
+                                        <option value="">Selecciona estado</option>
+                                        <option value="Excelente" {{ 'selected' if recorrido.estado_general == 'Excelente' else '' }}>Excelente</option>
+                                        <option value="Bueno" {{ 'selected' if recorrido.estado_general == 'Bueno' else '' }}>Bueno</option>
+                                        <option value="Regular" {{ 'selected' if recorrido.estado_general == 'Regular' else '' }}>Regular</option>
+                                        <option value="Malo" {{ 'selected' if recorrido.estado_general == 'Malo' else '' }}>Malo</option>
+                                        <option value="Crítico" {{ 'selected' if recorrido.estado_general == 'Crítico' else '' }}>Crítico</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="humedad_suelo" class="template-form-label">Humedad del Suelo</label>
+                                    <select class="form-select" id="humedad_suelo" name="humedad_suelo">
+                                        <option value="">No evaluado</option>
+                                        <option value="Seco" {{ 'selected' if recorrido.humedad_suelo == 'Seco' else '' }}>Seco</option>
+                                        <option value="Ligeramente húmedo" {{ 'selected' if recorrido.humedad_suelo == 'Ligeramente húmedo' else '' }}>Ligeramente húmedo</option>
+                                        <option value="Húmedo" {{ 'selected' if recorrido.humedad_suelo == 'Húmedo' else '' }}>Húmedo</option>
+                                        <option value="Muy húmedo" {{ 'selected' if recorrido.humedad_suelo == 'Muy húmedo' else '' }}>Muy húmedo</option>
+                                        <option value="Encharcado" {{ 'selected' if recorrido.humedad_suelo == 'Encharcado' else '' }}>Encharcado</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Observaciones y Recomendaciones -->
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <h6 class="mb-3"><i class="fas fa-exclamation-triangle me-1"></i> Condiciones Especiales</h6>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="presencia_plagas" name="presencia_plagas" 
+                                           {{ 'checked' if recorrido.presencia_plagas else '' }}>
+                                    <label class="form-check-label" for="presencia_plagas">
+                                        <i class="fas fa-bug text-danger me-1"></i> Presencia de plagas o enfermedades
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="necesita_riego" name="necesita_riego"
+                                           {{ 'checked' if recorrido.necesita_riego else '' }}>
+                                    <label class="form-check-label" for="necesita_riego">
+                                        <i class="fas fa-tint text-info me-1"></i> Necesita riego
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="necesita_fertilizacion" name="necesita_fertilizacion"
+                                           {{ 'checked' if recorrido.necesita_fertilizacion else '' }}>
+                                    <label class="form-check-label" for="necesita_fertilizacion">
+                                        <i class="fas fa-seedling text-warning me-1"></i> Necesita fertilización
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <h6 class="mb-3"><i class="fas fa-comments me-1"></i> Observaciones</h6>
+                                
+                                <div class="mb-3">
+                                    <textarea class="template-form-input" id="observaciones" name="observaciones" rows="4" 
+                                              placeholder="Observaciones generales del recorrido, condiciones especiales, recomendaciones, etc.">{{ recorrido.observaciones or '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Puntos de Medición Detallados -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="mb-3"><i class="fas fa-map-marker-alt me-1"></i> Puntos de Medición Detallados</h6>
+                                <div id="puntosMedicion">
+                                    <!-- Los puntos se generarán dinámicamente con JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('recorridos.index') }}" class="template-btn template-btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i> Cancelar
+                                    </a>
+                                    <button type="submit" class="template-btn template-btn-primary">
+                                        <i class="fas fa-save me-1"></i> Actualizar Recorrido
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+{% endblock %} 

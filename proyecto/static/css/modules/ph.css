@@ -1,0 +1,910 @@
+/**
+ * Módulo CSS para pH - Sistema de Gestión de Pastoreo
+ * Siguiendo Heurísticas de Nielsen y principios de UX/UI
+ * Arquitectura modular y responsive design para análisis químico del suelo
+ */
+
+/* =============================================================================
+   VARIABLES CSS DEL SISTEMA PH
+   ============================================================================= */
+
+:root {
+  /* Colores específicos del módulo pH */
+  --ph-primary: #28a745;
+  --ph-secondary: #6c757d;
+  --ph-success: #20c997;
+  --ph-info: #17a2b8;
+  --ph-warning: #ffc107;
+  --ph-danger: #dc3545;
+  --ph-light: #f8f9fa;
+  --ph-dark: #343a40;
+  
+  /* Colores temáticos de pH por niveles */
+  --ph-muy-acido: #8B0000;
+  --ph-acido: #DC143C;
+  --ph-lig-acido: #FFA500;
+  --ph-neutro: #28a745;
+  --ph-lig-alcalino: #17a2b8;
+  --ph-alcalino: #6f42c1;
+  --ph-muy-alcalino: #6A0DAD;
+  
+  /* Gradientes temáticos */
+  --ph-gradient-primary: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  --ph-gradient-scale: linear-gradient(90deg, #8B0000 0%, #DC143C 14%, #FFA500 28%, #FFFF00 42%, #28a745 50%, #20c997 58%, #17a2b8 72%, #6f42c1 86%, #6A0DAD 100%);
+  --ph-gradient-analysis: linear-gradient(135deg, #4FC3F7 0%, #29B6F6 100%);
+  --ph-gradient-measurement: linear-gradient(135deg, #AB47BC 0%, #BA68C8 100%);
+  
+  /* Espaciado sistemático */
+  --ph-space-xs: 0.25rem;    /* 4px */
+  --ph-space-sm: 0.5rem;     /* 8px */
+  --ph-space-md: 1rem;       /* 16px */
+  --ph-space-lg: 1.5rem;     /* 24px */
+  --ph-space-xl: 2rem;       /* 32px */
+  --ph-space-xxl: 3rem;      /* 48px */
+  
+  /* Tipografía */
+  --ph-font-size-xs: 0.75rem;
+  --ph-font-size-sm: 0.875rem;
+  --ph-font-size-md: 1rem;
+  --ph-font-size-lg: 1.125rem;
+  --ph-font-size-xl: 1.25rem;
+  --ph-font-size-xxl: 1.5rem;
+  --ph-font-size-display: 2.5rem;
+  
+  /* Bordes y radios */
+  --ph-border-radius-sm: 0.375rem;
+  --ph-border-radius-md: 0.5rem;
+  --ph-border-radius-lg: 0.75rem;
+  --ph-border-radius-xl: 1rem;
+  
+  /* Sombras */
+  --ph-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --ph-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --ph-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  --ph-shadow-analysis: 0 8px 32px rgba(40, 167, 69, 0.3);
+  
+  /* Transiciones */
+  --ph-transition: all 0.3s ease;
+  --ph-transition-fast: all 0.15s ease;
+}
+
+/* =============================================================================
+   LAYOUT BASE DEL MÓDULO PH
+   ============================================================================= */
+
+.ph-page {
+  min-height: 100vh;
+  background: var(--ph-gradient-primary);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+.ph-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="20" opacity="0.05">🧪</text></svg>') repeat;
+  background-size: 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ph-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--ph-space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.ph-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: phFadeIn 0.8s ease forwards;
+}
+
+@keyframes phFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE GRID RESPONSIVO
+   ============================================================================= */
+
+.ph-grid-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--ph-space-xl);
+  margin-top: var(--ph-space-xl);
+}
+
+.ph-main-content {
+  min-height: 400px;
+}
+
+.ph-sidebar {
+  position: sticky;
+  top: var(--ph-space-lg);
+  height: fit-content;
+}
+
+.ph-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ph-space-lg);
+  margin: var(--ph-space-lg) 0;
+}
+
+.ph-measurements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--ph-space-md);
+  margin: var(--ph-space-lg) 0;
+}
+
+.ph-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ph-space-md);
+  margin: var(--ph-space-lg) 0;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  .ph-grid-main {
+    grid-template-columns: 1fr;
+    gap: var(--ph-space-lg);
+  }
+  
+  .ph-sidebar {
+    position: static;
+  }
+  
+  .ph-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ph-container {
+    padding: var(--ph-space-md);
+  }
+  
+  .ph-measurements-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .ph-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   COMPONENTES DE HEADER
+   ============================================================================= */
+
+.ph-header {
+  background: var(--ph-gradient-primary);
+  color: white;
+  padding: var(--ph-space-xl) var(--ph-space-lg);
+  border-radius: var(--ph-border-radius-lg);
+  margin-bottom: var(--ph-space-xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--ph-shadow-analysis);
+}
+
+.ph-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="40" opacity="0.1">🧪</text></svg>') repeat;
+  background-size: 150px 150px;
+  animation: phFloat 25s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes phFloat {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(-15px) translateY(-8px); }
+  50% { transform: translateX(-8px) translateY(-15px); }
+  75% { transform: translateX(-20px) translateY(-5px); }
+}
+
+.ph-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ph-title {
+  font-size: var(--ph-font-size-xxl);
+  font-weight: 700;
+  margin: 0 0 var(--ph-space-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-md);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ph-subtitle {
+  font-size: var(--ph-font-size-md);
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ph-actions {
+  display: flex;
+  gap: var(--ph-space-md);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .ph-header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--ph-space-lg);
+  }
+  
+  .ph-title {
+    font-size: var(--ph-font-size-xl);
+  }
+}
+
+/* =============================================================================
+   SISTEMA DE CARDS
+   ============================================================================= */
+
+.ph-card {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  box-shadow: var(--ph-shadow-md);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: var(--ph-transition);
+  position: relative;
+}
+
+.ph-card:hover {
+  box-shadow: var(--ph-shadow-lg);
+  transform: translateY(-3px);
+}
+
+.ph-card-header {
+  background: var(--ph-gradient-primary);
+  color: white;
+  padding: var(--ph-space-lg);
+  border-bottom: none;
+  position: relative;
+}
+
+.ph-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ph-muy-acido) 0%, var(--ph-neutro) 50%, var(--ph-alcalino) 100%);
+}
+
+.ph-card-body {
+  padding: var(--ph-space-lg);
+}
+
+.ph-card-footer {
+  background: var(--ph-light);
+  padding: var(--ph-space-md) var(--ph-space-lg);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================================================
+   COMPONENTES DE PH ESPECÍFICOS
+   ============================================================================= */
+
+.ph-card-educational {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  box-shadow: var(--ph-shadow-md);
+  border: 2px solid transparent;
+  overflow: hidden;
+  transition: var(--ph-transition);
+  position: relative;
+  height: 100%;
+}
+
+.ph-card-educational:hover {
+  box-shadow: var(--ph-shadow-lg);
+  transform: translateY(-2px);
+  border-color: var(--ph-primary);
+}
+
+.ph-card-educational::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--ph-gradient-analysis);
+}
+
+.ph-indicator {
+  position: absolute;
+  top: var(--ph-space-md);
+  right: var(--ph-space-md);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: var(--ph-shadow-sm);
+  z-index: 2;
+  animation: phPulse 2s ease-in-out infinite;
+}
+
+.ph-indicator.acido {
+  background: rgba(220, 20, 60, 0.1);
+  border: 2px solid var(--ph-acido);
+}
+
+.ph-indicator.neutro {
+  background: rgba(40, 167, 69, 0.1);
+  border: 2px solid var(--ph-neutro);
+}
+
+.ph-indicator.alcalino {
+  background: rgba(111, 66, 193, 0.1);
+  border: 2px solid var(--ph-alcalino);
+}
+
+@keyframes phPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* =============================================================================
+   COMPONENTES DE ESCALA DE PH
+   ============================================================================= */
+
+.ph-scale-container {
+  position: relative;
+  background: var(--ph-gradient-scale);
+  height: 40px;
+  border-radius: var(--ph-border-radius-lg);
+  margin: var(--ph-space-md) 0;
+  box-shadow: var(--ph-shadow-sm);
+  overflow: hidden;
+}
+
+.ph-scale-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: phScaleShine 3s ease-in-out infinite;
+}
+
+@keyframes phScaleShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.ph-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background: white;
+  border: 3px solid var(--ph-dark);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  z-index: 2;
+  transition: var(--ph-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--ph-shadow-md);
+}
+
+.ph-marker span {
+  position: absolute;
+  top: -35px;
+  background: var(--ph-dark);
+  color: white;
+  padding: var(--ph-space-xs) var(--ph-space-sm);
+  border-radius: var(--ph-border-radius-sm);
+  font-size: var(--ph-font-size-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ph-marker span::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ph-dark);
+}
+
+/* =============================================================================
+   COMPONENTES DE MEDICIONES DE PH
+   ============================================================================= */
+
+.ph-measurement-card {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  padding: var(--ph-space-lg);
+  box-shadow: var(--ph-shadow-sm);
+  transition: var(--ph-transition);
+  border-left: 4px solid var(--ph-analysis);
+  position: relative;
+}
+
+.ph-measurement-card:hover {
+  box-shadow: var(--ph-shadow-md);
+  transform: translateY(-2px);
+}
+
+.ph-measurement-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--ph-gradient-analysis);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: var(--ph-space-md);
+}
+
+.ph-measurement-value {
+  font-size: var(--ph-font-size-xl);
+  font-weight: 700;
+  color: var(--ph-primary);
+  margin-bottom: var(--ph-space-xs);
+}
+
+.ph-measurement-label {
+  font-size: var(--ph-font-size-sm);
+  color: var(--ph-secondary);
+  font-weight: 600;
+  margin-bottom: var(--ph-space-xs);
+}
+
+.ph-measurement-description {
+  font-size: var(--ph-font-size-xs);
+  color: var(--ph-secondary);
+  opacity: 0.8;
+}
+
+/* =============================================================================
+   COMPONENTES DE ESTADÍSTICAS DE PH
+   ============================================================================= */
+
+.ph-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ph-space-lg);
+  margin: var(--ph-space-xl) 0;
+}
+
+.ph-stat {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  box-shadow: var(--ph-shadow-sm);
+  padding: var(--ph-space-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--ph-transition);
+}
+
+.ph-stat:hover {
+  box-shadow: var(--ph-shadow-md);
+  transform: translateY(-3px);
+}
+
+.ph-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--ph-gradient-analysis);
+}
+
+.ph-stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--ph-space-md);
+  opacity: 0.1;
+  position: absolute;
+  bottom: var(--ph-space-md);
+  right: var(--ph-space-md);
+}
+
+.ph-stat-value {
+  font-size: var(--ph-font-size-display);
+  font-weight: 700;
+  margin-bottom: var(--ph-space-sm);
+  background: var(--ph-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.ph-stat-label {
+  font-size: var(--ph-font-size-md);
+  color: var(--ph-secondary);
+  font-weight: 600;
+  margin-bottom: var(--ph-space-xs);
+  position: relative;
+  z-index: 1;
+}
+
+.ph-stat-description {
+  font-size: var(--ph-font-size-sm);
+  color: var(--ph-secondary);
+  opacity: 0.8;
+  position: relative;
+  z-index: 1;
+}
+
+/* =============================================================================
+   COMPONENTES DE NAVEGACIÓN DE PH
+   ============================================================================= */
+
+.ph-nav-tabs {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  padding: var(--ph-space-sm);
+  box-shadow: var(--ph-shadow-sm);
+  margin-bottom: var(--ph-space-lg);
+}
+
+.ph-nav-tab {
+  background: transparent;
+  border: none;
+  padding: var(--ph-space-md) var(--ph-space-lg);
+  border-radius: var(--ph-border-radius-md);
+  font-weight: 600;
+  color: var(--ph-secondary);
+  transition: var(--ph-transition);
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-sm);
+}
+
+.ph-nav-tab:hover {
+  background: var(--ph-light);
+  color: var(--ph-primary);
+}
+
+.ph-nav-tab.active {
+  background: var(--ph-gradient-primary);
+  color: white;
+  box-shadow: var(--ph-shadow-sm);
+}
+
+/* =============================================================================
+   COMPONENTES DE FORMULARIOS
+   ============================================================================= */
+
+.ph-form-section {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  box-shadow: var(--ph-shadow-sm);
+  margin-bottom: var(--ph-space-lg);
+  overflow: hidden;
+}
+
+.ph-form-section-header {
+  background: var(--ph-gradient-primary);
+  color: white;
+  padding: var(--ph-space-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-sm);
+}
+
+.ph-form-section-body {
+  padding: var(--ph-space-lg);
+}
+
+.ph-form-group {
+  margin-bottom: var(--ph-space-lg);
+}
+
+.ph-form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--ph-dark);
+  margin-bottom: var(--ph-space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-sm);
+}
+
+.ph-form-input {
+  width: 100%;
+  padding: var(--ph-space-md);
+  border: 2px solid #e9ecef;
+  border-radius: var(--ph-border-radius-md);
+  font-size: var(--ph-font-size-md);
+  transition: var(--ph-transition);
+}
+
+.ph-form-input:focus {
+  outline: none;
+  border-color: var(--ph-primary);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.ph-form-help {
+  font-size: var(--ph-font-size-sm);
+  color: var(--ph-secondary);
+  margin-top: var(--ph-space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-xs);
+}
+
+/* =============================================================================
+   COMPONENTES DE ALERTAS Y NOTIFICACIONES
+   ============================================================================= */
+
+.ph-alert {
+  padding: var(--ph-space-lg);
+  border-radius: var(--ph-border-radius-lg);
+  margin-bottom: var(--ph-space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-md);
+  box-shadow: var(--ph-shadow-sm);
+  border-left: 4px solid;
+}
+
+.ph-alert-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.ph-alert-content {
+  flex-grow: 1;
+}
+
+.ph-alert-title {
+  font-weight: 700;
+  margin-bottom: var(--ph-space-xs);
+}
+
+.ph-alert-description {
+  font-size: var(--ph-font-size-sm);
+  opacity: 0.9;
+}
+
+/* Tipos de alertas por pH */
+.ph-alert.ph-muy-acido {
+  background: rgba(139, 0, 0, 0.1);
+  border-left-color: var(--ph-muy-acido);
+  color: var(--ph-muy-acido);
+}
+
+.ph-alert.ph-acido {
+  background: rgba(220, 20, 60, 0.1);
+  border-left-color: var(--ph-acido);
+  color: var(--ph-acido);
+}
+
+.ph-alert.ph-neutro {
+  background: rgba(40, 167, 69, 0.1);
+  border-left-color: var(--ph-neutro);
+  color: var(--ph-neutro);
+}
+
+.ph-alert.ph-alcalino {
+  background: rgba(111, 66, 193, 0.1);
+  border-left-color: var(--ph-alcalino);
+  color: var(--ph-alcalino);
+}
+
+/* =============================================================================
+   COMPONENTES DE INTERPRETACIÓN DE PH
+   ============================================================================= */
+
+.ph-interpretation-container {
+  background: white;
+  border-radius: var(--ph-border-radius-lg);
+  padding: var(--ph-space-lg);
+  box-shadow: var(--ph-shadow-sm);
+  margin-bottom: var(--ph-space-lg);
+}
+
+.ph-interpretation-title {
+  font-size: var(--ph-font-size-lg);
+  font-weight: 700;
+  color: var(--ph-primary);
+  margin-bottom: var(--ph-space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-sm);
+}
+
+.ph-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-md);
+  margin-bottom: var(--ph-space-lg);
+}
+
+.ph-status-emoji {
+  font-size: 3rem;
+  animation: phStatusPulse 2s ease-in-out infinite;
+}
+
+@keyframes phStatusPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.ph-status-text {
+  flex-grow: 1;
+}
+
+.ph-recommendations {
+  border-top: 1px solid #e9ecef;
+  padding-top: var(--ph-space-lg);
+}
+
+.ph-recommendations h6 {
+  color: var(--ph-primary);
+  margin-bottom: var(--ph-space-md);
+}
+
+.ph-recommendations ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ph-recommendations li {
+  padding: var(--ph-space-sm) 0;
+  border-bottom: 1px solid #f8f9fa;
+  display: flex;
+  align-items: center;
+  gap: var(--ph-space-sm);
+}
+
+.ph-recommendations li:last-child {
+  border-bottom: none;
+}
+
+/* =============================================================================
+   UTILIDADES DE ESPACIADO
+   ============================================================================= */
+
+.ph-mb-0 { margin-bottom: 0 !important; }
+.ph-mb-xs { margin-bottom: var(--ph-space-xs) !important; }
+.ph-mb-sm { margin-bottom: var(--ph-space-sm) !important; }
+.ph-mb-md { margin-bottom: var(--ph-space-md) !important; }
+.ph-mb-lg { margin-bottom: var(--ph-space-lg) !important; }
+.ph-mb-xl { margin-bottom: var(--ph-space-xl) !important; }
+
+.ph-mt-0 { margin-top: 0 !important; }
+.ph-mt-xs { margin-top: var(--ph-space-xs) !important; }
+.ph-mt-sm { margin-top: var(--ph-space-sm) !important; }
+.ph-mt-md { margin-top: var(--ph-space-md) !important; }
+.ph-mt-lg { margin-top: var(--ph-space-lg) !important; }
+.ph-mt-xl { margin-top: var(--ph-space-xl) !important; }
+
+.ph-p-0 { padding: 0 !important; }
+.ph-p-xs { padding: var(--ph-space-xs) !important; }
+.ph-p-sm { padding: var(--ph-space-sm) !important; }
+.ph-p-md { padding: var(--ph-space-md) !important; }
+.ph-p-lg { padding: var(--ph-space-lg) !important; }
+.ph-p-xl { padding: var(--ph-space-xl) !important; }
+
+/* =============================================================================
+   COMPONENTES RESPONSIVOS ADICIONALES
+   ============================================================================= */
+
+@media (max-width: 480px) {
+  .ph-measurements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .ph-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .ph-scale-container {
+    height: 30px;
+  }
+  
+  .ph-marker {
+    width: 15px;
+    height: 15px;
+  }
+  
+  .ph-marker span {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+  }
+}
+
+/* =============================================================================
+   MODO OSCURO (OPCIONAL)
+   ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  .ph-page {
+    background: linear-gradient(135deg, #1a4727 0%, #155724 100%);
+  }
+  
+  .ph-card,
+  .ph-card-educational,
+  .ph-measurement-card,
+  .ph-stat,
+  .ph-form-section {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .ph-form-input {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #f8f9fa;
+  }
+  
+  .ph-form-input:focus {
+    border-color: var(--ph-primary);
+    background: #343a40;
+  }
+}
+
+/* =============================================================================
+   ANIMACIONES ESPECÍFICAS DE PH
+   ============================================================================= */
+
+@keyframes phGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.ph-gradient-animated {
+  background-size: 200% 200%;
+  animation: phGradientShift 4s ease-in-out infinite;
+}
+
+@keyframes phLevelIndicator {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.05) rotate(2deg); }
+}
+
+.ph-level-indicator {
+  animation: phLevelIndicator 3s ease-in-out infinite;
+}

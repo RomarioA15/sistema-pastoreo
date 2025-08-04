@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+
+{% block title %}Movimientos de Ganado - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/ganado.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="ganado-page">
+<div class="ganado-container ganado-fade-in">
+
+<!-- HEURÍSTICA 1: Visibilidad del Estado del Sistema -->
+<!-- Breadcrumb para mostrar contexto -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard_simple.index') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('ganado.lotes') }}">Ganado</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Movimientos</li>
+    </ol>
+</nav>
+
+<!-- Header con información clara del proceso -->
+<div class="ganado-header">
+    <div class="ganado-header-content">
+        <div>
+            <h1 class="ganado-title">
+                <i class="fas fa-exchange-alt"></i>
+                Centro de Movimientos de Ganado
+            </h1>
+            <p class="ganado-subtitle">🔄 Los movimientos registran el pastoreo rotacional, permitiendo controlar tiempos de ocupación, descanso y carga animal para optimizar la producción de forraje.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-clock me-1"></i>Pastoreo Rotacional
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-chart-line me-1"></i>Control de Carga
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-leaf me-1"></i>Recuperación del Pasto
+                </span>
+            </div>
+        </div>
+        <div class="ganado-actions">
+            <a href="{{ url_for('ganado.nuevo_movimiento') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-plus-circle me-2"></i>
+                Nuevo Movimiento
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 2: Coincidencia entre sistema y mundo real -->
+<!-- Dashboard de Estadísticas -->
+<div class="ganado-card mb-4">
+    <div class="ganado-card-header">
+        <h4 class="ganado-card-title">
+            <i class="fas fa-chart-bar"></i>
+            Estadísticas de Movimientos
+        </h4>
+    </div>
+    <div class="ganado-card-body">
+        <div class="row text-center">
+            <div class="col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-history text-primary"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ movimientos|length }}</div>
+                        <div class="stat-label">Movimientos Registrados</div>
+                        <div class="stat-description">Historial completo de rotaciones</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-play-circle text-success"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">
+                            {% set activos = movimientos|selectattr('fecha_salida', 'none')|list %}
+                            {{ activos|length }}
+                        </div>
+                        <div class="stat-label">Pastoreos Activos</div>
+                        <div class="stat-description">Lotes en potreros actualmente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- HEURÍSTICA 3: Control y Libertad del Usuario -->
+<!-- Layout responsivo de dos columnas -->
+<div class="ganado-grid-main">
+    <!-- COLUMNA PRINCIPAL: LISTA DE MOVIMIENTOS -->
+    <div class="ganado-main-content">
+
+        <!-- HEURÍSTICA 4: Consistencia y Estándares -->
+        <!-- Tips educativos -->
+        {% if movimientos|length < 5 %}
+        <div class="ganado-card mb-4">
+            <div class="ganado-card-body">
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-lightbulb me-3 fs-4"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Beneficios del Pastoreo Rotacional</h6>
+                            <small class="mb-0">El pastoreo rotacional permite que los potreros se recuperen mientras otros están siendo utilizados, mejorando la productividad del forraje y la salud del suelo. Recomendación: Tiempo de ocupación 3-7 días, descanso 21-35 días.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- HEURÍSTICA 5: Prevención de Errores -->
+        <!-- Historial de Movimientos -->
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h5 class="ganado-card-title">
+                    <i class="fas fa-exchange-alt"></i>
+                    Historial de Movimientos
+                </h5>
+                <small class="opacity-75">Control de pastoreo rotacional y tiempos de ocupación</small>
+                <span class="badge bg-light text-dark ms-auto">{{ movimientos|length }} registros</span>
+            </div>
+            <div class="ganado-card-body">
+                {% if movimientos %}
+                <div class="row">
+                    {% for movimiento in movimientos %}
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="ganado-card ganado-lote-card h-100">
+                            <!-- HEURÍSTICA 6: Reconocimiento más que Recordar -->
+                            <!-- Header con estado visual claro -->
+                            <div class="ganado-card-header d-flex justify-content-between align-items-center">
+                                <h6 class="ganado-card-title mb-0">
+                                    <i class="fas fa-cow me-2"></i>
+                                    {{ movimiento.lote_nombre }}
+                                </h6>
+                                {% if movimiento.fecha_salida %}
+                                    <span class="badge bg-secondary">Finalizado</span>
+                                {% else %}
+                                    <span class="badge bg-success">Activo</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="ganado-card-body">
+                                <!-- Información del potrero -->
+                                <div class="mb-3">
+                                    <div class="alert alert-light border-start border-info border-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-map-marker-alt text-info me-2"></i>
+                                            <span><strong>Potrero:</strong> {{ movimiento.potrero_nombre }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Timeline de fechas -->
+                                <div class="mb-3">
+                                    <small class="text-muted">Cronología del pastoreo</small>
+                                    <div class="d-flex justify-content-between align-items-center my-2">
+                                        <div class="text-center">
+                                            <i class="fas fa-play-circle text-success"></i>
+                                            <div class="small text-muted">Entrada</div>
+                                            <div class="fw-bold">{{ movimiento.fecha_entrada.strftime('%d/%m/%Y') }}</div>
+                                        </div>
+                                        {% if movimiento.fecha_salida %}
+                                            <div class="text-center">
+                                                <i class="fas fa-stop-circle text-secondary"></i>
+                                                <div class="small text-muted">Salida</div>
+                                                <div class="fw-bold">{{ movimiento.fecha_salida.strftime('%d/%m/%Y') }}</div>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center">
+                                                <i class="fas fa-clock text-warning"></i>
+                                                <div class="small text-warning">En pastoreo</div>
+                                                <div class="fw-bold">Activo</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- HEURÍSTICA 7: Flexibilidad y Eficiencia de Uso -->
+                                <!-- Métricas principales -->
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <div class="info-item text-center">
+                                            <i class="fas fa-cow text-primary me-1"></i>
+                                            <small class="text-muted d-block">Animales:</small>
+                                            <div class="fw-bold text-primary h6">{{ movimiento.cantidad_animales }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="info-item text-center">
+                                            <i class="fas fa-calendar text-info me-1"></i>
+                                            <small class="text-muted d-block">Días:</small>
+                                            <div class="fw-bold text-info h6">
+                                                {% if movimiento.fecha_salida %}
+                                                    {{ (movimiento.fecha_salida - movimiento.fecha_entrada).days }}
+                                                {% else %}
+                                                    {% set today = moment().date() if moment else movimiento.fecha_entrada %}
+                                                    {{ (today - movimiento.fecha_entrada).days }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="info-item text-center">
+                                            <i class="fas fa-weight text-success me-1"></i>
+                                            <small class="text-muted d-block">Peso entrada:</small>
+                                            <div class="fw-bold text-success h6">{{ "%.0f"|format(movimiento.peso_promedio_entrada) }} kg</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Comparación de peso -->
+                                {% if movimiento.peso_promedio_salida %}
+                                <div class="mb-3">
+                                    {% set ganancia = movimiento.peso_promedio_salida - movimiento.peso_promedio_entrada %}
+                                    <div class="alert alert-{% if ganancia > 0 %}success{% elif ganancia < 0 %}warning{% else %}secondary{% endif %} text-center py-2">
+                                        <div class="fw-bold">
+                                            {% if ganancia > 0 %}+{% endif %}{{ "%.1f"|format(ganancia) }} kg/animal
+                                        </div>
+                                        <small>Ganancia de peso durante el pastoreo</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Observaciones -->
+                                {% if movimiento.observaciones %}
+                                <div class="mb-3">
+                                    <div class="alert alert-light py-2">
+                                        <small>
+                                            <i class="fas fa-sticky-note text-muted me-1"></i>
+                                            {{ movimiento.observaciones[:80] }}{% if movimiento.observaciones|length > 80 %}...{% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- HEURÍSTICA 8: Diseño Estético y Minimalista -->
+                                <!-- Acciones principales -->
+                                <div class="d-grid">
+                                    {% if not movimiento.fecha_salida %}
+                                        <button type="button" class="btn btn-warning" 
+                                                data-bs-toggle="modal" data-bs-target="#finalizarModal-{{ movimiento.id }}">
+                                            <i class="fas fa-stop-circle me-2"></i>Finalizar Pastoreo
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary" disabled>
+                                            <i class="fas fa-check-circle me-2"></i>Pastoreo Completado
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HEURÍSTICA 9: Ayuda a los usuarios a reconocer, diagnosticar y recuperarse de errores -->
+                    <!-- Modal para finalizar movimiento -->
+                    {% if not movimiento.fecha_salida %}
+                    <div class="modal fade" id="finalizarModal-{{ movimiento.id }}" tabindex="-1" aria-labelledby="finalizarModalLabel{{ movimiento.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header ganado-card-header">
+                                    <h5 class="modal-title ganado-card-title" id="finalizarModalLabel{{ movimiento.id }}">
+                                        <i class="fas fa-stop-circle me-2"></i>
+                                        Finalizar Pastoreo
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <form action="{{ url_for('ganado.finalizar_movimiento', movimiento_id=movimiento.id) }}" method="POST">
+                                    <div class="modal-body">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Estás a punto de finalizar el pastoreo. Asegúrate de ingresar la información correcta.
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p><strong>Lote:</strong> {{ movimiento.lote_nombre }}</p>
+                                            <p><strong>Potrero:</strong> {{ movimiento.potrero_nombre }}</p>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="fecha_salida{{ movimiento.id }}" class="form-label required">
+                                                    <i class="fas fa-calendar text-primary me-2"></i>
+                                                    <strong>Fecha de Salida</strong>
+                                                </label>
+                                                <input type="date" 
+                                                       class="form-control" 
+                                                       id="fecha_salida{{ movimiento.id }}" 
+                                                       name="fecha_salida" 
+                                                       required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="peso_salida{{ movimiento.id }}" class="form-label">
+                                                    <i class="fas fa-weight text-success me-2"></i>
+                                                    Peso Promedio Salida
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="number" 
+                                                           class="form-control" 
+                                                           id="peso_salida{{ movimiento.id }}" 
+                                                           name="peso_promedio_salida" 
+                                                           step="0.1" 
+                                                           min="0" 
+                                                           placeholder="{{ "%.0f"|format(movimiento.peso_promedio_entrada) }}">
+                                                    <span class="input-group-text">kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="observaciones{{ movimiento.id }}" class="form-label">
+                                                <i class="fas fa-sticky-note text-muted me-2"></i>
+                                                Observaciones
+                                            </label>
+                                            <textarea class="form-control" 
+                                                      id="observaciones{{ movimiento.id }}" 
+                                                      name="observaciones" 
+                                                      rows="3" 
+                                                      placeholder="Estado del pasto, condición del ganado, observaciones del periodo..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                            <i class="fas fa-times me-1"></i>Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-stop-circle me-1"></i>Finalizar Pastoreo
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                    <!-- Estado vacío con orientación clara -->
+                    <div class="text-center py-5">
+                        <div class="ganado-empty-icon mb-4" style="font-size: 4rem; opacity: 0.3; color: var(--ganado-brown);">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h4 class="mb-3">¡Inicia el Pastoreo Rotacional!</h4>
+                        <p class="mb-4 text-muted">
+                            Registra movimientos de ganado para optimizar el uso de tus potreros y mejorar la productividad del forraje.
+                        </p>
+                        <a href="{{ url_for('ganado.nuevo_movimiento') }}" class="btn btn-success btn-lg px-5">
+                            <i class="fas fa-plus-circle me-2"></i>Registrar Mi Primer Movimiento
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- COLUMNA LATERAL: GUÍA EDUCATIVA -->
+    <div class="ganado-sidebar">
+        <!-- HEURÍSTICA 10: Ayuda y Documentación -->
+        <!-- Panel de Guía de Pastoreo -->
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h5 class="ganado-card-title">
+                    <i class="fas fa-graduation-cap text-primary"></i>
+                    Guía de Pastoreo Rotacional
+                </h5>
+            </div>
+            <div class="ganado-card-body">
+                <div class="help-section">
+                    <h6><i class="fas fa-clock text-primary me-1"></i>Tiempo de Ocupación</h6>
+                    <p class="small text-muted mb-3">
+                        Días que el ganado permanece en un potrero (3-7 días ideal para optimizar el aprovechamiento)
+                    </p>
+                </div>
+                
+                <div class="help-section">
+                    <h6><i class="fas fa-leaf text-success me-1"></i>Tiempo de Descanso</h6>
+                    <p class="small text-muted mb-3">
+                        Período de recuperación del pasto (21-35 días recomendado para regeneración completa)
+                    </p>
+                </div>
+                
+                <div class="help-section">
+                    <h6><i class="fas fa-chart-line text-warning me-1"></i>Beneficios</h6>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li>Mejor aprovechamiento del forraje</li>
+                        <li>Recuperación natural del pasto</li>
+                        <li>Mayor productividad por hectárea</li>
+                        <li>Control de malezas y parásitos</li>
+                        <li>Mejora de la fertilidad del suelo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de Tiempos Recomendados -->
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h6 class="ganado-card-title">
+                    <i class="fas fa-stopwatch text-info"></i>
+                    Tiempos Recomendados
+                </h6>
+            </div>
+            <div class="ganado-card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success">Ocupación</span>
+                    <small>3-7 días máximo</small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary">Descanso</span>
+                    <small>21-35 días mínimo</small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-warning">Altura entrada</span>
+                    <small>20-25 cm de pasto</small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-info">Altura salida</span>
+                    <small>8-12 cm residual</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de Mejores Prácticas -->
+        <div class="ganado-card">
+            <div class="ganado-card-header">
+                <h6 class="ganado-card-title">
+                    <i class="fas fa-star text-success"></i>
+                    Mejores Prácticas
+                </h6>
+            </div>
+            <div class="ganado-card-body">
+                <ul class="small text-muted ps-3 mb-0">
+                    <li>Monitorear altura del pasto</li>
+                    <li>Registrar pesos de entrada y salida</li>
+                    <li>Observar condición corporal</li>
+                    <li>Evaluar disponibilidad de agua</li>
+                    <li>Planificar rotaciones con anticipación</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/ganado.js') }}"></script>
+<script>
+// Funcionalidad específica de movimientos
+console.log('Sistema de movimientos de ganado cargado');
+
+// Inicializar sistema al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeMovimientosSystem();
+    setupDateValidation();
+});
+
+// Función principal de inicialización
+function initializeMovimientosSystem() {
+    console.log('Movimientos de ganado inicializados');
+    
+    // Inicializar tooltips si están disponibles
+    initializeTooltips();
+    
+    // Configurar validaciones de formularios en modales
+    setupModalValidations();
+}
+
+// Configurar validación de fechas
+function setupDateValidation() {
+    const fechaSalidaInputs = document.querySelectorAll('input[name="fecha_salida"]');
+    const today = new Date().toISOString().split('T')[0];
+    
+    fechaSalidaInputs.forEach(input => {
+        input.max = today;
+        input.addEventListener('change', function() {
+            if (this.value > today) {
+                showNotification('La fecha de salida no puede ser futura', 'warning');
+                this.value = today;
+            }
+        });
+    });
+}
+
+// Configurar validaciones de modales
+function setupModalValidations() {
+    const forms = document.querySelectorAll('form[action*="finalizar_movimiento"]');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const fechaSalida = this.querySelector('input[name="fecha_salida"]').value;
+            
+            if (!fechaSalida) {
+                e.preventDefault();
+                showNotification('Por favor selecciona una fecha de salida', 'danger');
+                return;
+            }
+            
+            // Mostrar confirmación
+            if (!confirm('¿Estás seguro de que quieres finalizar este pastoreo?')) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Cambiar texto del botón
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Finalizando...';
+            submitBtn.disabled = true;
+        });
+    });
+}
+
+// Función para mostrar notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Inicializar tooltips
+function initializeTooltips() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+}
+</script>
+{% endblock %} 

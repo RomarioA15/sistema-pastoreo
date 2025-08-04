@@ -1,0 +1,587 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Recorrido Semanal - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules/recorridos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="recorridos-page">
+  <div class="recorridos-container">
+    
+    <!-- HEADER CON NAVEGACIÓN -->
+    <div class="recorridos-header recorridos-fade-in">
+      <div class="recorridos-header-content">
+        <div>
+          <h1 class="recorridos-title">
+            <i class="fas fa-route"></i>
+            Nuevo Recorrido Semanal
+          </h1>
+          <p class="recorridos-subtitle">
+            Sistema inteligente de inspección y evaluación del estado del pasto para optimización del pastoreo
+          </p>
+          <nav class="mt-3" aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item"><a href="{{ url_for('recorridos.index') }}" class="text-white">Recorridos</a></li>
+              <li class="breadcrumb-item active text-white-50" aria-current="page">Nuevo Recorrido</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="recorridos-actions">
+          <a href="{{ url_for('recorridos.index') }}" class="btn btn-outline-light">
+            <i class="fas fa-arrow-left me-2"></i>
+            Volver a Lista
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN INTRODUCTORIA -->
+    <div class="recorridos-card recorridos-fade-in">
+      <div class="recorridos-card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>
+          ¿Qué es un recorrido semanal y por qué hacerlo?
+        </h5>
+      </div>
+      <div class="recorridos-card-body">
+        <p class="recorridos-mb-md">
+          Un <strong>recorrido semanal</strong> es una inspección sistemática del potrero para evaluar 
+          la condición del pasto y detectar problemas temprano.
+        </p>
+        <div class="recorridos-stats-grid">
+          <div class="text-center">
+            <div class="recorridos-measurement-icon">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="recorridos-measurement-label">Detección Temprana</div>
+            <div class="recorridos-measurement-description">
+              Identifica problemas antes de que se agraven
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="recorridos-measurement-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="recorridos-measurement-label">Seguimiento del Crecimiento</div>
+            <div class="recorridos-measurement-description">
+              Monitorea el desarrollo del pasto
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="recorridos-measurement-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="recorridos-measurement-label">Planificación</div>
+            <div class="recorridos-measurement-description">
+              Decide cuándo rotar o intervenir
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="recorridos-measurement-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="recorridos-measurement-label">Prevención</div>
+            <div class="recorridos-measurement-description">
+              Evita pérdidas por plagas o enfermedades
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESO DEL RECORRIDO -->
+    <div class="recorridos-card recorridos-fade-in">
+      <div class="recorridos-card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-clipboard-list me-2"></i>
+          Proceso del Recorrido Semanal - 6 Pasos Clave
+        </h5>
+      </div>
+      <div class="recorridos-card-body">
+        <div class="recorridos-timeline">
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-primary">1. Planifica tu Ruta</h6>
+              <p class="mb-2">Define puntos estratégicos de medición distribuidos por todo el potrero</p>
+            </div>
+          </div>
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-success">2. Recorre el Potrero</h6>
+              <p class="mb-2">Camina de forma sistemática siguiendo un patrón en zigzag o cuadrícula</p>
+            </div>
+          </div>
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-info">3. Mide Alturas</h6>
+              <p class="mb-2">Registra altura del pasto en diferentes puntos representativos</p>
+            </div>
+          </div>
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-warning">4. Evalúa Cobertura</h6>
+              <p class="mb-2">Estima el porcentaje de suelo cubierto por vegetación</p>
+            </div>
+          </div>
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-danger">5. Detecta Problemas</h6>
+              <p class="mb-2">Busca plagas, enfermedades, daños o condiciones anómalas</p>
+            </div>
+          </div>
+          <div class="recorridos-timeline-item">
+            <div class="recorridos-timeline-content">
+              <h6 class="fw-bold text-secondary">6. Registra Datos</h6>
+              <p class="mb-2">Documenta toda la información en el sistema para análisis posterior</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="recorridos-grid-main">
+      
+      <!-- CONTENIDO PRINCIPAL DEL FORMULARIO -->
+      <div class="recorridos-main-content">
+        <div class="recorridos-form-section recorridos-fade-in">
+          <div class="recorridos-form-section-header">
+            <i class="fas fa-edit"></i>
+            Datos del Recorrido
+          </div>
+          <div class="recorridos-form-section-body">
+            <form method="POST" id="recorridoForm">
+                    
+              <!-- SECCIÓN 1: INFORMACIÓN BÁSICA -->
+              <div class="recorridos-form-section">
+                <div class="recorridos-form-section-header">
+                  <i class="fas fa-map-marker-alt"></i>
+                  1. Información Básica
+                </div>
+                <div class="recorridos-form-section-body">
+                  <div class="row">
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="potrero_id" class="recorridos-form-label">
+                          <i class="fas fa-map-marker-alt"></i>
+                          ¿Qué potrero vas a recorrer? <span class="text-danger">*</span>
+                        </label>
+                        <select class="recorridos-form-input" id="potrero_id" name="potrero_id" required>
+                          <option value="">🌾 Selecciona tu potrero</option>
+                          {% for potrero in potreros %}
+                          <option value="{{ potrero.id }}" 
+                                  data-hectareas="{{ potrero.hectareas }}"
+                                  data-tipo-pasto="{{ potrero.tipo_pasto }}">
+                            🌱 {{ potrero.nombre }} ({{ potrero.hectareas }} ha - {{ potrero.tipo_pasto }})
+                          </option>
+                          {% endfor %}
+                        </select>
+                        <div class="recorridos-form-help">
+                          <i class="fas fa-lightbulb"></i>
+                          Elige el potrero que inspeccionarás hoy
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="fecha" class="recorridos-form-label">
+                          <i class="fas fa-calendar"></i>
+                          ¿Cuándo haces el recorrido? <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="recorridos-form-input" id="fecha" name="fecha" required>
+                        <div class="recorridos-form-help">
+                          <i class="fas fa-calendar"></i>
+                          Fecha de la inspección del potrero
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="responsable" class="recorridos-form-label">
+                          <i class="fas fa-user"></i>
+                          Persona responsable
+                        </label>
+                        <input type="text" class="recorridos-form-input" id="responsable" name="responsable" 
+                               placeholder="Ej: Juan Pérez">
+                        <div class="recorridos-form-help">
+                          Nombre de quien realiza el recorrido
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="puntos_medicion" class="recorridos-form-label">
+                          <i class="fas fa-crosshairs"></i>
+                          Puntos de medición
+                        </label>
+                        <select class="recorridos-form-input" id="puntos_medicion" name="puntos_medicion" onchange="generarPuntosMedicion()">
+                          <option value="3">3 puntos (básico)</option>
+                          <option value="5" selected>5 puntos (recomendado)</option>
+                          <option value="7">7 puntos (detallado)</option>
+                          <option value="10">10 puntos (exhaustivo)</option>
+                        </select>
+                        <div class="recorridos-form-help">
+                          Más puntos = mayor precisión en la evaluación
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 2: MEDICIONES GENERALES -->
+              <div class="recorridos-form-section">
+                <div class="recorridos-form-section-header">
+                  <i class="fas fa-ruler-vertical"></i>
+                  2. Mediciones Generales del Pasto
+                </div>
+                <div class="recorridos-form-section-body">
+                        
+                  <div class="recorridos-alert growth-good recorridos-mb-lg">
+                    <div class="recorridos-alert-icon">📎</div>
+                    <div class="recorridos-alert-content">
+                      <div class="recorridos-alert-title">Método de Medición por Pesaje</div>
+                      <div class="recorridos-alert-description">
+                        En cada punto, coloca un marco de 1m², mide altura y pesa el pasto cortado.
+                        Las mediciones detalladas de peso se registran en la sección de puntos individuales más abajo.
+                      </div>
+                    </div>
+                  </div>
+                        
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="cobertura_vegetal" class="recorridos-form-label">
+                          <i class="fas fa-percentage"></i>
+                          Cobertura Vegetal <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                          <input type="number" class="recorridos-form-input" id="cobertura_vegetal" name="cobertura_vegetal" 
+                                 min="0" max="100" required placeholder="85">
+                          <span class="input-group-text bg-success text-white fw-bold">%</span>
+                        </div>
+                        <div class="recorridos-form-help">
+                          <strong>¿Qué porcentaje del suelo está cubierto por pasto?</strong><br>
+                          <small>
+                            • 90-100%: Excelente • 70-89%: Buena • 50-69%: Regular • <50%: Deficiente
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="estado_general" class="recorridos-form-label">
+                          <i class="fas fa-star"></i>
+                          Estado General del Potrero <span class="text-danger">*</span>
+                        </label>
+                        <select class="recorridos-form-input" id="estado_general" name="estado_general" required>
+                          <option value="">🤔 ¿Cómo está el potrero?</option>
+                          <option value="Excelente">🌟 Excelente - Pasto vigoroso y uniforme</option>
+                          <option value="Bueno">😊 Bueno - Condición satisfactoria</option>
+                          <option value="Regular">😐 Regular - Algunos problemas menores</option>
+                          <option value="Malo">😟 Malo - Necesita atención urgente</option>
+                          <option value="Crítico">😱 Crítico - Requiere intervención inmediata</option>
+                        </select>
+                        <div class="recorridos-form-help">
+                          <i class="fas fa-eye"></i>
+                          Tu impresión general después del recorrido
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-form-group">
+                        <label for="humedad_suelo" class="recorridos-form-label">
+                          <i class="fas fa-tint"></i>
+                          Humedad del Suelo
+                        </label>
+                        <select class="recorridos-form-input" id="humedad_suelo" name="humedad_suelo">
+                          <option value="">No evaluado</option>
+                          <option value="Seco">🏜️ Seco - Suelo reseco, polvoriento</option>
+                          <option value="Ligeramente húmedo">🌾 Ligeramente húmedo - Algo fresco</option>
+                          <option value="Húmedo">💧 Húmedo - Suelo fresco al tacto</option>
+                          <option value="Muy húmedo">🌊 Muy húmedo - Suelo blando</option>
+                          <option value="Encharcado">🌊 Encharcado - Agua visible</option>
+                        </select>
+                        <div class="recorridos-form-help">
+                          Presiona el suelo con el pie para evaluar
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 3: CONDICIONES ESPECIALES -->
+              <div class="recorridos-form-section">
+                <div class="recorridos-form-section-header">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  3. Condiciones Especiales Detectadas
+                </div>
+                <div class="recorridos-form-section-body">
+                  <div class="row">
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-card">
+                        <div class="recorridos-card-header">
+                          <h6 class="mb-0">
+                            <i class="fas fa-search me-2"></i>
+                            ¿Detectaste algún problema?
+                          </h6>
+                        </div>
+                        <div class="recorridos-card-body">
+                          <div class="recorridos-form-group">
+                            <div class="form-check p-3 border rounded recorridos-mb-md">
+                              <input class="form-check-input" type="checkbox" id="presencia_plagas" name="presencia_plagas">
+                              <label class="form-check-label fw-bold" for="presencia_plagas">
+                                <i class="fas fa-bug text-danger me-2"></i> 
+                                Presencia de plagas o enfermedades
+                              </label>
+                              <div class="recorridos-form-help mt-2">
+                                Manchas, hojas amarillas, insectos, hongos, etc.
+                              </div>
+                            </div>
+                            
+                            <div class="form-check p-3 border rounded recorridos-mb-md">
+                              <input class="form-check-input" type="checkbox" id="necesita_riego" name="necesita_riego">
+                              <label class="form-check-label fw-bold" for="necesita_riego">
+                                <i class="fas fa-tint text-info me-2"></i> 
+                                Necesita riego
+                              </label>
+                              <div class="recorridos-form-help mt-2">
+                                Pasto marchito, suelo muy seco, crecimiento lento
+                              </div>
+                            </div>
+                            
+                            <div class="form-check p-3 border rounded">
+                              <input class="form-check-input" type="checkbox" id="necesita_fertilizacion" name="necesita_fertilizacion">
+                              <label class="form-check-label fw-bold" for="necesita_fertilizacion">
+                                <i class="fas fa-seedling text-success me-2"></i> 
+                                Necesita fertilización
+                              </label>
+                              <div class="recorridos-form-help mt-2">
+                                Pasto amarillento, crecimiento lento, baja densidad
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                        
+                    <div class="col-md-6">
+                      <div class="recorridos-card">
+                        <div class="recorridos-card-header">
+                          <h6 class="mb-0">
+                            <i class="fas fa-comment-dots me-2"></i>
+                            Observaciones Importantes
+                          </h6>
+                        </div>
+                        <div class="recorridos-card-body">
+                          <div class="recorridos-form-group">
+                            <textarea class="recorridos-form-input" id="observaciones" name="observaciones" rows="8" 
+                                      placeholder="Ejemplo:
+• Zona norte con buen crecimiento
+• Área cerca del bebedero pisoteada
+• Se observaron algunas malezas en la esquina sur
+• Pasto se ve saludable en general
+• Recomendar fertilización en 2 semanas"></textarea>
+                            <div class="recorridos-form-help">
+                              <i class="fas fa-lightbulb"></i>
+                              <strong>Incluye:</strong> Zonas problemáticas, recomendaciones, fechas sugeridas para acciones
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN 4: PUNTOS DE MEDICIÓN DETALLADOS -->
+              <div class="recorridos-form-section">
+                <div class="recorridos-form-section-header">
+                  <i class="fas fa-map-marked-alt"></i>
+                  4. Puntos de Medición Detallados
+                </div>
+                <div class="recorridos-form-section-body">
+                  <div class="recorridos-alert growth-regular recorridos-mb-lg">
+                    <div class="recorridos-alert-icon">📍</div>
+                    <div class="recorridos-alert-content">
+                      <div class="recorridos-alert-title">Instrucciones de Medición</div>
+                      <div class="recorridos-alert-description">
+                        Distribuye los puntos de medición por todo el potrero. 
+                        Evita medir solo en las mejores zonas - incluye áreas representativas.
+                      </div>
+                    </div>
+                  </div>
+                  <div id="puntosMedicion">
+                    <!-- Los puntos se generarán dinámicamente con JavaScript -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- BOTONES DE ACCIÓN -->
+              <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-4">
+                <a href="{{ url_for('recorridos.index') }}" class="btn btn-outline-secondary btn-lg">
+                  <i class="fas fa-arrow-left me-2"></i>
+                  Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary btn-lg px-5" id="guardar-btn">
+                  <i class="fas fa-save me-2"></i>
+                  Guardar Recorrido
+                  <i class="fas fa-check ms-2"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SIDEBAR EDUCATIVO -->
+      <div class="recorridos-sidebar">
+        <!-- GUÍA DEL RECORRIDO -->
+        <div class="recorridos-card recorridos-fade-in">
+          <div class="recorridos-card-header">
+            <h6 class="mb-0">
+              <i class="fas fa-compass me-2"></i>
+              Guía del Recorrido
+            </h6>
+          </div>
+          <div class="recorridos-card-body">
+            <div id="consejo-potrero" class="recorridos-mb-md" style="display: none;">
+              <div class="recorridos-alert growth-good">
+                <div class="recorridos-alert-icon">🌿</div>
+                <div class="recorridos-alert-content">
+                  <div class="recorridos-alert-title">Potrero Seleccionado</div>
+                  <div class="recorridos-alert-description">
+                    <span id="nombre-potrero"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <h6 class="text-primary recorridos-mb-md">Consejos para el Recorrido</h6>
+            <ul class="small recorridos-mb-md">
+              <li class="recorridos-mb-sm"><strong>Horario ideal:</strong> Mañana temprano o tarde</li>
+              <li class="recorridos-mb-sm"><strong>Ruta sistemática:</strong> Camina en zigzag o cuadrícula</li>
+              <li class="recorridos-mb-sm"><strong>Mide en diferentes zonas:</strong> Altas, bajas, secas, húmedas</li>
+              <li class="recorridos-mb-sm"><strong>Observa detalles:</strong> Color, densidad, plagas</li>
+              <li class="recorridos-mb-sm"><strong>Toma fotos</strong> de problemas importantes</li>
+            </ul>
+
+            <div id="feedback-alturas" style="display: none;">
+              <div class="recorridos-alert growth-good">
+                <div class="recorridos-alert-icon">✓</div>
+                <div class="recorridos-alert-content">
+                  <div class="recorridos-alert-title">Alturas Consistentes</div>
+                  <div class="recorridos-alert-description">
+                    <span id="mensaje-alturas"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="advertencia-alturas" style="display: none;">
+              <div class="recorridos-alert growth-regular">
+                <div class="recorridos-alert-icon">⚠️</div>
+                <div class="recorridos-alert-content">
+                  <div class="recorridos-alert-title">Revisa las Alturas</div>
+                  <div class="recorridos-alert-description">
+                    <span id="mensaje-advertencia-alturas"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REFERENCIAS RÁPIDAS -->
+        <div class="recorridos-card">
+          <div class="recorridos-card-header">
+            <h6 class="mb-0">
+              <i class="fas fa-ruler me-2"></i>
+              Referencias de Altura
+            </h6>
+          </div>
+          <div class="recorridos-card-body">
+            <h6 class="text-success recorridos-mb-md">Alturas Ideales</h6>
+            <div class="text-center recorridos-mb-lg">
+              <div class="border rounded p-3 bg-light">
+                <div class="fw-bold text-success">Pastoreo Óptimo</div>
+                <div class="h5 text-primary">15-25 cm</div>
+              </div>
+            </div>
+
+            <h6 class="text-warning recorridos-mb-md">Señales de Alerta</h6>
+            <div class="small recorridos-mb-lg">
+              <div class="d-flex justify-content-between recorridos-mb-sm">
+                <span>Muy bajo:</span>
+                <strong class="text-danger">&lt; 10 cm</strong>
+              </div>
+              <div class="d-flex justify-content-between recorridos-mb-sm">
+                <span>Muy alto:</span>
+                <strong class="text-warning">&gt; 40 cm</strong>
+              </div>
+              <div class="d-flex justify-content-between recorridos-mb-sm">
+                <span>Diferencia excesiva:</span>
+                <strong class="text-danger">&gt; 20 cm</strong>
+              </div>
+            </div>
+
+            <h6 class="text-info recorridos-mb-md">Estado por Cobertura</h6>
+            <div class="small">
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-success">90-100%</span> Excelente
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-primary">70-89%</span> Bueno
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-warning">50-69%</span> Regular
+              </div>
+              <div class="recorridos-mb-sm">
+                <span class="badge bg-danger">&lt;50%</span> Deficiente
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+<script>
+// JavaScript específico para la página de nuevo recorrido
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🌱 Inicializando formulario de nuevo recorrido...');
+    
+    // El módulo principal ya maneja la inicialización
+    // Configurar fecha por defecto si no está establecida
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput && !fechaInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        fechaInput.value = today;
+    }
+    
+    // Generar puntos de medición inicial
+    setTimeout(() => {
+        if (typeof generarPuntosMedicion === 'function') {
+            generarPuntosMedicion();
+        }
+    }, 500);
+    
+    console.log('✅ Formulario de nuevo recorrido inicializado');
+});
+</script>
+{% endblock %} 

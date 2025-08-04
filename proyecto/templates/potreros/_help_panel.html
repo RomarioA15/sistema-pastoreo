@@ -1,0 +1,134 @@
+<!-- Panel de ayuda reutilizable para formularios de potreros -->
+<div class="card h-100">
+    <div class="card-header bg-info text-white">
+        <h6 class="mb-0">
+            <i class="fas fa-lightbulb me-2"></i>
+            Consejos y Ayuda
+        </h6>
+    </div>
+    <div class="card-body">
+        <!-- Consejos para nuevo potrero -->
+        <div class="mb-4">
+            <h6 class="text-primary">
+                <i class="fas fa-seedling me-2"></i>
+                Planificación del Potrero
+            </h6>
+            <ul class="list-unstyled small">
+                <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Área óptima:</strong> Entre 2-5 hectáreas para manejo eficiente
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Capacidad:</strong> 1-2 animales por hectárea según el tipo de pastura
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    <strong>Rotación:</strong> Planificar períodos de pastoreo y descanso
+                </li>
+            </ul>
+        </div>
+
+        <!-- Tipos de pastura -->
+        <div class="mb-4">
+            <h6 class="text-primary">
+                <i class="fas fa-leaf me-2"></i>
+                Tipos de Pastura
+            </h6>
+            <div class="accordion accordion-flush" id="pasturaAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#brachiaria">
+                            Brachiaria
+                        </button>
+                    </h2>
+                    <div id="brachiaria" class="accordion-collapse collapse" data-bs-parent="#pasturaAccordion">
+                        <div class="accordion-body small">
+                            Resistente a sequía, ideal para climas tropicales. Capacidad: 2-3 animales/ha.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#guinea">
+                            Guinea
+                        </button>
+                    </h2>
+                    <div id="guinea" class="accordion-collapse collapse" data-bs-parent="#pasturaAccordion">
+                        <div class="accordion-body small">
+                            Excelente productividad, requiere buen manejo. Capacidad: 3-4 animales/ha.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#estrella">
+                            Estrella Africana
+                        </button>
+                    </h2>
+                    <div id="estrella" class="accordion-collapse collapse" data-bs-parent="#pasturaAccordion">
+                        <div class="accordion-body small">
+                            Adaptable a diferentes suelos, buena palatabilidad. Capacidad: 2-3 animales/ha.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicadores de estado -->
+        <div class="mb-4">
+            <h6 class="text-primary">
+                <i class="fas fa-chart-line me-2"></i>
+                Estados del Potrero
+            </h6>
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <div class="small"><strong>Bueno</strong></div>
+                        <div class="text-muted small">Listo para pastoreo</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2 bg-warning bg-opacity-10 rounded">
+                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                        <div class="small"><strong>Regular</strong></div>
+                        <div class="text-muted small">Manejo cuidadoso</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
+                        <i class="fas fa-times-circle text-danger"></i>
+                        <div class="small"><strong>Malo</strong></div>
+                        <div class="text-muted small">Requiere mejoras</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-center p-2 bg-info bg-opacity-10 rounded">
+                        <i class="fas fa-pause-circle text-info"></i>
+                        <div class="small"><strong>Descanso</strong></div>
+                        <div class="text-muted small">Recuperación</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces útiles -->
+        <div class="border-top pt-3">
+            <h6 class="text-primary">
+                <i class="fas fa-external-link-alt me-2"></i>
+                Enlaces Útiles
+            </h6>
+            <div class="d-grid gap-2">
+                <a href="#" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-calculator me-1"></i>
+                    Calculadora de Capacidad
+                </a>
+                <a href="#" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-map me-1"></i>
+                    Ver en Mapa
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

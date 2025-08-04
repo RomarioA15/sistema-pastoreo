@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+
+{% block title %}Recorridos - Sistema de Gestión de Pastoreo{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recorridos.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="template-container">
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="breadcrumb-custom">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('dashboard_simple.index') }}" class="text-decoration-none">
+                <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <i class="fas fa-route me-1"></i>Recorridos
+        </li>
+    </ol>
+</nav>
+
+<!-- Educational Header -->
+<div class="template-header educational-header">
+    <div class="row align-items-center position-relative">
+        <div class="col-lg-8 col-md-12">
+            <h1 class="mb-3">
+                <i class="fas fa-route me-3"></i>
+                Centro de Monitoreo de Crecimiento
+            </h1>
+            <p class="fs-5 mb-3 opacity-90 text-responsive-wrap">
+                🌱 Los recorridos semanales te permiten monitorear el crecimiento del pasto y tomar decisiones oportunas para optimizar la producción.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-chart-line me-1"></i>Monitoreo continuo
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-seedling me-1"></i>Crecimiento optimizado
+                </span>
+                <span class="badge bg-light text-dark px-3 py-2">
+                    <i class="fas fa-calendar-check me-1"></i>Seguimiento semanal
+                </span>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-12 text-lg-end text-center mt-3 mt-lg-0">
+            <a href="{{ url_for('recorridos.nuevo') }}" class="btn btn-light btn-lg shadow-lg">
+                <i class="fas fa-plus-circle me-2"></i>
+                <span>Nuevo Recorrido</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="template-grid">
+    <!-- Main Content -->
+    <div class="col-8">
+        <!-- Educational Stats -->
+        <div class="row mb-4">
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-value text-primary">{{ total }}</div>
+                    <div class="metric-label">Recorridos Registrados</div>
+                    <div class="metric-explanation">
+                        Cada recorrido documenta el estado y crecimiento del pasto
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-value text-success">
+                        {% if recorridos %}
+                            {% set total_altura = recorridos | map(attribute='altura_promedio') | sum %}
+                            {{ "%.1f"|format(total_altura / recorridos|length) }} cm
+                        {% else %}
+                            0 cm
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Altura Promedio</div>
+                    <div class="metric-explanation">
+                        Altura media del pasto en todos los potreros (óptimo: 15-25 cm)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-value text-info">
+                        {% if recorridos %}
+                            {% set total_cobertura = recorridos | map(attribute='cobertura_vegetal') | sum %}
+                            {{ "%.0f"|format(total_cobertura / recorridos|length) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Cobertura Promedio</div>
+                    <div class="metric-explanation">
+                        Porcentaje de suelo cubierto por pasto (óptimo: >80%)
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 mb-3">
+                <div class="educational-metric">
+                    <div class="metric-value text-warning">
+                        {% if recorridos %}
+                            {% set tasas = recorridos | selectattr('tasa_crecimiento_semanal') | map(attribute='tasa_crecimiento_semanal') | list %}
+                            {{ "%.2f"|format(tasas | sum / tasas|length if tasas else 0) }} cm/sem
+                        {% else %}
+                            0 cm/sem
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Tasa de Crecimiento</div>
+                    <div class="metric-explanation">
+                        Velocidad de crecimiento semanal (óptimo: 2-4 cm/sem)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Tips -->
+        {% if total < 4 %}
+        <div class="educational-tip">
+            <h6 class="text-primary fw-bold mb-2">Consejo de Monitoreo</h6>
+            <p class="mb-2 text-responsive-wrap">
+                Los recorridos semanales son fundamentales para un pastoreo exitoso. Te permiten detectar 
+                problemas temprano y optimizar el momento de entrada del ganado a cada potrero.
+            </p>
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Frecuencia recomendada: 1 recorrido por semana por potrero
+            </small>
+        </div>
+        {% endif %}
+
+        <!-- Educational Recorridos Grid -->
+        <div class="template-card shadow-sm mb-4 border-0">
+            <div class="template-header card-header bg-gradient-primary text-white border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="template-header mb-0">
+                            <i class="fas fa-route me-2"></i>
+                            🌱 Tus Recorridos en Detalle
+                        </h5>
+                        <small class="opacity-75">Monitoreo del crecimiento y desarrollo del pasto</small>
+                    </div>
+                    <span class="badge bg-light text-dark">{{ total }} registros</span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                {% if recorridos %}
+                <div class="template-grid">
+                    {% for recorrido in recorridos %}
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <div class="recorrido-card-educational h-100">
+                            <!-- Growth indicator -->
+                            {% set crecimiento = 'poor' %}
+                            {% if recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 3 %}
+                                {% set crecimiento = 'excellent' %}
+                            {% elif recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 2 %}
+                                {% set crecimiento = 'good' %}
+                            {% elif recorrido.tasa_crecimiento_semanal and recorrido.tasa_crecimiento_semanal >= 1 %}
+                                {% set crecimiento = 'regular' %}
+                            {% endif %}
+                            
+                            {% if crecimiento == 'excellent' %}
+                                <div class="growth-indicator excellent" title="Crecimiento excelente">🚀</div>
+                            {% elif crecimiento == 'good' %}
+                                <div class="growth-indicator good" title="Buen crecimiento">📈</div>
+                            {% elif crecimiento == 'regular' %}
+                                <div class="growth-indicator regular" title="Crecimiento regular">📊</div>
+                            {% else %}
+                                <div class="growth-indicator poor" title="Crecimiento lento">⚠️</div>
+                            {% endif %}
+                            
+                            <div class="card-body p-3">
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h6 class="template-header fw-bold mb-1">{{ recorrido.potrero_nombre }}</h6>
+                                        <span class="badge bg-info text-white">{{ recorrido.fecha.strftime('%d/%m/%Y') }}</span>
+                                        <span class="badge bg-secondary text-white ms-1">Semana {{ recorrido.semana_numero or 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Key metrics -->
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <div class="text-success fw-bold">{{ recorrido.altura_promedio }} cm</div>
+                                        <small class="text-muted">Altura</small>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-info fw-bold">{{ "%.0f"|format(recorrido.cobertura_vegetal) }}%</div>
+                                        <small class="text-muted">Cobertura</small>
+                                    </div>
+                                    <div class="col-4">
+                                        {% if recorrido.tasa_crecimiento_semanal %}
+                                            <div class="text-warning fw-bold">{{ "%.2f"|format(recorrido.tasa_crecimiento_semanal) }}</div>
+                                            <small class="text-muted">cm/sem</small>
+                                        {% else %}
+                                            <div class="text-muted fw-bold">-</div>
+                                            <small class="text-muted">Sin datos</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Coverage bar -->
+                                <div class="mb-3">
+                                    <div class="coverage-bar progress">
+                                        <div class="progress-bar 
+                                            {% if recorrido.cobertura_vegetal >= 80 %}bg-success
+                                            {% elif recorrido.cobertura_vegetal >= 60 %}bg-warning
+                                            {% else %}bg-danger{% endif %}" 
+                                             style="width: {{ recorrido.cobertura_vegetal }}%">
+                                            {{ "%.0f"|format(recorrido.cobertura_vegetal) }}%
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- State assessment -->
+                                <div class="mb-3 text-center">
+                                    {% set estado_class = 'poor' %}
+                                    {% if recorrido.estado_general == 'Excelente' %}
+                                        {% set estado_class = 'excellent' %}
+                                    {% elif recorrido.estado_general == 'Bueno' %}
+                                        {% set estado_class = 'good' %}
+                                    {% elif recorrido.estado_general == 'Regular' %}
+                                        {% set estado_class = 'regular' %}
+                                    {% endif %}
+                                    
+                                    <span class="state-badge {{ estado_class }}">
+                                        {{ recorrido.estado_general }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Alerts -->
+                                {% if recorrido.presencia_plagas or recorrido.necesita_riego or recorrido.necesita_fertilizacion %}
+                                <div class="mb-3">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% if recorrido.presencia_plagas %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-bug me-1"></i>Plagas
+                                            </span>
+                                        {% endif %}
+                                        {% if recorrido.necesita_riego %}
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-tint me-1"></i>Riego
+                                            </span>
+                                        {% endif %}
+                                        {% if recorrido.necesita_fertilizacion %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-seedling me-1"></i>Fertilizar
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Actions -->
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('recorridos.ver', id=recorrido.id) }}" 
+                                       class="btn btn-outline-info btn-sm flex-fill" title="Ver detalles">
+                                        <i class="fas fa-eye me-1"></i>Ver
+                                    </a>
+                                    <a href="{{ url_for('recorridos.editar', id=recorrido.id) }}" 
+                                       class="btn btn-outline-primary btn-sm flex-fill" title="Editar">
+                                        <i class="fas fa-edit me-1"></i>Editar
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                            onclick="confirmarEliminar({{ recorrido.id }}, '{{ recorrido.potrero_nombre }}')"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-route fa-5x text-primary opacity-50"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">¡Comienza a Monitorear el Crecimiento!</h3>
+                    <p class="lead text-muted mb-4 text-responsive-wrap">
+                        Los recorridos semanales son la clave para un pastoreo exitoso.
+                    </p>
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-8">
+                            <div class="template-grid">
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <small>Monitorear altura del pasto</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <small>Evaluar cobertura vegetal</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <small>Calcular tasa de crecimiento</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <small>Detectar problemas temprano</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('recorridos.nuevo') }}" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-plus-circle me-2"></i>Realizar Mi Primer Recorrido
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Educational Sidebar -->
+    <div class="col-4">
+        <div class="help-panel-main">
+            <h5 class="text-primary mb-4">
+                <i class="fas fa-graduation-cap me-2"></i>
+                Guía de Recorridos
+            </h5>
+            
+            <!-- Key concepts -->
+            <div class="mb-4">
+                <h6 class="text-success mb-3">🌱 Conceptos Clave</h6>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-ruler-vertical text-success me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Altura del Pasto</strong>
+                            <small class="text-muted">
+                                Medición en cm desde el suelo hasta la punta de las hojas
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-percentage text-info me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Cobertura Vegetal</strong>
+                            <small class="text-muted">
+                                Porcentaje del suelo cubierto por plantas
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-chart-line text-warning me-2 mt-1"></i>
+                        <div>
+                            <strong class="d-block">Tasa de Crecimiento</strong>
+                            <small class="text-muted">
+                                Velocidad de crecimiento en cm por semana
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Growth indicators -->
+            <div class="mb-4">
+                <h6 class="text-warning mb-3">📊 Indicadores de Crecimiento</h6>
+                <div class="mb-2">
+                    <span class="me-2">🚀</span>
+                    <small>Excelente: >3 cm/semana</small>
+                </div>
+                <div class="mb-2">
+                    <span class="me-2">📈</span>
+                    <small>Bueno: 2-3 cm/semana</small>
+                </div>
+                <div class="mb-2">
+                    <span class="me-2">📊</span>
+                    <small>Regular: 1-2 cm/semana</small>
+                </div>
+                <div class="mb-2">
+                    <span class="me-2">⚠️</span>
+                    <small>Lento: <1 cm/semana</small>
+                </div>
+            </div>
+            
+            <!-- Coverage standards -->
+            <div class="mb-4">
+                <h6 class="text-info mb-3">🌿 Estándares de Cobertura</h6>
+                <div class="mb-2">
+                    <span class="badge bg-success me-2">Excelente</span>
+                    <small>>80% cobertura</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-warning me-2">Regular</span>
+                    <small>60-80% cobertura</small>
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-danger me-2">Deficiente</span>
+                    <small><60% cobertura</small>
+                </div>
+            </div>
+            
+            <!-- Best practices -->
+            <div class="mb-4">
+                <h6 class="text-primary mb-3">✅ Mejores Prácticas</h6>
+                <ul class="small text-muted ps-3">
+                    <li>Realizar recorridos semanalmente</li>
+                    <li>Medir en 5-10 puntos por potrero</li>
+                    <li>Registrar condiciones climáticas</li>
+                    <li>Documentar problemas observados</li>
+                    <li>Comparar con recorridos anteriores</li>
+                </ul>
+            </div>
+            
+            <!-- Quick tips -->
+            {% if recorridos %}
+            <div class="alert alert-responsive alert-primary">
+                <h6 class="alert-heading">💡 Recomendación del Sistema</h6>
+                {% if total >= 12 %}
+                <p class="mb-0 small text-responsive-wrap">
+                    Excelente disciplina! Con {{ total }} recorridos tienes una base sólida para 
+                    optimizar el manejo de tus pasturas.
+                </p>
+                {% elif total >= 6 %}
+                <p class="mb-0 small text-responsive-wrap">
+                    Buen progreso con {{ total }} recorridos. Mantén la constancia para 
+                    maximizar la productividad de tus potreros.
+                </p>
+                {% else %}
+                <p class="mb-0 small text-responsive-wrap">
+                    Con {{ total }} recorridos estás en el camino correcto. La clave está en 
+                    la consistencia del monitoreo semanal.
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/modules/recorridos.js') }}"></script>
+{% endblock %} 
