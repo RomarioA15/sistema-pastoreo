@@ -40,8 +40,22 @@ def init_database():
     # Debug: Imprimir variables de entorno disponibles
     print("🔍 Variables de entorno MySQL disponibles:")
     mysql_vars = [key for key in os.environ.keys() if 'MYSQL' in key.upper()]
-    for var in mysql_vars:
-        print(f"  {var}={os.environ[var]}")
+    if mysql_vars:
+        for var in mysql_vars:
+            # Ocultar parcialmente la contraseña por seguridad
+            if 'PASSWORD' in var:
+                value = os.environ[var]
+                masked = '*' * (len(value) - 2) + value[-2:] if len(value) > 2 else '***'
+                print(f"  {var}={masked}")
+            else:
+                print(f"  {var}={os.environ[var]}")
+    else:
+        print("  ❌ No se encontraron variables de entorno MySQL")
+        print("  ℹ️  Asegúrate de que:")
+        print("     1. El plugin MySQL esté añadido en Railway")
+        print("     2. Las variables MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQLDATABASE estén configuradas")
+        print("     3. El servicio de base de datos esté ejecutándose")
+        return False
     
     try:
         # Esperar a que la base de datos esté disponible
