@@ -13,11 +13,17 @@ class Config:
     # Configuración esencial
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'pastoreo-dev-key-change-in-production'
     
-    # Base de datos
-    MYSQL_HOST = os.environ.get('MYSQL_HOST') or 'localhost'
-    MYSQL_USER = os.environ.get('MYSQL_USER') or 'root'
-    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD') or '1234'
-    MYSQL_DB = os.environ.get('MYSQL_DB') or 'pastoreo'
+    # Base de datos - Railway y local
+    MYSQL_HOST = (os.environ.get('MYSQL_HOST') or 
+                 os.environ.get('MYSQLHOST') or 'localhost')
+    MYSQL_USER = (os.environ.get('MYSQL_USER') or 
+                 os.environ.get('MYSQLUSER') or 'root')
+    MYSQL_PASSWORD = (os.environ.get('MYSQL_PASSWORD') or 
+                     os.environ.get('MYSQLPASSWORD') or '1234')
+    MYSQL_DB = (os.environ.get('MYSQL_DB') or 
+               os.environ.get('MYSQLDATABASE') or 'pastoreo')
+    MYSQL_PORT = int(os.environ.get('MYSQL_PORT') or 
+                    os.environ.get('MYSQLPORT', 3306))
     MYSQL_CURSORCLASS = 'DictCursor'
     
     # Sesiones
