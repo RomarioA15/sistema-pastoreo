@@ -1,2 +1,2 @@
-web: python3 -m gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app
-release: python3 init_railway_db.py
+web: . /opt/venv/bin/activate && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app
+release: . /opt/venv/bin/activate && python init_railway_db.py

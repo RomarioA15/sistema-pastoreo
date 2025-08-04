@@ -1,15 +1,18 @@
-# Simplified Railway Configuration
+# Railway Configuration with Virtual Environment
 [phases.setup]
-aptPkgs = ['python3', 'python3-pip', 'python3-dev', 'default-libmysqlclient-dev', 'build-essential', 'pkg-config']
+aptPkgs = ['python3', 'python3-pip', 'python3-venv', 'python3-dev', 'default-libmysqlclient-dev', 'build-essential', 'pkg-config']
 
 [phases.install] 
-cmds = ['python3 -m pip install --no-cache-dir -r requirements.txt']
+cmds = [
+  'python3 -m venv /opt/venv',
+  '. /opt/venv/bin/activate && pip install --no-cache-dir -r requirements.txt'
+]
 
 [phases.build]
 cmds = [
   'mkdir -p logs proyecto/static/uploads',
-  'python3 init_railway_db.py'
+  '. /opt/venv/bin/activate && python init_railway_db.py'
 ]
 
 [start]
-cmd = 'python3 -m gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
+cmd = '. /opt/venv/bin/activate && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
