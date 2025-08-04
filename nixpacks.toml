@@ -1,5 +1,4 @@
-[providers]
-python = "3.9"
+providers = ["python"]
 
 [variables]
 PYTHONPATH = "/app"
