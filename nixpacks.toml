@@ -10,9 +10,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-  'mkdir -p logs proyecto/static/uploads',
-  '. /opt/venv/bin/activate && python init_railway_db.py'
+  'mkdir -p logs proyecto/static/uploads'
 ]
 
 [start]
-cmd = '. /opt/venv/bin/activate && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
+cmd = '. /opt/venv/bin/activate && python init_railway_db.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'

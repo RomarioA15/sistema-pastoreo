@@ -37,6 +37,12 @@ def wait_for_database(max_attempts=30, delay=2):
 def init_database():
     """Inicializar la base de datos con el esquema necesario"""
     
+    # Debug: Imprimir variables de entorno disponibles
+    print("🔍 Variables de entorno MySQL disponibles:")
+    mysql_vars = [key for key in os.environ.keys() if 'MYSQL' in key.upper()]
+    for var in mysql_vars:
+        print(f"  {var}={os.environ[var]}")
+    
     try:
         # Esperar a que la base de datos esté disponible
         config = wait_for_database()
