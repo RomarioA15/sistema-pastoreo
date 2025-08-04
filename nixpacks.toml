@@ -1,10 +1,12 @@
-providers = ["python"]
+# Railway Nixpacks Configuration - Official Best Practices
+providers = ['python']
 
 [phases.setup]
-nixPkgs = ["gcc", "pkg-config", "mysql80", "libmysqlclient", "zlib"]
+nixPkgs = ['gcc', 'pkg-config', 'mysql80', 'libmysqlclient', 'zlib', 'openssl']
+aptPkgs = ['default-libmysqlclient-dev', 'build-essential']
 
-[variables]
-PYTHONPATH = "/app"
+[phases.install]
+cmds = ['pip install --no-cache-dir -r requirements.txt']
 
 [phases.build]
 cmds = [
@@ -14,3 +16,6 @@ cmds = [
 
 [start]
 cmd = 'gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
+
+[variables]
+PYTHONPATH = '/app'
