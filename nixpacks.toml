@@ -1,5 +1,3 @@
-# Railway Python-only Configuration
-providers = ['python']
-
-[phases.setup]
-aptPkgs = ['default-libmysqlclient-dev', 'build-essential', 'pkg-config']
+# Minimal Railway Configuration
+[start]
+cmd = 'python init_railway_db.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
