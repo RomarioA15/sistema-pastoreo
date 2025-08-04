@@ -1,11 +1,14 @@
 [phases.setup]
-nixPkgs = ['python39', 'gcc']
+nixPkgs = ['python39', 'gcc', 'pkg-config', 'mysql80']
 
 [phases.install]
-cmds = ['pip install -r requirements.txt']
+cmds = ['pip install --no-cache-dir -r requirements.txt']
 
 [phases.build]
-cmds = ['python init_railway_db.py']
+cmds = [
+  'mkdir -p logs proyecto/static/uploads',
+  'python init_railway_db.py'
+]
 
 [start]
-cmd = 'gunicorn --bind 0.0.0.0:$PORT wsgi:app'
+cmd = 'gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app'
