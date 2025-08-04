@@ -1,8 +1,8 @@
-[phases.setup]
-nixPkgs = ['python39', 'python39Packages.pip', 'gcc', 'pkg-config', 'mysql80', 'libmysqlclient']
+[providers]
+python = "3.9"
 
-[phases.install]
-cmds = ['python -m pip install --no-cache-dir -r requirements.txt']
+[variables]
+PYTHONPATH = "/app"
 
 [phases.build]
 cmds = [
