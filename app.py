@@ -103,11 +103,12 @@ def configure_app(app):
     # Configuración de seguridad
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     
-    # Configuración de base de datos
-    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST', 'localhost')
-    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER', 'root')
-    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD', '1234')
-    app.config['MYSQL_DB'] = os.getenv('MYSQL_DB', 'pastoreo')
+    # Configuración de base de datos (compatible con Railway)
+    app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST') or os.getenv('MYSQLHOST', 'localhost')
+    app.config['MYSQL_USER'] = os.getenv('MYSQL_USER') or os.getenv('MYSQLUSER', 'root')
+    app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD') or os.getenv('MYSQLPASSWORD', '1234')
+    app.config['MYSQL_DB'] = os.getenv('MYSQL_DB') or os.getenv('MYSQLDATABASE', 'pastoreo')
+    app.config['MYSQL_PORT'] = int(os.getenv('MYSQL_PORT') or os.getenv('MYSQLPORT', 3306))
     app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
     app.config['MYSQL_CHARSET'] = 'utf8mb4'
     
